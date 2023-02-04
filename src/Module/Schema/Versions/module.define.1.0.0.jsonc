@@ -1,0 +1,40 @@
+{
+	"schema" : "1.0.0",
+	"$schema_naming" : {
+		"author_container" 		: "author",
+		"menu_container" 		: "menu",
+		"depends_container" 	: "tables"
+	},
+	"$schema_required" : {
+		"schema" 				: "string:version",
+		"type" 					: "string:oneof[['included','remote']]",
+		"name" 					: "string:strlen[2,50]",
+		"rep"					: "string:url:domain[['github.com']]", /* valid url or empty */
+		"ver" 					: "string:version",
+		"title"					: "string:strlen[8, 50]",   
+		"description" 			: "string:strlen[0, 250]",
+		"author.name" 			: "string:strlen[3, 50]",
+		"author.email" 			: "string:strlen[5, 150]:email",
+		"author.about" 			: "string:strlen[0, 150]", 	
+		"author.web"			: "string:url",  /* valid url or empty */
+		"menu"					: "array|boolean",
+		"depends"				: "array",
+		"tables_prefix"			: "string:strlen[3, 25]"
+	},
+	"type"  : "included", /* included | remote */
+	"name"  : "schema_module", /* module name must be the same as the static folder or zip module*/
+	"rep"   : "", /* also used by remote type */
+	"ver"   : "1.0.0",
+	"title"			: "",   
+	"description" 	: "",
+	/* this part is only for single modules */
+	"author" : {
+		"name" 	: "Unknown Author",
+		"email" : "siktec.lab@gmail.com",
+		"about" : "",
+		"web" 	: ""
+	},
+	"menu" 			: false,
+	"depend"		: [],
+	"tables_prefix" : ""
+}

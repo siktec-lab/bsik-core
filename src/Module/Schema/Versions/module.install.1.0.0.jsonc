@@ -1,0 +1,36 @@
+{
+	"schema" : "1.0.0",
+	"$schema_naming" : {
+		"modules_container" : "modules",
+		"author_container" 	: "author",
+		"this_container" 	: "this"
+	},
+	"$schema_required" : {
+		"schema" 			: "string:version", 					/* valid schema version D.D.D*/
+		"modules" 			: "array",
+		"author.name" 		: "string:strlen[3, 50]", 		
+		"author.email" 		: "string:strlen[5, 150]:email",
+		"author.about" 		: "string:strlen[0, 150]", 	
+		"author.web"		: "string:url", 						/* valid url or empty */
+		"this.type" 		: "string:oneof[['single','bundle']]",
+		"this.ver" 			: "string:version",						/* valid version D.D.D */
+		"this.rep" 			: "string:url:domain[['github.com']]",  /* valid github url or empty */
+		"this.title"		: "string:strlen[8, 50]",   
+		"this.description" 	: "string:strlen[0, 250]"  
+	},
+	"author" : {
+		"name" 	: "Unknown Author",
+		"email" : "siktec.lab@gmail.com",
+		"about" : "",
+		"web" 	: ""
+	},		
+	"this" : {
+		"type"  : "single",
+		"ver"   : "1.0.0",
+		"rep"   : "", /* repository url*/
+		"title" : "Unknown Module",
+		"description" : ""
+	},
+	"modules" : []
+}
+
