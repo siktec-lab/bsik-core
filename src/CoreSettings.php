@@ -59,7 +59,7 @@ class CoreSettings {
     public static array $default_values = [
         // Paths: ---------------------------------------------------/
         "url-base-domain"                  => "http://localhost",
-        "url-root-folder"                  => "bsik",
+        "url-root-folder"                  => "bsik1",
         // Module: ---------------------------------------------------/
         "module-default-load"               => "dashboard",
         "module-default-load-view"          => "default",
@@ -146,6 +146,7 @@ class CoreSettings {
     }
 
     public static function load_constants() {
+
         //Paths Constants:
         if (!defined("BSIK_ROOT")) 
             define("BSIK_ROOT", ROOT_PATH);
