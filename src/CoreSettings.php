@@ -10,20 +10,7 @@ if (!defined('DS'))
     define('DS', DIRECTORY_SEPARATOR);
 
 if (!defined('ROOT_PATH')) 
-    define("ROOT_PATH", dirname(__FILE__).DS.'..'.DS.'..' );
-
-if (!defined('BSIK_VERSION')) {
-    require_once ROOT_PATH.DS.'conf.php';
-}
-
-if (!defined('BSIK_AUTOLOAD')) 
-    define("BSIK_AUTOLOAD", ROOT_PATH.DS."vendor".DS."autoload.php");
-
-if (!defined('BSIK_CORE')) 
-    define("BSIK_CORE", ROOT_PATH.DS."manage".DS."core");
-
-require_once BSIK_AUTOLOAD;
-require_once BSIK_CORE.DS."Excep.class.php";
+    die("ROOT_PATH is not defined. Please define ROOT_PATH or include bsik.php first.");
 
 use \Siktec\Bsik\Std;
 use \Siktec\Bsik\Storage\MysqliDb;
