@@ -12,18 +12,18 @@
 
 use \Siktec\Bsik\Privileges\RegisteredPrivGroup;
 
-RegisteredPrivGroup::register("\Bsik\Privileges\PrivGod");
+RegisteredPrivGroup::register("\Siktec\Bsik\Privileges\Default\PrivGod");
 
-RegisteredPrivGroup::register("\Bsik\Privileges\PrivAccess");
+RegisteredPrivGroup::register("\Siktec\Bsik\Privileges\Default\PrivAccess");
 
-RegisteredPrivGroup::register("\Bsik\Privileges\PrivUsers");
+RegisteredPrivGroup::register("\Siktec\Bsik\Privileges\Default\PrivUsers");
 
-RegisteredPrivGroup::register("\Bsik\Privileges\PrivAdmins");
+RegisteredPrivGroup::register("\Siktec\Bsik\Privileges\Default\PrivAdmins");
 
-RegisteredPrivGroup::register("\Bsik\Privileges\PrivRoles");
+RegisteredPrivGroup::register("\Siktec\Bsik\Privileges\Default\PrivRoles");
 
-RegisteredPrivGroup::register("\Bsik\Privileges\PrivContent");
+RegisteredPrivGroup::register("\Siktec\Bsik\Privileges\Default\PrivContent");
 
-RegisteredPrivGroup::register("\Bsik\Privileges\PrivModules");
+RegisteredPrivGroup::register("\Siktec\Bsik\Privileges\Default\PrivModules");
 
-RegisteredPrivGroup::register("\Bsik\Privileges\PrivCore");
+RegisteredPrivGroup::register("\Siktec\Bsik\Privileges\Default\PrivCore");
