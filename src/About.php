@@ -17,6 +17,6 @@ class About {
 
     public const CONTACT     = "https://www.siktec.net";
 
-    public const VERSION     = "1.0.1";
+    public const VERSION     = "2.0.1";
 
 }
