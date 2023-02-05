@@ -77,14 +77,6 @@ class Std_FileSystem {
                 $path = CoreSettings::$path["manage-lib"].DIRECTORY_SEPARATOR."themes".DIRECTORY_SEPARATOR;
                 $url  .= "/manage/lib/themes/"; 
                 break;
-            case "core":
-                $path = CoreSettings::$path["manage-core"].DIRECTORY_SEPARATOR;
-                $url  .= "/manage/core/"; 
-                break;
-            case "schema":
-                $path = CoreSettings::$path["manage-core"].DIRECTORY_SEPARATOR."schema".DIRECTORY_SEPARATOR;
-                $url  .= "/manage/core/schema/"; 
-                break;
             case "front-pages":
                 $path = CoreSettings::$path["front-pages"].DIRECTORY_SEPARATOR;
                 $url  .= "/front/pages/"; 
