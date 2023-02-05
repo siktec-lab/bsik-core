@@ -24,6 +24,7 @@ class CoreSettings {
         "users"     => "bsik_users",
         "roles"     => "bsik_users_roles"
     ];
+    
     const SYSTEM_SETTINGS_KEY = "bsik-system";
 
     public static array $path = [
