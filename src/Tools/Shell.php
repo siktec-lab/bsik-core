@@ -19,6 +19,13 @@ class Shell extends ShellBase
         parent::__construct($command, $input);
     }
 
+    public function loadCurrentEnvPath(): void
+    {
+        if (getenv('PATH') !== false) {
+            $env = array('PATH' => getenv('PATH'));
+            $this->setOptions(env : $env);
+        }
+    }
     protected function getDescriptors(): array
     {
         $out = $this->isWindows() ? ['pipe', 'w'] : ['pipe', 'w'];
