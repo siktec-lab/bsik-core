@@ -8,7 +8,7 @@ if (!defined('ROOT_PATH')) {
 if (!defined('BSIK_AUTOLOAD')) {
     // First try to load from vendor folder:
     $package = ROOT_PATH.DS.'vendor'.DS.'autoload.php';
-    $required_package = ROOT_PATH.DS.'..'.DS.'..'.DS.'vendor'.DS.'autoload.php';
+    $required_package = ROOT_PATH.DS.'..'.DS.'..'.DS.'autoload.php';
     if (file_exists($package)) {
         define('BSIK_AUTOLOAD', $package);
     } elseif (file_exists($required_package)) {
