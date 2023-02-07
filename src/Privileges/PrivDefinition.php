@@ -149,8 +149,9 @@ abstract class PrivDefinition {
 	 */
 	public function update_from_arr(array $groups) : void {
         foreach ($groups as $group => $tags) {
-			if (!is_array($tags))
+			if (!is_array($tags)) {
 				continue;
+			}
 			if ($this->is_defined($group)) {
 				$this->group($group)->set_from_array(is_array($tags) ? $tags : []);
 			} elseif ($set = RegisteredPrivGroup::get_class($group)) {
