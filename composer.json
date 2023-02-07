@@ -13,6 +13,10 @@
         {
             "type": "git",
             "url": "https://github.com/shlomohass/morris-php.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/shlomohass/php-cli.git"
         }
     ],
     "require": {
@@ -24,7 +28,7 @@
         "google/apiclient": "^2.4",
         "formr/formr": "1.1.*",
         "knplabs/github-api": "3.7",
-        "adhocore/cli": "^1.0.0"
+        "adhocore/cli": "dev-main"
     },
     "autoload": {
         "psr-4" : {
