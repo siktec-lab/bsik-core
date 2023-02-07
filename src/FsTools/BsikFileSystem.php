@@ -4,6 +4,19 @@ namespace Siktec\Bsik\FsTools;
 
 class BsikFileSystem {
 
+    
+    
+    final public static function mkdir(string $path_dir, int $permissions = 0777, $recursive = true) : bool {
+        if (!file_exists($path_dir)) {
+            return mkdir($path_dir, $permissions, $recursive);
+        }
+        return false;
+    }
+    
+    final public static function create_folder(string $path_dir, int $permissions = 0777, $recursive = true) : bool {
+        return self::mkdir($path_dir, $permissions, $recursive);
+    }
+
     final public static function list_folder(string|\SplFileInfo $path) : ?\RecursiveIteratorIterator {
         $folder = is_string($path) ? new \SplFileInfo($path) : $path;
         if (!$folder->isDir())
