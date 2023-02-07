@@ -1,21 +1,18 @@
 <?php
 
 /*
- * This file is a temporary patch for the PHP-CLI package Shell wrapper.
+ * This file is part of the Siktec Bsik Framework.
+ * It extends the PHP-CLI package Shell wrapper for better environment handling.
+ * 
  */
 
-/* TODO: env PATH is not passed to the shell command
- * it should be null to inherit the current environment.
- * https://stackoverflow.com/questions/9916766/php-proc-open-problems-on-windows
- */
-/* TODO: add custom Descriptor to the shell command
- */
 namespace Siktec\Bsik\Tools;
 
 use Ahc\Cli\Helper\Shell as ShellBase;
 
 class Shell extends ShellBase 
 {
+
     /**
      * @param string $command Command to be executed
      * @param string $input   Input for stdin
@@ -24,38 +21,92 @@ class Shell extends ShellBase
     {
         parent::__construct($command, $input);
     }
-
-    public function loadCurrentEnvPath(): void
+    
+    /**
+     * loadPartialEnv
+     * sets a subset of the current environment variables
+     * expects a string or an array of environment variable names.
+     * 
+     * @param  string|array  $vars environment variable names delimited by comma or an array of names
+     * @return array - array of environment variable names that were set
+     */
+    public function loadPartialEnv(string|array $vars = '') : array
     {
-        if (getenv('PATH') !== false) {
-            $env = array('PATH' => getenv('PATH'));
+        // if its a string, convert it to an array supporting multiple vars delimited by comma
+        if (is_string($vars)) {
+            $vars = explode(',', $vars);
+        }
+        
+        // check if the vars are set in the environment
+        $env = [];
+        foreach ($vars as $var) {
+            if (($valid = getenv($var)) !== false) {
+                $env[$var] = $valid;
+            }
+        }
+
+        // We avoid empty env vars because they will override the current environment to an empty array
+        if (count($env) > 0) {
             $this->setOptions(env : $env);
         }
+        
+        return array_keys($env);
+
     }
-
-    public function setOptions(
-        ?string $cwd = null,
-        ?array $env = null,
-        ?float $timeout = null,
-        array $otherOptions = []
-    ): self {
-        $this->cwd            = $cwd;
-        // $this->env            = $env ?? []; -> This is the bug - default env should be null to inherit the current environment
-        $this->env            = $env;
-        $this->processTimeout = $timeout;
-        $this->otherOptions   = $otherOptions;
-
-        return $this;
-    }
-
-    protected function getDescriptors(): array
+    
+    /**
+     * removeFromEnv
+     * removes a subset of the current environment variables
+     * expects a string or an array of environment variable names.
+     * 
+     * @param  string|array $vars environment variable names delimited by comma or an array of names
+     * @return array - array of environment variable names that were removed
+     */
+    public function removeFromEnv(string|array $vars = '') : array
     {
-        $out = $this->isWindows() ? ['pipe', 'w'] : ['pipe', 'w'];
+    
+        // if its a string, convert it to an array supporting multiple vars delimited by comma
+        if (is_string($vars)) {
+            $vars = explode(',', $vars);
+        }
+        if (empty($vars)) {
+            return [];
+        }
 
-        return [
-            self::STDIN_DESCRIPTOR_KEY  => ['pipe', 'r'],
-            self::STDOUT_DESCRIPTOR_KEY => $out,
-            self::STDERR_DESCRIPTOR_KEY => $out,
-        ];
+        // we load the current environment if its not set - this is the default behavior
+        if (is_null($this->env)) {
+            $this->env = $_ENV;
+        }
+
+        $removed = [];
+        foreach ($vars as $var) {
+            if (array_key_exists($var, $this->env)) {
+                unset($this->env[$var]);
+                $removed[] = $var;
+            }
+        }
+
+        return $removed;
     }
+    
+    /**
+     * extendEnv
+     * extends the current environment variables with the given ones
+     * if the current environment is not (null) it will automatically merge the new env with the existing one from $_ENV
+     * 
+     * @param  array $env environment variables to be added - key value pairs
+     * @return void 
+     */
+    public function extendEnv(array $env = []) : void
+    {
+        // if the env is null, we inherit the current environment which is the default behavior
+        if (is_null($this->env)) { 
+            $this->env = array_merge($_ENV, $env);
+
+        // Allready set, we merge the new env with the existing one
+        } else {
+            $this->env = array_merge($this->env, $env);
+        }
+    }
+    
 }
