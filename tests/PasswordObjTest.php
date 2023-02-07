@@ -2,8 +2,8 @@
 
 require_once "a_main.php";
 
-use PHPUnit\Framework\TestCase;
-use \Bsik\Objects\Password;
+use \PHPUnit\Framework\TestCase;
+use \Siktec\Bsik\Objects\Password;
       
 class PasswordObjTest extends TestCase
 {

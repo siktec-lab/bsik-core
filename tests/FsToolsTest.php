@@ -2,14 +2,12 @@
 
 require_once "a_main.php";
 
-use PHPUnit\Framework\TestCase;
-use Bsik\Std;
-use Bsik\FsTools\BsikFileSystem;
-use Bsik\FsTools\BsikZip;
+use \PHPUnit\Framework\TestCase;
+use \Siktec\Bsik\Std;
+use \Siktec\Bsik\FsTools\BsikFileSystem;
+use \Siktec\Bsik\FsTools\BsikZip;
 
 use function PHPUnit\Framework\fileExists;
-
-// use \Bsik\Objects\Password;
       
 class FsToolsTest extends TestCase
 {

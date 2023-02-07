@@ -2,8 +2,8 @@
 
 require_once "a_main.php";
 
-use PHPUnit\Framework\TestCase;
-use Bsik\Privileges as Priv;
+use \PHPUnit\Framework\TestCase;
+use \Siktec\Bsik\Privileges as Priv;
 
 class PrivilegesTest extends TestCase
 {
@@ -18,6 +18,9 @@ class PrivilegesTest extends TestCase
 
     public function setUp() : void {
 
+        // Register all default privileges:
+        \Siktec\Bsik\Impl\CoreLoader::load_core_privileges_groups();
+
     }
     public function tearDown() : void {
 
@@ -28,26 +31,26 @@ class PrivilegesTest extends TestCase
         $required   = new Priv\RequiredPrivileges();
         $my_priv     = new Priv\GrantedPrivileges();
         $required->define(
-            new Priv\PrivUsers(
+            new Priv\Default\PrivUsers(
                 edit : true, 
                 create : false, 
                 delete: true
             ),
-            new Priv\PrivGod(grant : false),
-            new Priv\PrivAccess(
+            new Priv\Default\PrivGod(grant : false),
+            new Priv\Default\PrivAccess(
                 manage : true,
                 front : false,
                 product : false
             )
         );
         $my_priv->define(
-            new Priv\PrivUsers(
+            new Priv\Default\PrivUsers(
                 edit    : false, 
                 create  : true, 
                 delete  : true
             ),
-            new Priv\PrivGod(grant : false),
-            new Priv\PrivCore(view:true)
+            new Priv\Default\PrivGod(grant : false),
+            new Priv\Default\PrivCore(view:true)
         );
         $gate = serialize($required);
         $ask  = serialize($my_priv);
@@ -64,15 +67,15 @@ class PrivilegesTest extends TestCase
     public function testAccessCheck() : void {
         $required   = new Priv\RequiredPrivileges();
         $required->define(
-            new Priv\PrivAccess(manage : true)
+            new Priv\Default\PrivAccess(manage : true)
         );
         $my_priv_ok = new Priv\GrantedPrivileges();
         $my_priv_ok->define(
-            new Priv\PrivAccess(manage : true)
+            new Priv\Default\PrivAccess(manage : true)
         );
         $my_priv_no = new Priv\GrantedPrivileges();
         $my_priv_no->define(
-            new Priv\PrivAccess(manage : false)
+            new Priv\Default\PrivAccess(manage : false)
         );
 
         $this->assertTrue($required->has_privileges($my_priv_ok), "Access granted expected but was rejected");
@@ -83,15 +86,15 @@ class PrivilegesTest extends TestCase
     public function testIndividualTagCheck() : void {
         $policy   = new Priv\GrantedPrivileges();
         $policy->define(
-            new Priv\PrivUsers(
+            new Priv\Default\PrivUsers(
                 view : true,
                 edit : false
             )
         );
-        $this->assertTrue($policy->group(Priv\PrivUsers::NAME)->is_allowed("view"), "Expected view to be allowed but was rejected.");
-        $this->assertFalse($policy->group(Priv\PrivUsers::NAME)->is_allowed("edit"), "Expected edit to be declined but was granted.");
+        $this->assertTrue($policy->group(Priv\Default\PrivUsers::NAME)->is_allowed("view"), "Expected view to be allowed but was rejected.");
+        $this->assertFalse($policy->group(Priv\Default\PrivUsers::NAME)->is_allowed("edit"), "Expected edit to be declined but was granted.");
         $this->expectExceptionCode(E_PLAT_WARNING);
-        $policy->group(Priv\PrivUsers::NAME)->is_allowed("nodefinedtag");
+        $policy->group(Priv\Default\PrivUsers::NAME)->is_allowed("nodefinedtag");
     }
 
     //Check Definition Simple Update from Objects:
@@ -99,26 +102,26 @@ class PrivilegesTest extends TestCase
         $required = new Priv\RequiredPrivileges();
         $my_priv = new Priv\GrantedPrivileges();
         $required->define(
-            new Priv\PrivUsers(
+            new Priv\Default\PrivUsers(
                 edit : true, 
                 create : false, 
                 delete: true
             ),
-            new Priv\PrivGod(grant : false),
-            new Priv\PrivAccess(
+            new Priv\Default\PrivGod(grant : false),
+            new Priv\Default\PrivAccess(
                 manage : true,
                 front : false,
                 product : false
             )
         );
         $my_priv->define(
-            new Priv\PrivUsers(
+            new Priv\Default\PrivUsers(
                 edit    : false, 
                 create  : true, 
                 delete  : true
             ),
-            new Priv\PrivGod(grant : true),
-            new Priv\PrivCore(view:true)
+            new Priv\Default\PrivGod(grant : true),
+            new Priv\Default\PrivCore(view:true)
         );
         $required->update($my_priv);
         unset($my_priv);
@@ -139,6 +142,7 @@ class PrivilegesTest extends TestCase
             "core"      => [],
             "content"   => [],
         ]);
+
         // defined but none allowed:
         $defined_but_empty = trim(Priv\RequiredPrivileges::str_tag_list($required, "", " "));
         $this->assertEmpty($defined_but_empty, "should not have any granted tags.");
@@ -149,6 +153,7 @@ class PrivilegesTest extends TestCase
             "content"   => [ "notdefined" => true ], // This should be defined but none granted
             "access"    => [ "manage" => true     ]
         ]);
+        
         // added permissions some ignored:
         $granted_some_ignored = trim(Priv\RequiredPrivileges::str_tag_list($required, "", " ")); 
         $this->assertEquals(
@@ -171,10 +176,10 @@ class PrivilegesTest extends TestCase
         );
         
         $new_from_other = new Priv\RequiredPrivileges();
-        $new_from_other->define(new Priv\PrivModules(
+        $new_from_other->define(new Priv\Default\PrivModules(
             view:true
         ));
-        $new_from_other->define(new Priv\PrivUsers(
+        $new_from_other->define(new Priv\Default\PrivUsers(
             view : false
         ));
         $required->update($new_from_other);
@@ -190,10 +195,10 @@ class PrivilegesTest extends TestCase
     //test get all methods of definitions:
     public function testGetAllMethodsOfDefinitions() : void {
         $new_from_other = new Priv\RequiredPrivileges();
-        $new_from_other->define(new Priv\PrivModules(
+        $new_from_other->define(new Priv\Default\PrivModules(
             view:true
         ));
-        $new_from_other->define(new Priv\PrivUsers(
+        $new_from_other->define(new Priv\Default\PrivUsers(
             view : false
         ));
 
@@ -243,12 +248,12 @@ class PrivilegesTest extends TestCase
     public function testIfThenPrivilegesConditions() : void {
         $policy = new Priv\GrantedPrivileges();
         $policy->define(    
-            new Priv\PrivModules(
+            new Priv\Default\PrivModules(
                 view        : true,
                 install     : true,
                 activate    : false
             ),
-            new Priv\PrivUsers(
+            new Priv\Default\PrivUsers(
                 view        : true,
                 interact    : true
             )
@@ -270,23 +275,23 @@ class PrivilegesTest extends TestCase
     public function testExtendingPrivilegesMethod() : void {
         $module = new Priv\RequiredPrivileges();
         $module->define(    
-            new Priv\PrivModules(
+            new Priv\Default\PrivModules(
                 view        : true,
                 settings    : false
             ),
-            new Priv\PrivUsers(
+            new Priv\Default\PrivUsers(
                 view        : true
             )
         );
         $view = new Priv\RequiredPrivileges();
         $view->define(    
-            new Priv\PrivGod(
+            new Priv\Default\PrivGod(
                 grant       : true
             ),
-            new Priv\PrivModules(
+            new Priv\Default\PrivModules(
                 settings        : true
             ),
-            new Priv\PrivUsers(
+            new Priv\Default\PrivUsers(
                 interact    : true
             )
         );

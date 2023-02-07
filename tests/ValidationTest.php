@@ -2,8 +2,8 @@
 
 require_once "a_main.php";
 
-use PHPUnit\Framework\TestCase;
-use \Bsik\Api\Validate;
+use \PHPUnit\Framework\TestCase;
+use \Siktec\Bsik\Api\Input\Validate;
 
 class ValidationTest extends TestCase
 {
@@ -17,7 +17,10 @@ class ValidationTest extends TestCase
 
     public function setUp() : void {
 
+        \Siktec\Bsik\Impl\CoreLoader::load_packs();
+    
     }
+
     public function tearDown() : void {
 
     }

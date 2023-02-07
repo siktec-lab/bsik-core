@@ -2,9 +2,9 @@
 
 require_once "a_main.php";
 
-use PHPUnit\Framework\TestCase;
-use \Bsik\Render\Template;
-use Bsik\Render\TemplatingExtension;
+use \PHPUnit\Framework\TestCase;
+use \Siktec\Bsik\Render\Templates\Template;
+use \Siktec\Bsik\Render\Templates\TemplatingExtension;
 
 class TemplateTest extends TestCase
 {

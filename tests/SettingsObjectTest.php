@@ -2,9 +2,9 @@
 
 require_once "a_main.php";
 
-use PHPUnit\Framework\TestCase;
-use Bsik\Std;
-use Bsik\Objects\SettingsObject;
+use \PHPUnit\Framework\TestCase;
+use \Siktec\Bsik\Std;
+use \Siktec\Bsik\Objects\SettingsObject;
 
 class SettingsObjectTest extends TestCase
 {
