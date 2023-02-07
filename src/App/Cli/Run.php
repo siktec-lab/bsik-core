@@ -12,11 +12,16 @@ class Run {
 
     const LOAD_COMMANDS = [
         InfoCommand::class,
+        TestsCommand::class
     ];
 
-    public function __construct() {
+    protected string $cwd;
+
+    public function __construct($cwd = null) {
 
         $this->cli = new Application(CliAbout::NAME, CliAbout::VERSION);
+        
+        $this->cwd = ($cwd ?? getcwd()) ?: __DIR__;
 
         // register all default commands:
         //TODO: maybe its a good idea to load all commands from a folder
@@ -24,10 +29,10 @@ class Run {
         $this->cli->add(new Commands\InfoCommand(), Commands\InfoCommand::ALIAS);
         $this->cli->add(
             command : new Commands\TestsCommand(
-                unit_test_path  : __DIR__ . '/vendor/bin/phpunit',
-                core_test_path  : __DIR__ . '/vendor/siktec/bsik/tests',
-                app_test_folder : __DIR__ . '/tests',
-                modules_folder  : __DIR__ . '/manage/modules'
+                unit_test_path  : $this->cwd . '/vendor/bin/phpunit',
+                core_test_path  : $this->cwd . '/vendor/siktec/bsik/tests',
+                app_test_folder : $this->cwd . '/tests',
+                modules_folder  : $this->cwd . '/manage/modules'
             ), 
             alias   : Commands\TestsCommand::ALIAS
         );
