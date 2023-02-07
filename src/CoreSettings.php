@@ -164,17 +164,23 @@ class CoreSettings {
 
         //Time zone and cookies:
         date_default_timezone_set(self::get("core-time-zone", ""));
-        ini_set("session.gc_maxlifetime", self::get("core-session-lifetime", ""));
-        ini_set("session.cookie_lifetime", self::get("core-session-lifetime", ""));
+        // if headers not sent yet...
+        if (!headers_sent()) {
+            ini_set("session.gc_maxlifetime", self::get("core-session-lifetime", ""));
+            ini_set("session.cookie_lifetime", self::get("core-session-lifetime", ""));
+        }
+        
         
         //Expose errors:
         if (!defined("BSIK_SHOW_ERRORS")) {
             define("BSIK_SHOW_ERRORS", self::get("core-expose-php-errors", true));
         }
-        ini_set('log_errors', self::get("core-log-php-errors", true));
+        if (!headers_sent()) {
+            ini_set('log_errors', self::get("core-log-php-errors", true));
+            ini_set('display_errors', BSIK_SHOW_ERRORS ? 'on' : 'off');
+            ini_set('error_log', self::$path["logs"].DS.self::get("core-log-php-errors-filenam", "php_errors.log"));
+        }
         error_reporting(BSIK_SHOW_ERRORS ? -1 : 0); 
-        ini_set('display_errors', BSIK_SHOW_ERRORS ? 'on' : 'off');
-        ini_set('error_log', self::$path["logs"].DS.self::get("core-log-php-errors-filenam", "php_errors.log"));
 
     }
 }
