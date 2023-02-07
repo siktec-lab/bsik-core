@@ -1,6 +1,6 @@
 <?php
 
-require_once "a_main.php";
+require_once "bootstrap.php";
 
 use \PHPUnit\Framework\TestCase;
 use \Siktec\Bsik\Privileges as Priv;
@@ -153,7 +153,7 @@ class PrivilegesTest extends TestCase
             "content"   => [ "notdefined" => true ], // This should be defined but none granted
             "access"    => [ "manage" => true     ]
         ]);
-        
+
         // added permissions some ignored:
         $granted_some_ignored = trim(Priv\RequiredPrivileges::str_tag_list($required, "", " ")); 
         $this->assertEquals(

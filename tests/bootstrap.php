@@ -6,7 +6,16 @@ if (!defined('ROOT_PATH')) {
     define('ROOT_PATH', dirname(__FILE__).DS.'..' );
 }
 if (!defined('BSIK_AUTOLOAD')) {
-    define('BSIK_AUTOLOAD', ROOT_PATH.DS.'vendor'.DS.'autoload.php');
+    // First try to load from vendor folder:
+    $package = ROOT_PATH.DS.'vendor'.DS.'autoload.php';
+    $required_package = ROOT_PATH.DS.'..'.DS.'..'.DS.'vendor'.DS.'autoload.php';
+    if (file_exists($package)) {
+        define('BSIK_AUTOLOAD', $package);
+    } elseif (file_exists($required_package)) {
+        define('BSIK_AUTOLOAD', $required_package);
+    } else {
+        throw new Exception("Cant find autoload.php");
+    }
 }
 if (!defined('USE_BSIK_ERROR_HANDLERS')) {
     define('USE_BSIK_ERROR_HANDLERS', false);

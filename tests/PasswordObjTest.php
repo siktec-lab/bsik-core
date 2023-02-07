@@ -1,6 +1,6 @@
 <?php
 
-require_once "a_main.php";
+require_once "bootstrap.php";
 
 use \PHPUnit\Framework\TestCase;
 use \Siktec\Bsik\Objects\Password;
