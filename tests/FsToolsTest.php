@@ -7,6 +7,7 @@ use \Siktec\Bsik\Std;
 use \Siktec\Bsik\FsTools\BsikFileSystem;
 use \Siktec\Bsik\FsTools\BsikZip;
 
+use function PHPUnit\Framework\directoryExists;
 use function PHPUnit\Framework\fileExists;
       
 class FsToolsTest extends TestCase
@@ -27,7 +28,12 @@ class FsToolsTest extends TestCase
     }
 
     public function setUp() : void {
-        
+        //Make sure the resources folder exists with the empty folder inside:
+        //we do that because empty folders are not carried over by git
+        $emptyfolder = Std::$fs::path(__DIR__, "resources", "zipfolder", "emptyfolder");
+        if (!file_exists($emptyfolder)) {
+            BsikFileSystem::mkdir($emptyfolder);
+        }
     }
 
     public function tearDown() : void {
