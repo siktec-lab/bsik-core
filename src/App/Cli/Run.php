@@ -6,13 +6,17 @@ use \Ahc\Cli\Application;
 use \Siktec\Bsik\App\Cli\About as CliAbout;
 use \Siktec\Bsik\App\Cli\Commands;
 
+//TODO: add tests to Run and Commands and Shell
+//TODO: some of the commands have default values, but they are not set in the constructor
+//      maybe its a good idea to set them in the constructor and make them optional
 class Run {
 
     public ?Application $cli = null;
 
     const LOAD_COMMANDS = [
         InfoCommand::class,
-        TestsCommand::class
+        TestsCommand::class,
+        LogsCommand::class
     ];
 
     protected string $cwd;
@@ -26,7 +30,11 @@ class Run {
         // register all default commands:
         //TODO: maybe its a good idea to load all commands from a folder
         //TODO: maybe its a good idea to prefix all commands with a namespace indicating the source of the command
+        
+        // InfoCommand:
         $this->cli->add(new Commands\InfoCommand(), Commands\InfoCommand::ALIAS);
+        
+        // TestsCommand:
         $this->cli->add(
             command : new Commands\TestsCommand(
                 unit_test_path  : $this->cwd . '/vendor/bin/phpunit',
@@ -35,6 +43,15 @@ class Run {
                 modules_folder  : $this->cwd . '/manage/modules'
             ), 
             alias   : Commands\TestsCommand::ALIAS
+        );
+
+        // LogsCommand:
+        $this->cli->add(
+            command : new Commands\LogsCommand(
+                cwd         : $this->cwd, // will be used to set the default folder path for the logs
+                folder_path : 'logs'
+            ), 
+            alias   : Commands\LogsCommand::ALIAS
         );
 
         // Set logo
