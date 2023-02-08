@@ -1,3 +1,3 @@
-# bsik-core
+# Bsik-core
 
 Core library for bsik CMS and bsik Framework.
