@@ -136,9 +136,13 @@ class Std_Array {
             
             //Get values:
             $values = self::path_get($path, $data, null, true);
-            if (is_null($values) && ($cbs[0] ?? "") !== "optional") {
-                $errors[$path] = ["missing value"];
-                continue;
+            if (is_null($values)) {
+                if (($cbs[0] ?? "") !== "optional") {
+                    $values = [null];
+                } else {
+                    $errors[$path] = ["missing value"];
+                    continue;
+                }
             }
 
             //Validate values:
@@ -243,7 +247,7 @@ class Std_Array {
      * @param  array  $arr
      * @param  mixed  $notfound - default value to return - null by default if nothing was found
      * @param  bool   $already_flatten - if the data is allready flatten, This is usefull to prevent repeatedly flattening of the data 
-     * @return mixed
+     * @return ?array
      */
     final public static function path_get(string $path, array $data = [], mixed $notfound = null, bool $already_flatten = false) : mixed {
         //create a combined key path:
