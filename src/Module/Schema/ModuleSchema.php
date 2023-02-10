@@ -107,7 +107,11 @@ class ModuleSchema {
     }
 
     public function create_definition(array $struct) : ModuleDefinition {
+
         $definition = new ModuleDefinition();
+        
+        // clone the schema template:
+        $definition->schema = $this;
         $definition->struct = Std::$arr::extend($this->schema_template->struct, $struct);
         $definition->valid = $this->validate($definition);
         return $definition;

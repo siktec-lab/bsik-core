@@ -12,6 +12,7 @@ use \Siktec\Bsik\CoreSettings;
 use \Siktec\Bsik\Base;
 use \Siktec\Bsik\FsTools\BsikZip;
 use \Siktec\Bsik\FsTools\BsikFileSystem;
+use Siktec\Bsik\Module\Schema\ModuleDefinition;
 use \Siktec\Bsik\Module\Schema\ModuleSchema;
 
 /*********************  Load Conf and DataBase  *****************************/
@@ -186,58 +187,95 @@ class ModuleInstall {
         return false;
     }
     
+    public function get_definition_from_folder($folder = null, array &$errors = []) : ?ModuleDefinition {
+        
+        $folder = $folder ?? $this->temp_extracted->getRealPath();
+
+        // get the module.jsonc: 
+        $module_json = Std::$fs::get_json_file(
+            Std::$fs::path($folder, "module.jsonc")
+        );
+
+        if (empty($module_json)) {
+            $errors[] = "module.jsonc is missing";
+            return null;
+        }
+        if (empty($module_json["schema"] ?? "")) {
+            $errors[] = "module.jsonc is missing schema version definition";
+            return null;
+        }
+
+        if (empty($module_json["schema_type"] ?? "")) {
+            $errors[] = "module.jsonc is missing schema type definition";
+            return null;
+        }
+
+        // Prepare the schema and validate:
+        $schema = new ModuleSchema($module_json["schema_type"], $module_json["schema"]);
+        if (!$schema->is_loaded()) {
+            $errors[] = $schema->get_message();
+            return null;
+        }
+
+        //Create the given definition and validate:
+        $module_def = $schema->create_definition($module_json);
+        if (!$module_def->valid) {
+            // Push the errors to the given array:
+            $errors = array_merge($errors, $module_def->errors);
+            return null;
+        }
+
+        return $module_def;
+    }
+
     public function install($by = null, ?string $from = null) : array {
 
         $from = $from ?? $this->temp_extracted->getRealPath();
         $installed = [];
         
-        //Load module.jsonc:
-        $module_json = Std::$fs::get_json_file(
-            Std::$fs::path($from, "module.jsonc")
-        );
-
-        //Check we got a valid schema.jsonc
-        if (empty($module_json)) {
-            return [false, "module.jsonc is missing or corrupted", []];
-        }
-        if (empty($module_json["schema"] ?? "")) {
-            return [false, "module.jsonc is missing schema version definition", []];
-        }
-        
-        //Load schema:
-        $schema = new ModuleSchema("install", $module_json["schema"]);
-        if (!$schema->is_loaded()) {
-            return [false, $schema->get_message(), []];
-        }
-        
-        //Create the given definition and validate:
-        $module_def = $schema->create_definition($module_json);
-        if (!$module_def->valid) {
-            return [false, $module_def->errors, []];
+        $errors = [];
+        $module_def = $this->get_definition_from_folder($from, $errors);
+        if (!empty($errors)) {
+            return [false, $errors, []];
         }
 
-        //Install module depends on the type:
-        switch ($module_def->struct["this"]["type"]) {
-            case "single" : {
-                //Install the module:
-                $module = $module_def->struct[$schema->naming('modules_container')][0];
-                [$status, $module_name, $errors] = $this->install_module($module, $by);
-                if (!$status) {
-                    return [false, $errors, $installed];
-                } else {
-                    $installed[] = $module_name;
-                }
-            } break;
-            case "bundle" : {
-                return [false, "bundle installation is not supported yet", []];
-            } break;
+        // Install from module define:
+        if ($module_def->get_value("schema_type") === "define") {
+            //Install the module:
+            [$status, $module_name, $errors] = $this->install_definition($module_def, $by);
+            if (!$status) {
+                return [false, $errors, $installed];
+            } else {
+                $installed[] = $module_name;
+            }
+        } elseif ($module_def->get_value("schema_type") === "install") {
+            //Its an install schema:
+            switch ($module_def->get_value("this.type")) {
+                case "single" : {
+                    //Install the module:
+                    $module = $module_def->get_value("\$modules_container")[0];
+                    [$status, $module_name, $errors] = $this->install_bundle($module, $by);
+                    if (!$status) {
+                        return [false, $errors, $installed];
+                    } else {
+                        $installed[] = $module_name;
+                    }
+                } break;
+                case "bundle" : {
+                    return [false, "bundle installation is not supported yet", []];
+                } break;
+            }
         }
-        
+    
         //Return
         return [true, "installed", $installed];
     }
 
-    private function install_module(array $single_definition, $by = null) : array {
+    private function install_definition(ModuleDefinition $module, $by = null) : array {
+        return [];
+    }
+
+    private function install_bundle(array $single_definition, $by = null) : array {
         $module_name = Std::$str::filter_string($single_definition["name"] ?? "unknown", ["A-Z","a-z","0-9", "_"]);
         $module_path = Std::$fs::path($this->install_in->getRealPath(), $module_name);
 
