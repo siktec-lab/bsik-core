@@ -133,12 +133,14 @@ class Std_Array {
                 $errors[$path] = ["validation rule is missing type declaration."];
                 continue;
             }
+            
             //Get values:
             $values = self::path_get($path, $data, null, true);
-            if (is_null($values)) {
+            if (is_null($values) && ($cbs[0] ?? "") !== "optional") {
                 $errors[$path] = ["missing value"];
                 continue;
             }
+
             //Validate values:
             foreach ($values as $value) {
                 $verr = [];
