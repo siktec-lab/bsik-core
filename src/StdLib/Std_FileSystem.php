@@ -130,12 +130,14 @@ class Std_FileSystem {
     /**
      * file_exists
      * checks wether a file exists
+     * if it does, returns the path and url as an array
+     * if not, returns false
      * 
-     * @param  mixed $in
-     * @param  array|string $path_to_file
-     * @return void
+     * @param  mixed $in - the base path to use use 'raw' for no base path
+     * @param  array|string $path_to_file - the path to the file
+     * @return array|bool
      */
-    final public static function file_exists(string $in, array|string $path_to_file = []) 
+    final public static function file_exists(string $in, array|string $path_to_file = []) : array|bool
     {
         $file = self::path_to($in, $path_to_file);
         if (file_exists($file["path"])) {
