@@ -79,7 +79,14 @@ class TestsCommand extends Command
         }
 
         if ($this->test === "__none__" && !$this->all) {
-            $test = trim($io->prompt('Which test to run?', null, $this->validate_test_name, 3));
+            $test = trim(
+                $io->prompt(
+                    text : 'Which test to run?', 
+                    default : null, 
+                    fn : \Closure::fromCallable([$this, 'validate_test_name']),
+                    retry : 3
+                )
+            );
             if ($test === "") {
                 $io->error('--test name is invalid');
                 exit(1);
