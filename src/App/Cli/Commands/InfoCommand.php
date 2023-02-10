@@ -15,7 +15,7 @@ class InfoCommand extends Command
 
     public const COMMAND        = 'info';
     public const DESCRIPTION    = 'Information about current BSIK installation';
-    public const ALIAS          = 'cur';
+    public const ALIAS          = 'i';
 
     public function __construct()
     {
