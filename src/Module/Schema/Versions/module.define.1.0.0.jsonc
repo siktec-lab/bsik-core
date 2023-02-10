@@ -8,7 +8,7 @@
 	},
 	"$schema_required" : {
 		"schema" 				: "string:version",
-		"schema_type" 			: "string:strcmp['module']",
+		"schema_type" 			: "string:equal['module']",
 		"type" 					: "string:oneof[['included','remote']]",
 		"name" 					: "string:strlen[2,50]",
 		"rep"					: "string:url:domain[['github.com']]", /* valid url or empty */
