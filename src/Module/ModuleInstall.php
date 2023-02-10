@@ -20,14 +20,14 @@ use \Siktec\Bsik\FsTools\BsikFileSystem;
 use \Siktec\Bsik\Module\Schema\ModuleSchema;
 
 /*********************  Load Conf and DataBase  *****************************/
-//TODO: this should be as a method in the moduleinstaller class - standalone()
+//TODO: this should be as a method in the moduleinstall class - standalone()
 if (!isset(Base::$db)) {
     Base::configure($conf);
     Base::connect_db();
 }
 
 /********************** Installer *******************************************/
-class ModuleInstaller {
+class ModuleInstall {
 
     //Path and extraction related:
     private const           TEMP_FOLDER_PREFIX  = "bsik_m_temp_";
@@ -49,12 +49,12 @@ class ModuleInstaller {
     ];
 
     /** 
-     * Construct ModuleInstaller
+     * Construct ModuleInstall
      * 
      * @param string $source => path to archive on server.
      * @param string $in   => path to default extract destination folder.
      * @throws Exception => E_PLAT_ERROR on zip cant be opened.
-     * @return ModuleInstaller
+     * @return ModuleInstall
      */
     public function __construct(
         string|SplFileInfo $source, 
