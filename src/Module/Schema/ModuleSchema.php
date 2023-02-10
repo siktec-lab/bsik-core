@@ -51,7 +51,7 @@ class ModuleSchema {
         $sch = new SchemaObj();
         
         //Find the schema template:
-        $template_path = Std::$fs::file_exists("schema", [self::SCHEMA_FOLDER, $template_name]);
+        $template_path = Std::$fs::file_exists("raw", [__DIR__, self::SCHEMA_FOLDER, $template_name]);
         
         //If not found return:
         if ($template_path === false) {
