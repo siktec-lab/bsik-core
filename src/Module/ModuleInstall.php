@@ -220,8 +220,16 @@ class ModuleInstall {
         //Create the given definition and validate:
         $module_def = $schema->create_definition($module_json);
         if (!$module_def->valid) {
-            // Push the errors to the given array:
-            $errors = array_merge($errors, $module_def->errors);
+            // Push the errors to the given array we need to flatten the errors:
+            foreach ($module_def->errors as $type => $error) {
+                if (is_array($error)) {
+                    foreach ($error as $e) {
+                        $errors[] = $type.": ".$e;
+                    }
+                } else {
+                    $errors[] = $error;
+                }
+            }
             return null;
         }
 
