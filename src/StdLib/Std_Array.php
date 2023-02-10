@@ -133,10 +133,11 @@ class Std_Array {
      * @param array $array - the array to validate
      * @param array $fn    - assoc array with functions to use. 
      * @param array &$error - error messages wil be added to this array. 
+     * @param bool $add_path_to_cb - add the path to the callback function
      * @return bool true for valid
      * 
      */
-    final public static function validate(array $rules, array $array, array $fn = [], array &$errors = []) : bool {
+    final public static function validate(array $rules, array $array, array $fn = [], array &$errors = [], bool $add_path_to_cb = true) : bool {
         $initial = count($errors);
         $data = []; 
         self::flatten_to_paths($data, $array);
@@ -172,17 +173,18 @@ class Std_Array {
                     $verr[] = "invalid type - {$mytype}";
                 } else {
                     foreach ($cond as $k => $cnd) {
+                        $cb = $fn[$cnd['cb']] ?? $cnd['cb'];
+                        $args = $add_path_to_cb 
+                                ? [$value, $path, ...$cnd["args"]] 
+                                : [$value, ...$cnd["args"]];
                         /** @var array $cnd */
-                        if ((is_callable($fn[$cnd['cb']] ?? null))) {
-                            $test = call_user_func_array(
-                                $fn[$cnd['cb']], 
-                                [$value, $path, ...$cnd["args"]]
-                            );
+                        if (is_callable($cb)) {
+                            $test = call_user_func_array($cb, $args);
                             if ($test !== true) {
-                                $verr[] = is_string($test) ? $test : "failed rule - {$cnd['cb']}";
+                                $verr[] = is_string($test) ? $test : "failed rule - {$cb}";
                             }
                         } else {
-                            $verr[] = "undefined rule - {$cnd['cb']}";
+                            $verr[] = "undefined rule - {$cb}";
                         }
                     }
                 }
