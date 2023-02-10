@@ -41,7 +41,7 @@ class ModuleInstall {
     ];
     public const REQUIRED_FILES_MODULE = [
         "module.jsonc" => "jsonc",
-        "module.php" => "exists"
+        "module.php"   => "exists"
     ];
 
     /** 
@@ -123,17 +123,21 @@ class ModuleInstall {
      * @return bool                     => true on valid
      */
     public function validate_file(string $path, string $validate_type, ?string $content = null) : bool {
-        if (is_null($content)) {
-            $content = file_get_contents($path) ?? "";
-        }
+        
         switch ($validate_type) {
             case "jsonc": {
+                if (is_null($content)) {
+                    $content = file_get_contents($path) ?? "";
+                }
                 $json = Std::$str::strip_comments($content);
                 if (!Std::$str::is_json($json)) {
                     return false;
                 }
             } break; 
             case "json": {
+                if (is_null($content)) {
+                    $content = file_get_contents($path) ?? "";
+                }
                 $json = $content;
                 if (!Std::$str::is_json($json)) {
                     return false;
