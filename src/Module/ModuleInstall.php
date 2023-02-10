@@ -2,11 +2,6 @@
 
 namespace Siktec\Bsik\Module;
 
-if (!defined('DS')) 
-    define('DS', DIRECTORY_SEPARATOR);
-if (!defined('ROOT_PATH')) 
-    define("ROOT_PATH", dirname(__FILE__).DS."..".DS.".." );
-
 /******************************  Requires       *****************************/
 use \Exception;
 use \Throwable;
@@ -20,11 +15,11 @@ use \Siktec\Bsik\FsTools\BsikFileSystem;
 use \Siktec\Bsik\Module\Schema\ModuleSchema;
 
 /*********************  Load Conf and DataBase  *****************************/
-//TODO: this should be as a method in the moduleinstall class - standalone()
-if (!isset(Base::$db)) {
-    Base::configure($conf);
-    Base::connect_db();
-}
+//TODO: all usage of Base should be removed from this class and passed as a dependency
+// if (!isset(Base::$db)) {
+//     Base::configure($conf);
+//     Base::connect_db();
+// }
 
 /********************** Installer *******************************************/
 class ModuleInstall {
