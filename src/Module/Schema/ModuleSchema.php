@@ -101,7 +101,8 @@ class ModuleSchema {
                     $this->schema_template->struct['$schema_required'], 
                     $definition->struct, 
                     ModuleSchema::$CUSTOM_VALIDATORS, 
-                    $definition->errors
+                    $definition->errors, 
+                    false
                     )
                 : false;
     }
@@ -125,28 +126,31 @@ class ModuleSchema {
  */
 
 ModuleSchema::$CUSTOM_VALIDATORS["version"] = \Closure::fromCallable([Std::$str, "is_version"]);
-ModuleSchema::$CUSTOM_VALIDATORS["strlen"] = function($value, $path, $min, $max) {
+ModuleSchema::$CUSTOM_VALIDATORS["strlen"] = function($value, $min, $max) {
     if (strlen($value) > $max) 
         return "value is too long";
     if (strlen($value) < $min) 
         return "value is too short";
     return true;
 };
-ModuleSchema::$CUSTOM_VALIDATORS["oneof"] = function($value, $path, $opt) {
+ModuleSchema::$CUSTOM_VALIDATORS["oneof"] = function($value, $opt) {
     if (!in_array($value, $opt, true)) 
         return "value is not one of the allowed values";
     return true;
 };
-ModuleSchema::$CUSTOM_VALIDATORS["url"] = function($value, $path) {
+ModuleSchema::$CUSTOM_VALIDATORS["url"] = function($value) {
     return empty($value) || filter_var($value, FILTER_VALIDATE_URL) !== false;
 };
-ModuleSchema::$CUSTOM_VALIDATORS["domain"] = function($value, $path, $allowed) {
+ModuleSchema::$CUSTOM_VALIDATORS["domain"] = function($value, $allowed) {
     $domain = parse_url($value, PHP_URL_HOST);
     return empty($value) || in_array($domain, $allowed, true);
 };
-ModuleSchema::$CUSTOM_VALIDATORS["github"] = function($value, $path) {
+ModuleSchema::$CUSTOM_VALIDATORS["github"] = function($value) {
     return empty($value) || (filter_var($value, FILTER_VALIDATE_URL) && parse_url($value, PHP_URL_HOST) === "github.com");
 };
-ModuleSchema::$CUSTOM_VALIDATORS["email"] = function($value, $path) {
+ModuleSchema::$CUSTOM_VALIDATORS["email"] = function($value) {
     return filter_var($value, FILTER_VALIDATE_EMAIL) !== false;
+};
+ModuleSchema::$CUSTOM_VALIDATORS["equal"] = function($value, $cmp) {
+    return strcmp($value, $cmp) === 0;
 };
