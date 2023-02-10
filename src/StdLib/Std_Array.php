@@ -96,39 +96,13 @@ class Std_Array {
         }
         return $def;
     }
-    // final public static function extend(array $def, array $ext) : array {
-    //     if (empty($def)) {
-    //         return $ext;
-    //     } else if (empty($ext)) {
-    //         return $def;
-    //     }
-    //     foreach ($ext as $key => $value) {
-    //         if (is_string($key) && $key[0] === '$')
-    //             continue;
-    //         if (is_int($key)) {
-    //             $def[] = $value;
-    //         } elseif (is_array($ext[$key])) {
-    //             if (!isset($def[$key])) {
-    //                 $def[$key] = array();
-    //             }
-    //             if (is_int($key)) {
-    //                 $def[] = self::extend($def[$key], $value);
-    //             } else {
-    //                 $def[$key] = self::extend($def[$key], $value);
-    //             }
-    //         } else {
-    //             $def[$key] = $value;
-    //         }
-    //     }
-    //     return $def;
-    // }
 
     /**
      * validate - walks an array and validate specific key values.
      * use this structure for rules:
      *   - path => rule "{types|}:{func[args]:}"
      *   ex. ["key1" => "string:empty", "key2.key22" => "integer|bool:customFn"]
-     * 
+     *   note: you can define a special cb "optional" to skip validation if the returned value is false.
      * @param array $rules - all the rules to apply
      * @param array $array - the array to validate
      * @param array $fn    - assoc array with functions to use. 
@@ -180,6 +154,9 @@ class Std_Array {
                         /** @var array $cnd */
                         if (is_callable($cb)) {
                             $test = call_user_func_array($cb, $args);
+                            if ($test === false && $cb === 'optional') {
+                                break;
+                            }
                             if ($test !== true) {
                                 $verr[] = is_string($test) ? $test : "failed rule - {$cb}";
                             }
