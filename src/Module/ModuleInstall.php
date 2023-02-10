@@ -53,7 +53,8 @@ class ModuleInstall {
      */
     public function __construct(
         string|SplFileInfo $source, 
-        string|SplFileInfo|null $in = null
+        string|SplFileInfo|null $in = null,
+        bool $load_zip = true
     ) {
         $in = $in ?? CoreSettings::$path["manage-modules"];
         $this->source           = is_string($source) ? new SplFileInfo($source) : $source;
