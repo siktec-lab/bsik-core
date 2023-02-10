@@ -240,7 +240,7 @@ class ModuleInstall {
         }
 
         // Install from module define:
-        if ($module_def->get_value("schema_type") === "define") {
+        if ($module_def->get_value("schema_type") === "module") {
             //Install the module:
             [$status, $module_name, $errors] = $this->install_definition($module_def, $by);
             if (!$status) {

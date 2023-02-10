@@ -1,6 +1,6 @@
 {
 	"schema" 		: "1.0.0",
-	"schema_type" 	: "define",
+	"schema_type" 	: "module",
 	"$schema_naming" : {
 		"author_container" 		: "author",
 		"menu_container" 		: "menu",
@@ -8,7 +8,7 @@
 	},
 	"$schema_required" : {
 		"schema" 				: "string:version",
-		"schema_type" 			: "string:strcmp['define']",
+		"schema_type" 			: "string:strcmp['module']",
 		"type" 					: "string:oneof[['included','remote']]",
 		"name" 					: "string:strlen[2,50]",
 		"rep"					: "string:url:domain[['github.com']]", /* valid url or empty */
