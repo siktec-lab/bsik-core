@@ -16,6 +16,7 @@ use \Siktec\Bsik\Module\Schema\ModuleSchema;
 
 /*********************  Load Conf and DataBase  *****************************/
 //TODO: all usage of Base should be removed from this class and passed as a dependency
+//TODO: handle and take care of zip file may be null
 // if (!isset(Base::$db)) {
 //     Base::configure($conf);
 //     Base::connect_db();
@@ -31,7 +32,7 @@ class ModuleInstall {
     private ?SplFileInfo    $install_in        = null;
     public  ?SplFileInfo    $temp_extracted    = null;
     private ?SplFileInfo    $source            = null;
-    public  ZipArchive      $zip;
+    public  ?ZipArchive     $zip               = null;
 
     //Validation related
     public const REQUIRED_FILES_INSTALL = [
@@ -61,7 +62,10 @@ class ModuleInstall {
         $this->install_in       = is_string($in) ? new SplFileInfo($in) : $in;
         $this->rand_id          = std::$date::time_datetime("YmdHis");
         $this->temp_folder_path = Std::$fs::path($this->install_in->getRealPath(), self::TEMP_FOLDER_PREFIX.$this->rand_id);
-        $this->zip              = BsikZip::open_zip($this->source->getRealPath() ?: "");
+        if ($load_zip) {
+            $this->zip = BsikZip::open_zip($this->source->getRealPath() ?: "");
+        } 
+        
     }
 
     /** 
