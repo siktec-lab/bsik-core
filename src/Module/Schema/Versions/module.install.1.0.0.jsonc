@@ -1,5 +1,6 @@
 {
 	"schema" : "1.0.0",
+	"schema_type" : "install",
 	"$schema_naming" : {
 		"modules_container" : "modules",
 		"author_container" 	: "author",
@@ -7,6 +8,7 @@
 	},
 	"$schema_required" : {
 		"schema" 			: "string:version", 					/* valid schema version D.D.D*/
+		"schema_type" 		: "string:strcmp['install']",
 		"modules" 			: "array",
 		"author.name" 		: "string:strlen[3, 50]", 		
 		"author.email" 		: "string:strlen[5, 150]:email",
