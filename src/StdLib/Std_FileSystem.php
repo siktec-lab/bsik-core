@@ -25,6 +25,10 @@ class Std_FileSystem {
      * @return string
      */
     final public static function path(...$path) : string {
+
+        // remove empty strings and nulls
+        $path = array_filter($path, fn($v) => !is_null($v) && $v !== '');
+
         return implode(DIRECTORY_SEPARATOR, $path);
     }
         
@@ -35,6 +39,10 @@ class Std_FileSystem {
      * @return string
      */
     final public static function path_url(...$path) : string {
+
+        // remove empty strings and nulls
+        $path = array_filter($path, fn($v) => !is_null($v) && $v !== '');
+        
         return implode('/', $path);
     }
         
