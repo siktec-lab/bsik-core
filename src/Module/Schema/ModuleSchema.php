@@ -5,6 +5,8 @@ namespace Siktec\Bsik\Module\Schema;
 use \Exception;
 use \Siktec\Bsik\Std;
 
+//TODO: implement a nested schema validator
+//TODO implement a schema validator for the module menu
 class ModuleSchema {
 
     private const   DEFAULT_VERSION = "1.0.0";
