@@ -55,6 +55,12 @@ class Run {
             alias   : Commands\LogsCommand::ALIAS
         );
 
+        // ExportModuleCommand:
+        $this->cli->add(new Commands\ExportModuleCommand( 
+            cwd : $this->cwd,
+            folder_path : null
+        ));
+        
         // Set logo
         $this->cli->logo('BSIK');
     }
