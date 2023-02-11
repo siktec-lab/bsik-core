@@ -14,9 +14,10 @@ class Run {
     public ?Application $cli = null;
 
     const LOAD_COMMANDS = [
-        InfoCommand::class,
-        TestsCommand::class,
-        LogsCommand::class
+        Commands\InfoCommand::class,
+        Commands\TestsCommand::class,
+        Commands\LogsCommand::class,
+        Commands\ExportModuleCommand::class,
     ];
 
     protected string $cwd;
