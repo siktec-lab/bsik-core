@@ -69,7 +69,7 @@ class BsikZip {
      * @throws Exception    => E_PLAT_ERROR on zip cant be opened from 'open_zip'.
      * @return bool   => true on saved
      */
-    final public static function zip_folder(string $path, string $out, array $exclude) : bool {
+    final public static function zip_folder(string $path, string $out, array $exclude = []) : bool {
         $zip = self::open_zip($out, ZipArchive::CREATE | ZipArchive::OVERWRITE);
         /** @var \RecursiveIteratorIterator $files */
         $origin_path = new SplFileInfo($path);
