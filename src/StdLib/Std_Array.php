@@ -137,7 +137,7 @@ class Std_Array {
             //Get values:
             $values = self::path_get($path, $data, null, true);
             if (is_null($values)) {
-                if (($cbs[0] ?? "") !== "optional") {
+                if (($cbs[0] ?? "") === "optional") {
                     $values = [null];
                 } else {
                     $errors[$path] = ["missing value"];
@@ -149,7 +149,11 @@ class Std_Array {
             foreach ($values as $value) {
                 $verr = [];
                 $mytype = gettype($value);
-                if (!in_array("any", $types, true) && !in_array($mytype, $types, true)) {
+                if (
+                    ($mytype === "NULL" && ($cbs[0] ?? "") !== "optional")
+                    && !in_array("any", $types, true) 
+                    && !in_array($mytype, $types, true)
+                ) {
                     $verr[] = "invalid type - {$mytype}";
                 } else {
                     foreach ($cond as $k => $cnd) {
@@ -160,14 +164,14 @@ class Std_Array {
                         /** @var array $cnd */
                         if (is_callable($cb)) {
                             $test = call_user_func_array($cb, $args);
-                            if ($test === false && $cb === 'optional') {
+                            if ($test === false && $cnd['cb'] === 'optional') {
                                 break;
                             }
                             if ($test !== true) {
-                                $verr[] = is_string($test) ? $test : "failed rule - {$cb}";
+                                $verr[] = is_string($test) ? $test : "failed rule - {$cnd['cb']}";
                             }
                         } else {
-                            $verr[] = "undefined rule - {$cb}";
+                            $verr[] = "undefined rule - {$cnd['cb']}";
                         }
                     }
                 }

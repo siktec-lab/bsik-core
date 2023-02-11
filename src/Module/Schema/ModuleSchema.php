@@ -156,3 +156,6 @@ ModuleSchema::$CUSTOM_VALIDATORS["email"] = function($value) {
 ModuleSchema::$CUSTOM_VALIDATORS["equal"] = function($value, $cmp) {
     return strcmp($value, $cmp) === 0;
 };
+ModuleSchema::$CUSTOM_VALIDATORS["optional"] = function($value) {
+    return !is_null($value) && $value !== [];
+};
