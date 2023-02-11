@@ -65,10 +65,11 @@ class BsikZip {
      * 
      * @param string $path  => the path to the folder to zip
      * @param string $out   => the zip full name (path + name)
+     * @param array $exclude => array of paths to exclude from zip
      * @throws Exception    => E_PLAT_ERROR on zip cant be opened from 'open_zip'.
      * @return bool   => true on saved
      */
-    final public static function zip_folder(string $path, string $out) : bool {
+    final public static function zip_folder(string $path, string $out, array $exclude) : bool {
         $zip = self::open_zip($out, ZipArchive::CREATE | ZipArchive::OVERWRITE);
         /** @var \RecursiveIteratorIterator $files */
         $origin_path = new SplFileInfo($path);
@@ -78,9 +79,23 @@ class BsikZip {
             $filePath = $file->getRealPath();
             $relativePath = substr($filePath, strlen($origin_path->getRealPath()) + 1);
             if (!$file->isDir()) {
+                // Make sure the file is not excluded
+                foreach ($exclude as $excluded) {
+                    $excluded = str_replace(['/','\\'], DIRECTORY_SEPARATOR, $excluded);
+                    if (strpos($relativePath, $excluded) === 0) {
+                        continue 2;
+                    }
+                }
                 // Add current file to archive
                 $zip->addFile($filePath, $relativePath);
-            } elseif ($relativePath !== false) {
+            } elseif (!empty($relativePath)) {
+                // Make sure the folder is not excluded
+                foreach ($exclude as $excluded) {
+                    $excluded = str_replace(['/','\\'], DIRECTORY_SEPARATOR, $excluded);
+                    if ($relativePath.DIRECTORY_SEPARATOR === $excluded) {
+                        continue 2;
+                    }
+                }
                 //Create empty folder:
                 $zip->addEmptyDir($relativePath);
             }
