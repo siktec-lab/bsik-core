@@ -21,6 +21,11 @@
 		"author.web"			: "string:url",  /* valid url or empty */
 		"menu"					: "array|boolean",
 		"menu.text"             : "string:optional:strlen[3, 50]",
+		"menu.title"            : "string:optional:strlen[3, 128]",
+		"menu.desc"             : "string:optional:strlen[3, 250]",
+		"menu.icon"             : "string:optional:strlen[2, 50]",
+		"menu.action"           : "string:optional:strlen[3, 50]",
+		"menu.order"            : "integer:optional:minmax[0, 10000]",
 		"depends"				: "array",
 		"tables_prefix"			: "string:strlen[3, 25]"
 	},
