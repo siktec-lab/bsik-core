@@ -150,9 +150,9 @@ class Std_Array {
                 $verr = [];
                 $mytype = gettype($value);
                 if (
-                    ($mytype === "NULL" && ($cbs[0] ?? "") !== "optional")
-                    && !in_array("any", $types, true) 
+                       !in_array("any", $types, true) 
                     && !in_array($mytype, $types, true)
+                    && !($mytype === "NULL" && ($cbs[0] ?? "") === "optional")
                 ) {
                     $verr[] = "invalid type - {$mytype}";
                 } else {
