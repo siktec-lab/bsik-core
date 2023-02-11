@@ -135,6 +135,13 @@ ModuleSchema::$CUSTOM_VALIDATORS["strlen"] = function($value, $min, $max) {
         return "value is too short";
     return true;
 };
+ModuleSchema::$CUSTOM_VALIDATORS["minmax"] = function($value, $min, $max) {
+    if ($value > $max) 
+        return "integer is too large";
+    if ($value < $min) 
+        return "integer is too small";
+    return true;
+};
 ModuleSchema::$CUSTOM_VALIDATORS["oneof"] = function($value, $opt) {
     if (!in_array($value, $opt, true)) 
         return "value is not one of the allowed values";
