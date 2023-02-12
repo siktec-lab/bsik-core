@@ -160,7 +160,49 @@ class StandardLibTest extends TestCase
         $errors = [];
         $test_good = Std::$arr::validate($rules, $data, $fn, $errors);
         $this->assertTrue($test_good, "failed check array with custom functions and mixed datatypes");
-    
+        
+        // Test optional:
+        $fn = [
+            "optional" => function($v) { return !is_null($v) && $v !== []; },
+            "equal"    => function($v, $t) { return $v === $t; }
+        ];
+        $optional = Std::$arr::validate(
+            rules : [
+                "name"   => "string:optional:equal['myname']",
+                "opt"    => "string:optional:equal['test']",
+            ], 
+            array : [
+                "name" => "myname",
+            ], 
+            fn : $fn,
+            add_path_to_cb : false
+        );
+        $this->assertTrue($optional, "failed check array with optional and equal missing optional value 1");
+
+        $optional = Std::$arr::validate(
+            rules : [
+                "name"   => "string:optional:equal['myname']",
+                "opt"    => "string:optional:equal['test']",
+            ], 
+            array : [
+                "opt" => "test",
+            ], 
+            fn : $fn,
+            add_path_to_cb : false
+        );
+        $this->assertTrue($optional, "failed check array with optional and equal missing optional value 2");
+        $optional = Std::$arr::validate(
+            rules : [
+                "name"   => "string:optional:equal['myname']",
+                "opt"    => "string:optional:equal['test']",
+            ], 
+            array : [
+                "opt" => "wrong",
+            ], 
+            fn : $fn,
+            add_path_to_cb : false
+        );
+        $this->assertFalse($optional, "failed check array with optional and equal - wrong optional value");
     }
 
     //arr_path_get()
