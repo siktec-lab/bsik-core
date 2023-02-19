@@ -393,7 +393,7 @@ Components::register("summary_card", function(string $title, mixed $number, stri
             </div>
             <div class="bsik-summary-card-icon-bg">
                 <i class="{$icon}"></i>
-            <div>
+            </div>
         </div>
         <!-- <div class="card card-stats mb-4 mb-xl-0">
             <div class="card-body">
