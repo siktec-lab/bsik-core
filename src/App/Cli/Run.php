@@ -56,10 +56,13 @@ class Run {
         );
 
         // ExportModuleCommand:
-        $this->cli->add(new Commands\ExportModuleCommand( 
-            cwd : $this->cwd,
-            folder_path : null
-        ));
+        $this->cli->add(
+            command : new Commands\ExportModuleCommand( 
+                cwd : $this->cwd,
+                folder_path : null
+            ), 
+            alias   : Commands\ExportModuleCommand::ALIAS
+        );
         
         // Set logo
         $this->cli->logo('BSIK');
