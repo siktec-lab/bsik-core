@@ -363,15 +363,15 @@ Components::register("dropdown", function(
 });
 
 /**
- * html_ele - Builds an html element defined by a selector.
- * @param string $title     => card title keep it short
- * @param mixed $number     => the stats number
- * @param string $icon      => Icon to add
- * @param string $bg_icon   => bg of Icon to add
- * @param array $trend      => trend line to show expect ["dir","change","text"]
- * @return string           => HTML
+ * summary_card - Build a summary card with icon and trend
+ * @param string    $title  -> the title of the card
+ * @param mixed     $number -> the number to show
+ * @param string    $icon   -> the bg icon to show
+ * @param string    $color  -> the color of the card
+ * @param array     $trend  -> trend line to show expect ["dir" => {up, down}, "change", "text"]
+ * @return string => HTML
  */
-Components::register("stat_card", function(string $title, mixed $number, string $icon, string $bg_icon, mixed $trend = null) {
+Components::register("summary_card", function(string $title, mixed $number, string $icon, string $color, mixed $trend = null) {
     $trend = "";
     if (!empty($trend) && is_array($trend)) {
         $trend = Std::$arr::get_from($trend, ["dir","change","text"], "");
@@ -383,7 +383,19 @@ Components::register("stat_card", function(string $title, mixed $number, string 
         HTML;
     }
     return <<<HTML
-        <div class="card card-stats mb-4 mb-xl-0">
+        <div class="bsik-summary-card bsik-summary-card-color-{$color}"> 
+            <div class="bsik-summary-card-body">
+                <div class="bsik-summary-card-title">{$title}</div>
+                <div class="bsik-summary-card-number">{$number}</div>
+                <div class="bsik-summary-card-trend">
+                    {$trend}
+                </div>
+            </div>
+            <div class="bsik-summary-card-icon-bg">
+                <i class="{$icon}"></i>
+            <div>
+        </div>
+        <!-- <div class="card card-stats mb-4 mb-xl-0">
             <div class="card-body">
                 <div class="row">
                     <div class="col">
@@ -391,14 +403,14 @@ Components::register("stat_card", function(string $title, mixed $number, string 
                         <span class="h2 font-weight-bold text-highlight mb-0">{$number}</span>
                     </div>
                     <div class="col-auto">
-                        <div class="icon icon-shape bg-{$bg_icon} text-white rounded-circle shadow">
+                        <div class="icon icon-shape bg-{$color} text-white rounded-circle shadow">
                             <i class="{$icon}"></i>
                         </div>
                     </div>
                 </div>
                 {$trend}
             </div>
-        </div>
+        </div> -->
     HTML;
 });
 
