@@ -187,6 +187,22 @@ class ModuleInstall {
         return false;
     }
     
+    public function get_definition_from_zip(array &$errors = []) : ?ModuleDefinition {
+        $module_json = [];
+
+        if ($this->zip->locateName('module.jsonc') !== false) {
+            $json = $this->zip->getFromName('module.jsonc') ?: "";
+            $module_json = Std::$str::parse_jsonc($json);
+        }
+
+        if (!is_array($module_json) || empty($module_json)) {
+            $errors[] = "module.jsonc is missing or not readable";
+            return null;
+        }
+
+        return $this->get_definition($module_json, $errors);
+    }
+
     public function get_definition_from_folder($folder = null, array &$errors = []) : ?ModuleDefinition {
         
         $folder = $folder ?? $this->temp_extracted->getRealPath();
@@ -200,25 +216,30 @@ class ModuleInstall {
             $errors[] = "module.jsonc is missing";
             return null;
         }
-        if (empty($module_json["schema"] ?? "")) {
+
+        return $this->get_definition($module_json, $errors);
+    }
+
+    private function get_definition(array $json, array &$errors = []) : ?ModuleDefinition {
+        if (empty($json["schema"] ?? "")) {
             $errors[] = "module.jsonc is missing schema version definition";
             return null;
         }
 
-        if (empty($module_json["schema_type"] ?? "")) {
+        if (empty($json["schema_type"] ?? "")) {
             $errors[] = "module.jsonc is missing schema type definition";
             return null;
         }
 
         // Prepare the schema and validate:
-        $schema = new ModuleSchema($module_json["schema_type"], $module_json["schema"]);
+        $schema = new ModuleSchema($json["schema_type"], $json["schema"]);
         if (!$schema->is_loaded()) {
             $errors[] = $schema->get_message();
             return null;
         }
 
         //Create the given definition and validate:
-        $module_def = $schema->create_definition($module_json);
+        $module_def = $schema->create_definition($json);
         if (!$module_def->valid) {
             // Push the errors to the given array we need to flatten the errors:
             foreach ($module_def->errors as $type => $error) {
