@@ -111,6 +111,23 @@ class Std_String {
     }
 
     /**
+     * parse_jsonc
+     * safely try to parse jsonc (json with comments).
+     * @param string $jsonc
+     * @param bool   $remove_bom - try to remove byte order mark
+     * @param mixed  $onerror - what to return on error
+     * @param bool   $assoc - force associative array
+     * @return mixed
+     */
+    final public static function parse_jsonc(string $jsonc, bool $remove_bom = true, $onerror = false, bool $assoc = true) {
+        $json = trim(
+            Std_String::strip_comments($jsonc), 
+            $remove_bom ? "\xEF\xBB\xBF \t\n\r\0\x0B" : " \t\n\r\0\x0B"
+        );
+        return json_decode($json, $assoc) ?? $onerror;
+    }
+
+    /**
      * str_strip_comments - remove comments from strings
 	 * From https://stackoverflow.com/a/19136663/319266
 	 * @param string $str
