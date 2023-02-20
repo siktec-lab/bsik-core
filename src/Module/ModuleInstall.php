@@ -74,13 +74,13 @@ class ModuleInstall {
      * 
      * @return array => array of errors message if any
      */
-    public function validate_required_files_in_zip() : array {
+    public function validate_required_files_in_zip(array $required = []) : array {
         $errors = [];
         if ($this->zip->filename && $this->zip->status === ZipArchive::ER_OK) {
             //List the files in zip
             $list = BsikZip::list_files($this->zip);
             //Validate required - simple validation just of presence and format:
-            foreach (self::REQUIRED_FILES_INSTALL as $file => $validate) {
+            foreach ($required as $file => $validate) {
                 if (array_key_exists($file, $list)) {
                     $content = $this->zip->getFromIndex($list[$file]["index"]);
                     if (!$this->validate_file("", $validate, $content)) {
