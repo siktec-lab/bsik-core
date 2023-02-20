@@ -110,19 +110,19 @@ class Std_FileSystem {
     
     /**
      * get_json_file
-     * loads a json file and return its content
-     * @param  mixed $path
-     * @param  mixed $remove_bom
-     * @param  mixed $associative
-     * @return array
+     * loads a json file and return its content this method is a wrapper for Std_String::parse_jsonc
+     * @param  string $path - the path to the file
+     * @param  bool   $remove_bom - remove byte order mark
+     * @param  bool   $associative - return an associative array
+     * @return array|null - returns an array or null if the file does not exist
      */
-    final public static function get_json_file($path, bool $remove_bom = true, bool $associative = true) : array|null {
-        $json = trim(
-            Std_String::strip_comments(@file_get_contents($path) ?: ""), 
-            $remove_bom ? "\xEF\xBB\xBF \t\n\r\0\x0B" : " \t\n\r\0\x0B"
-        );
+    final public static function get_json_file(string $path, bool $remove_bom = true, bool $associative = true) : array|null {
+        $json = "";
+        if (file_exists($path) && is_file($path)) {
+            $json = @file_get_contents($path) ?: "";
+        }
         if (!empty($json)) {
-            return Std_String::parse_json($json, null, $associative);
+            return Std_String::parse_jsonc($json, $remove_bom, null, $associative);
         }
         return null;
     }    
