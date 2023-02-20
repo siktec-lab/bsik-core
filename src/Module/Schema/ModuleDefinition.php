@@ -22,7 +22,7 @@ class ModuleDefinition {
      * @param  string $path = "path.to.value" use keys separated by dots see Std::$arr::path_get()
      * @return mixed the value of the path or null if not found
      */
-    public function get_value(string $path) : mixed {
+    public function get_values(string $path) : mixed {
         $trans = explode(".", $path);
 
         // translate the naming:
@@ -38,6 +38,14 @@ class ModuleDefinition {
             implode(".", $trans), 
             $this->struct
         );
+    }
+
+    public function get_value(string $path) : mixed {
+        $data = $this->get_values($path);
+        if (is_array($data) && !empty($data)) {
+            return $data[0];
+        }
+        return $data;
     }
 
 }
