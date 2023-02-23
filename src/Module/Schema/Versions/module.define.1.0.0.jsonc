@@ -27,7 +27,11 @@
 		"menu.action"           : "string:optional:strlen[3, 50]",
 		"menu.order"            : "integer:optional:minmax[0, 10000]",
 		"depends"				: "array",
-		"tables_prefix"			: "string:strlen[3, 25]"
+		"tables_prefix"			: "string:strlen[3, 25]", 
+		"require" 			 	: "array",
+		"autoload.classmap"		: "array",
+		"autoload.psr-4"		: "array"
+
 	},
 	"type"  : "included", /* included | remote */
 	"name"  : "schema_module", /* module name must be the same as the static folder or zip module*/
@@ -43,6 +47,16 @@
 		"web" 	: ""
 	},
 	"menu" 			: false,
+	"tables_prefix" : "",
 	"depend"		: [],
-	"tables_prefix" : ""
+	"require"		: {
+        // "php": ">=8.0.0",
+        "twbs/bootstrap": "5.0.0-beta3"
+    },
+    "autoload": {
+        "classmap": [
+        ],
+        "psr-4" : {
+        }
+    }
 }
