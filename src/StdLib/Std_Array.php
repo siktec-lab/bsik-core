@@ -319,11 +319,11 @@ class Std_Array {
      * if the path is not found it will be created
      * only the . notation is supported don't use wildcards or level ignore
      * @param  string $path - example "key1.key2"
-     * @param  array  $data - the array to walk
+     * @param  array  $data - the array to walk - will be modified by reference
      * @param  mixed  $value - the value to set
-     * @return array
+     * @return void
      */
-    final public static function path_set(string $path, array $data = [], mixed $value = null) : array {
+    final public static function path_set(string $path, array &$data = [], mixed $value = null) : void {
         $keys = explode('.', $path);
         $last = array_pop($keys);
         $tmp  = &$data;
@@ -334,7 +334,6 @@ class Std_Array {
             $tmp = &$tmp[$key];
         }
         $tmp[$last] = $value;
-        return $data;
     }
 
     /**
@@ -343,10 +342,10 @@ class Std_Array {
      * if the path is not found it will not do anything
      * only the . notation is supported don't use wildcards or level ignore
      * @param  string $path - example "key1.key2"
-     * @param  array  $data - the array to walk
+     * @param  array  $data - the array to walk - by reference
      * @return bool - true if the path was found and unset false if not
      */
-    final public static function path_unset(string $path, array $data = []) : bool {
+    final public static function path_unset(string $path, array &$data = []) : bool {
         $keys = explode('.', $path);
         $last = array_pop($keys);
         $tmp  = &$data;
