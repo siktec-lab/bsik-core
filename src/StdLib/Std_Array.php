@@ -19,8 +19,8 @@ class Std_Array {
     /**
      * is_assoc
      * check if array is associative
-     * @param  mixed $array
-     * @return void
+     * @param  array $array
+     * @return bool
      */
     public static function is_assoc(array $array) : bool {
         $keys = array_keys($array);
@@ -30,10 +30,10 @@ class Std_Array {
     /**
      * rename_key
      * renames an array key if it exists and the new one is not set
-     * @param  mixed $key
-     * @param  mixed $new
-     * @param  mixed $arr
-     * @return void
+     * @param  string $old - the old key name
+     * @param  string $new - the new key name
+     * @param  array $arr - the array to rename the key in
+     * @return bool
      */
     final public static function rename_key(string $old, string $new, array &$arr) : bool {
         if (array_key_exists($old, $arr) && !array_key_exists($new, $arr) ) {
@@ -52,7 +52,7 @@ class Std_Array {
      * @param  mixed $default - default value if not set
      * @return array - matching keys and there value
      */
-    final public static function get_from(array $data, array $keys, $default = null) : array {
+    final public static function get_from(array $data, array $keys, mixed $default = null) : array {
         $filter = array_fill_keys($keys, $default);
         $merged = array_intersect_key($data, $filter) + $filter;
         ksort($merged);
@@ -289,7 +289,31 @@ class Std_Array {
         // Return is an array or null:
         return is_array($return) && count($return) > 0 ? $return[0] : $notfound;
     }
-    
+
+    /**
+     * path_set
+     * walks an array given a string of keys with '.' notation to set inner value
+     * if the path is not found it will be created
+     * only the . notation is supported don't use wildcards or level ignore
+     * @param  string $path - example "key1.key2"
+     * @param  array  $data - the array to walk
+     * @param  mixed  $value - the value to set
+     * @return array
+     */
+    final public static function path_set(string $path, array $data = [], mixed $value = null) : array {
+        $keys = explode('.', $path);
+        $last = array_pop($keys);
+        $tmp  = &$data;
+        foreach ($keys as $key) {
+            if (!isset($tmp[$key]) || !is_array($tmp[$key])) {
+                $tmp[$key] = [];
+            }
+            $tmp = &$tmp[$key];
+        }
+        $tmp[$last] = $value;
+        return $data;
+    }
+
     /**
      * values_are_not
      * check if an array don't have values - that means that if any of the values are strictly equals
