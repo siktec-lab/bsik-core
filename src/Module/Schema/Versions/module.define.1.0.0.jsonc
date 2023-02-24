@@ -28,9 +28,10 @@
 		"menu.order"            : "integer:optional:minmax[0, 10000]",
 		"depends"				: "array",
 		"tables_prefix"			: "string:strlen[3, 25]", 
-		"require" 			 	: "array",
-		"autoload.classmap"		: "array",
-		"autoload.psr-4"		: "array"
+		"require" 			 	: "array:optional",
+		"autoload" 			 	: "array:optional",
+		"autoload.classmap"		: "array:optional",
+		"autoload.psr-4"		: "array:optional"
 
 	},
 	"type"  : "included", /* included | remote */
@@ -49,10 +50,7 @@
 	"menu" 			: false,
 	"tables_prefix" : "",
 	"depend"		: [],
-	"require"		: {
-        // "php": ">=8.0.0",
-        "twbs/bootstrap": "5.0.0-beta3"
-    },
+	"require"		: {},
     "autoload": {
         "classmap": [
         ],
