@@ -97,6 +97,28 @@ class Std_Array {
         return $def;
     }
 
+    /** 
+     * merge_recursive_distinct 
+     * merge arrays recursively without combining values of the same key into an array
+     * this function is similar to array_merge_recursive but does not change the datatypes of the values in the arrays.
+     * will accept any number of arrays as arguments.
+     * @param array $array1
+     * @param array $array2
+     * @return array
+     * @link https://www.php.net/manual/en/function.array-merge-recursive.php#92195
+     */
+    final public static function merge_recursive_distinct( array &$array1, array &$array2 ) : array {
+        $merged = $array1;
+        foreach ( $array2 as $key => &$value ) {
+            if ( is_array ( $value ) && isset ( $merged [$key] ) && is_array ( $merged[$key] ) ) {
+                $merged [$key] = self::merge_recursive_distinct ( $merged[$key], $value );
+            } else {
+                $merged [$key] = $value;
+            }
+        }
+        return $merged;
+    }
+
     /**
      * validate - walks an array and validate specific key values.
      * use this structure for rules:
@@ -339,7 +361,7 @@ class Std_Array {
         }
         return false;
     }
-    
+
     /**
      * values_are_not
      * check if an array don't have values - that means that if any of the values are strictly equals
