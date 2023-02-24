@@ -118,7 +118,7 @@ class Std_FileSystem {
      */
     final public static function get_json_file(string $path, bool $remove_bom = true, bool $associative = true) : array|null {
         $json = "";
-        if (file_exists($path) && is_file($path)) {
+        if (is_file($path)) {
             $json = @file_get_contents($path) ?: "";
         }
         if (!empty($json)) {
@@ -126,6 +126,119 @@ class Std_FileSystem {
         }
         return null;
     }    
+
+    /** 
+     * put_json_file
+     * saves an array to a json file and returns true if successful
+     * if the file does not exist, and create is false, returns false
+     * if a directory does not exist in the path, it will not be created and the method will return false
+     * this method will replace the file content if it exists
+     * 
+     * @param  string $path - the path to the file
+     * @param  array  $data - the data to save
+     * @param  bool   $pretty - pretty print the json
+     * @param  bool   $create - create the file if it does not exist
+     * @return bool
+     */
+    final public static function put_json_file(string $path, array $data, bool $pretty = true, bool $create = true) : bool {
+        
+        // Encode data:
+        $json = json_encode($data, $pretty ? JSON_PRETTY_PRINT : 0);
+
+        // Create file if it does not exist:
+        return !empty($json) ? self::put_file($path, $json, $create) : false;
+    }
+    
+    /**
+     * put_json_file_force
+     * saves an array to a json file and returns true if successful
+     * if the file does not exist, it will be created including any directories in the path
+     * this method will replace the file content if it exists
+     * 
+     * @param  string $path - the path to the file
+     * @param  array $data - the data to save
+     * @param  bool $pretty - pretty print the json
+     * @param  int $permission - the permission to set on the directory if it is created
+     * @return bool
+     */
+    final public static function put_json_file_force(string $path, array $data, bool $pretty = true, int $permission = 0777) : bool {
+        
+        // Encode data:
+        $json = json_encode($data, $pretty ? JSON_PRETTY_PRINT : 0);
+        
+        // Create file if it does not exist with directory Creation:
+        return !empty($json) ? self::put_file_force($path, $json, 0, $permission) : false;
+    }
+        
+    /**
+     * get_file
+     * loads a file and return its content only if it exists
+     * @param  string $path - the path to the file
+     * @return ?string - returns the file content or null if the file does not exist
+     */
+    final public static function get_file(string $path) : ?string {
+        $file = null;
+        if (is_file($path)) {
+            $file = @file_get_contents($path) ?: null;
+        }
+        return $file;
+    }
+
+        
+    /**
+     * put_file
+     * saves a string to a file and returns true if successful
+     * if the file does not exist, and create is false, returns false
+     * if a directory does not exist in the path, it will not be created and the method will return false
+     * by default this method will replace the file content if it exists 
+     * 
+     * @param  string $path
+     * @param  string $data
+     * @param  bool $create - create the file if it does not exist default is true
+     * @param  int $flags   - flags to pass to file_put_contents default is 0
+     * @return bool
+     */
+    final public static function put_file(string $path, string $data, bool $create = true, int $flags = 0) : bool {
+        
+        // If file does not exist, and create is false, return false:
+        if (!$create && !is_file($path)) {
+            return false;
+        }
+        // Create file if it does not exist:
+        if (!empty($data)) {
+            return @file_put_contents($path, $data, $flags) !== false;
+        }
+        return false;
+    }
+    
+    /**
+     * put_file_force
+     * saves a string to a file and returns true if successful
+     * this method will create the file and the directory if it does not exist
+     * this method assumes that the file name is the last part of the path and that
+     * the separator is a DIRECTORY_SEPARATOR which is platform specific
+     * by default this method will replace the file content if it exists
+     * 
+     * @param  string $path - the path to the file
+     * @param  string $data - the data to save
+     * @param  int $flags - see file_put_contents flags for more info
+     * @param  int $permission - the permission to use when creating the directory default is 0777
+     * @return bool
+     */
+    final public static function put_file_force(string $path, string $data, int $flags = 0, int $permission = 0777) : bool {
+        
+        // Extract directory from path:
+        $parts = explode( DIRECTORY_SEPARATOR, $path );
+        array_pop( $parts );
+        $dir = implode( DIRECTORY_SEPARATOR, $parts );
+
+        // Create directory if it does not exist and return false if it fails:
+        if ( is_dir( $dir ) || @mkdir( $dir, $permission, true ) ) {
+            return file_put_contents( $path, $data, $flags );
+        }
+        // Return false if directory creation fails:
+        return false;
+    }
 
     /**
      * file_exists
