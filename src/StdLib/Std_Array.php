@@ -102,6 +102,7 @@ class Std_Array {
      * merge arrays recursively without combining values of the same key into an array
      * this function is similar to array_merge_recursive but does not change the datatypes of the values in the arrays.
      * will accept any number of arrays as arguments.
+     * array values are passed by reference but will not be changed by this function.
      * @param array $array1
      * @param array $array2
      * @return array
