@@ -129,11 +129,11 @@ class Std_String {
 
     /**
      * str_strip_comments - remove comments from strings
-	 * From https://stackoverflow.com/a/19136663/319266
+	 * From https://stackoverflow.com/a/31907095/2510785
 	 * @param string $str
 	 */
 	public static function strip_comments(string $str = '' ) : string {
-		return preg_replace('~(" (?:\\\\. | [^"])*+ ") | \# [^\v]*+ | // [^\v]*+ | /\* .*? \*/~xs', '$1', $str);
+        return preg_replace('/(?:(?:\/\*(?:[^*]|(?:\*+[^*\/]))*\*+\/)|(?:(?<!\:|\\\|\'|\")\/\/.*))/', '', $str) ?? "";
 	}
 
 }
