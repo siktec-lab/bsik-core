@@ -315,6 +315,32 @@ class Std_Array {
     }
 
     /**
+     * path_unset
+     * walks an array given a string of keys with '.' notation to unset inner value
+     * if the path is not found it will not do anything
+     * only the . notation is supported don't use wildcards or level ignore
+     * @param  string $path - example "key1.key2"
+     * @param  array  $data - the array to walk
+     * @return bool - true if the path was found and unset false if not
+     */
+    final public static function path_unset(string $path, array $data = []) : bool {
+        $keys = explode('.', $path);
+        $last = array_pop($keys);
+        $tmp  = &$data;
+        foreach ($keys as $key) {
+            if (!isset($tmp[$key]) || !is_array($tmp[$key])) {
+                return false;
+            }
+            $tmp = &$tmp[$key];
+        }
+        if (is_array($tmp) && array_key_exists($last, $tmp)) {
+            unset($tmp[$last]);
+            return true;
+        }
+        return false;
+    }
+    
+    /**
      * values_are_not
      * check if an array don't have values - that means that if any of the values are strictly equals
      * to one of the given values the function will return false
