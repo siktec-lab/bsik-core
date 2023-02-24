@@ -208,9 +208,9 @@ class Std_Array {
      * use '~' for level ignore.
      * @param  mixed $pattern
      * @param  mixed $path
-     * @return void
+     * @return bool
      */
-    final public static function in_array_path(string $pattern, string $path) {
+    final public static function in_array_path(string $pattern, string $path) : bool {
         $keys   = explode('.', $path);
         $steps  = explode('.', $pattern);
         $wild = false;
@@ -248,7 +248,7 @@ class Std_Array {
      * use '*' for wildcard traversal
      * use '~' for level ignore.
      * @param  string $path - example "key1.key2" | 'theme.*.color'
-     * @param  array  $arr
+     * @param  array  $data - the array to walk
      * @param  mixed  $notfound - default value to return - null by default if nothing was found
      * @param  bool   $already_flatten - if the data is allready flatten, This is usefull to prevent repeatedly flattening of the data 
      * @return ?array
@@ -268,6 +268,26 @@ class Std_Array {
             }
         }
         return empty($return) ? $notfound : $return;
+    }
+        
+    /**
+     * path_get_one
+     * walks an array given a string of keys with '.' notation to get inner value or default return
+     * Using a wildcard "*" will search intermediate arrays and return an array.
+     * ex *.num == one.two.num.
+     * use '.' for keys traversal
+     * use '*' for wildcard traversal
+     * use '~' for level ignore.
+     * @param  string $path - example "key1.key2" | 'theme.*.color'
+     * @param  array  $data - the array to walk
+     * @param  mixed  $notfound - default value to return - null by default if nothing was found
+     * @param  bool   $already_flatten - if the data is allready flatten, This is usefull to prevent repeatedly flattening of the data
+     * @return mixed
+     */
+    final public static function path_get_one(string $path, array $data = [], mixed $notfound = null, bool $already_flatten = false) : mixed {
+        $return = self::path_get($path, $data, null, $already_flatten);
+        // Return is an array or null:
+        return is_array($return) && count($return) > 0 ? $return[0] : $notfound;
     }
     
     /**
