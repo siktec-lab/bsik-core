@@ -137,13 +137,19 @@ class Std_FileSystem {
      * @param  string $path - the path to the file
      * @param  array  $data - the data to save
      * @param  bool   $pretty - pretty print the json
+     * @param  int    $flags - json flags
      * @param  bool   $create - create the file if it does not exist
      * @return bool
      */
-    final public static function put_json_file(string $path, array $data, bool $pretty = true, bool $create = true) : bool {
-        
+    final public static function put_json_file(string $path, array $data, bool $pretty = true, int $flags = 0,  bool $create = true) : bool {
+
+        //Add to flags if pretty make sure it is not already set:
+        if ($pretty && !($flags & JSON_PRETTY_PRINT)) {
+            $flags |= JSON_PRETTY_PRINT;
+        }
+
         // Encode data:
-        $json = json_encode($data, $pretty ? JSON_PRETTY_PRINT : 0);
+        $json = json_encode($data, $flags);
 
         // Create file if it does not exist:
         return !empty($json) ? self::put_file($path, $json, $create) : false;
@@ -158,13 +164,19 @@ class Std_FileSystem {
      * @param  string $path - the path to the file
      * @param  array $data - the data to save
      * @param  bool $pretty - pretty print the json
+     * @param  int $flags - json flags
      * @param  int $permission - the permission to set on the directory if it is created
      * @return bool
      */
-    final public static function put_json_file_force(string $path, array $data, bool $pretty = true, int $permission = 0777) : bool {
+    final public static function put_json_file_force(string $path, array $data, bool $pretty = true, int $flags = 0, int $permission = 0777) : bool {
         
+        //Add to flags if pretty make sure it is not already set:
+        if ($pretty && !($flags & JSON_PRETTY_PRINT)) {
+            $flags |= JSON_PRETTY_PRINT;
+        }
+
         // Encode data:
-        $json = json_encode($data, $pretty ? JSON_PRETTY_PRINT : 0);
+        $json = json_encode($data, $flags);
         
         // Create file if it does not exist with directory Creation:
         return !empty($json) ? self::put_file_force($path, $json, 0, $permission) : false;
