@@ -39,7 +39,14 @@ class ModuleDefinition {
             $this->struct
         );
     }
-
+    
+    /**
+     * get_value
+     * returns a value using a system naming for cross module compatibility
+     * if the you need to translate the path keys use the $ prefix e.g. "$path.to.value" or "path.$to.value"
+     * @param  string $path = "path.to.value" use keys separated by dots see Std::$arr::path_get()
+     * @return mixed the value of the path or null if not found
+     */
     public function get_value(string $path) : mixed {
         $data = $this->get_values($path);
         if (is_array($data) && !empty($data)) {
