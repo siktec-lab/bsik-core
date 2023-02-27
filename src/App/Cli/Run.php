@@ -31,17 +31,7 @@ class Run {
 
     EOT;
 
-    const LOGO2 = <<<EOT
-
-     ____   ____   ___  _  __
-    | __ ) / ___| |_ _|| |/ /
-    |  _ \ \___ \  | | | ' / 
-    | |_) | ___) | | | | . \ 
-    |____/ |____/ |___||_|\_\
-                                
-    EOT;
-
-    protected string $cwd;
+    protected string $cwd; 
 
     public function __construct($cwd = null) {
 
