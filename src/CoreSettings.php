@@ -12,6 +12,16 @@ if (!defined('DS'))
 if (!defined('ROOT_PATH')) 
     die("ROOT_PATH is not defined. Please define ROOT_PATH or include bsik.php first.");
 
+if (!defined('PLAT_CHARSET'))
+    define('PLAT_CHARSET', 'utf-8');
+
+if (!defined('BSIK_SET_DOMAIN'))
+    define("BSIK_SET_DOMAIN", "http://localhost");
+
+if (!defined('BSIK_IN_FOLDER'))
+    define("BSIK_IN_FOLDER", "");
+
+
 use \Siktec\Bsik\Std;
 use \Siktec\Bsik\Storage\MysqliDb;
 use \Siktec\Bsik\Objects\SettingsObject;
@@ -55,10 +65,11 @@ class CoreSettings {
         "manage-lib" => "",
     ];
 
+    //TODO: Add all of those to the settings table:
     public static array $default_values = [
         // Paths: ---------------------------------------------------/
-        "url-base-domain"                  => "http://localhost",
-        "url-root-folder"                  => "bsik1",
+        "url-base-domain"                   => BSIK_SET_DOMAIN,
+        "url-root-folder"                   => BSIK_IN_FOLDER,
         // Module: ---------------------------------------------------/
         "module-default-load"               => "dashboard",
         "module-default-load-view"          => "default",
@@ -166,6 +177,7 @@ class CoreSettings {
         date_default_timezone_set(self::get("core-time-zone", ""));
         // if headers not sent yet...
         if (!headers_sent()) {
+            header('Content-Type: text/html; charset='.PLAT_CHARSET);
             ini_set("session.gc_maxlifetime", self::get("core-session-lifetime", ""));
             ini_set("session.cookie_lifetime", self::get("core-session-lifetime", ""));
         }
