@@ -1,15 +1,21 @@
 <?php
 
-namespace Siktec\Bsik\FsTools;
+namespace Siktec\Bsik\StdLib;
 
 use \Exception;
 use \SplFileInfo;
 use \ZipArchive;
 
-class BsikZip {
+class Std_Zip {
 
-
-    final public static function zip_status_message($status) : string {
+    /**
+     * zip_status_message
+     * get the message for a zip status code
+     * e.g. zip_status_message(ZipArchive::ER_OK) // returns 'N No error'
+     * @param  int $status - the status code
+     * @return string
+     */
+    final public static function zip_status_message(int $status) : string {
         switch( (int) $status )
         {
             case ZipArchive::ER_OK           : return 'N No error';
@@ -41,9 +47,10 @@ class BsikZip {
     }   
 
     /** 
-     * list_files - list all files with name and index - keys are unique full path.
+     * list_files 
+     * list all files with name and index - keys are unique full path.
      * @param ZipArchive $zip
-     * @return array => empty on zip not loaded
+     * @return array - array of files with name and index or empty array if no files or zip error.
      */
     final public static function list_files(ZipArchive $zip) : array {
         $list = [];
@@ -61,19 +68,22 @@ class BsikZip {
     }
 
     /** 
-     * zip_folder - loads the archive into memory
+     * zip_folder
+     * zip a folder and all its content recursively
+     * also exclude files and folders from zip
+     * will do its best to keep the folder structure even empty folders
      * 
-     * @param string $path  => the path to the folder to zip
-     * @param string $out   => the zip full name (path + name)
-     * @param array $exclude => array of paths to exclude from zip
-     * @throws Exception    => E_PLAT_ERROR on zip cant be opened from 'open_zip'.
-     * @return bool   => true on saved
+     * @param string    $path  - the folder full path to zip
+     * @param string    $out   - output zip full name (path + name)
+     * @param array     $exclude - array of paths to exclude from zip
+     * @throws Exception - if zip cant be opened thrown from `open_zip`
+     * @return bool - true if zip was created successfully
      */
     final public static function zip_folder(string $path, string $out, array $exclude = []) : bool {
         $zip = self::open_zip($out, ZipArchive::CREATE | ZipArchive::OVERWRITE);
         /** @var \RecursiveIteratorIterator $files */
         $origin_path = new SplFileInfo($path);
-        $files = BsikFileSystem::list_folder($origin_path) ?? [];
+        $files = Std_FileSystem::list_folder($origin_path) ?? [];
         foreach ($files as $name => $file) {
             // Get real and relative path for current file
             $filePath = $file->getRealPath();
@@ -105,30 +115,32 @@ class BsikZip {
     }
 
     /** 
-     * open_zip - loads the archive into memory
+     * open_zip 
+     * loads the archive into memory
      * 
-     * @param string $path => the zip full name (path + name)
-     * @param ?int $flags => ZipArchive FLAGS
-     * @throws Exception => E_PLAT_ERROR on zip cant be opened.
-     * @return ZipArchive => the zip object
+     * @param string        $path - the zip full name (path + name)
+     * @param ?int          $flags - ZipArchive FLAGS
+     * @throws Exception    - E_PLAT_ERROR on zip cant be opened.
+     * @return ZipArchive   - the zip object
      */
     final public static function open_zip(string $path, int $flags = 0) : ZipArchive {
         $zip = new ZipArchive();
         $result = $zip->open($path, $flags);
         if ($result !== true) {
             $error = self::zip_status_message($result);
-            throw new Exception("Module zip file cant be opened [{$error}]", E_PLAT_ERROR);
+            throw new Exception("Zip file can't be opened [{$error}]");
         }
         return $zip;
     }
 
     /** 
-     * extract - extract the loaded zip archive to a folder
+     * extract 
+     * extract the loaded zip archive to a folder
      * 
-     * @param ZipArchive|string $zip
-     * @param string $to
-     * @throws Exception => E_PLAT_ERROR on zip cant be opened.
-     * @return bool      => the extracted path
+     * @param ZipArchive|string $zip - the zip object or the zip full path
+     * @param string $to - the folder full path to extract to
+     * @throws Exception - on zip cant be opened thrown from `open_zip`
+     * @return bool - true if zip was extracted successfully
      */
     final public static function extract_zip(ZipArchive|string $zip, string $to, int $flags = 0) : bool {
         $close = false;

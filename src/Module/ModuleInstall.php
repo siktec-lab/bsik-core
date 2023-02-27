@@ -10,8 +10,6 @@ use \SplFileInfo;
 use \Siktec\Bsik\Std;
 use \Siktec\Bsik\CoreSettings;
 use \Siktec\Bsik\Base;
-use \Siktec\Bsik\FsTools\BsikZip;
-use \Siktec\Bsik\FsTools\BsikFileSystem;
 use Siktec\Bsik\Module\Schema\ModuleDefinition;
 use \Siktec\Bsik\Module\Schema\ModuleSchema;
 
@@ -27,13 +25,15 @@ use \Siktec\Bsik\Module\Schema\ModuleSchema;
 class ModuleInstall {
 
     //Path and extraction related:
-    private const           TEMP_FOLDER_PREFIX  = "bsik_m_temp_";
-    private string          $rand_id            = "";
-    private string          $temp_folder_path   = "";  
-    private ?SplFileInfo    $install_in        = null;
-    public  ?SplFileInfo    $temp_extracted    = null;
-    private ?SplFileInfo    $source            = null;
-    public  ?ZipArchive     $zip               = null;
+    public const            MODULE_FILE_EXT         = "zip";
+    public const            MODULE_REGISTER_TABLE   = "bsik_modules";
+    private const           TEMP_FOLDER_PREFIX      = "bsik_m_temp_";
+    private string          $rand_id                = "";
+    private string          $temp_folder_path       = "";  
+    private ?SplFileInfo    $install_in             = null;
+    public  ?SplFileInfo    $temp_extracted         = null;
+    private ?SplFileInfo    $source                 = null;
+    public  ?ZipArchive     $zip                    = null;
 
     //Validation related
     public const REQUIRED_FILES_INSTALL = [
@@ -45,6 +45,9 @@ class ModuleInstall {
         "module.php"   => "exists"
     ];
 
+    public const MODULE_STATUS_DISABLED = 0;
+    public const MODULE_STATUS_ACTIVE   = 1;
+    public const MODULE_STATUS_UPDATES  = 2;
     /** 
      * Construct ModuleInstall
      * 
@@ -64,7 +67,7 @@ class ModuleInstall {
         $this->rand_id          = std::$date::time_datetime("YmdHis");
         $this->temp_folder_path = Std::$fs::path($this->install_in->getRealPath(), self::TEMP_FOLDER_PREFIX.$this->rand_id);
         if ($load_zip) {
-            $this->zip = BsikZip::open_zip($this->source->getRealPath() ?: "");
+            $this->zip = Std::$zip::open_zip($this->source->getRealPath() ?: "");
         } 
         
     }
@@ -78,7 +81,7 @@ class ModuleInstall {
         $errors = [];
         if ($this->zip->filename && $this->zip->status === ZipArchive::ER_OK) {
             //List the files in zip
-            $list = BsikZip::list_files($this->zip);
+            $list = Std::$zip::list_files($this->zip);
             //Validate required - simple validation just of presence and format:
             foreach ($required as $file => $validate) {
                 if (array_key_exists($file, $list)) {
@@ -160,13 +163,15 @@ class ModuleInstall {
     }
 
     /** 
-     * temp_deploy - extract the loaded zip archive to a folder
+     * temp_deploy
+     * extracts the loaded zip archive to a temp folder inside
+     * the install folder.
      * 
      * @param   bool $close_after - whether to close the zip file or not.
      * @return  bool true when success
      */
     public function temp_deploy(bool $close_after = false, int $flags = 0) : bool {
-        if ($result = BsikZip::extract_zip($this->zip, $this->temp_folder_path, $flags)) {
+        if ($result = Std::$zip::extract_zip($this->zip, $this->temp_folder_path, $flags)) {
             $this->temp_extracted = new SplFileInfo($this->temp_folder_path);
         } 
         if ($close_after) {
@@ -175,6 +180,12 @@ class ModuleInstall {
         return $result;
     }
     
+    public function temp_delete() : bool {
+        if ($this->temp_extracted && $path = $this->temp_extracted->getRealPath()) {
+            return Std::$fs::clear_folder($path, true);
+        }
+        return false;
+    }
     /**
      * clean - will clear an remove the temp folder if its there
      * 
@@ -182,7 +193,7 @@ class ModuleInstall {
      */
     public function clean() : bool {
         if ($this->temp_extracted && $path = $this->temp_extracted->getRealPath()) {
-            return BsikFileSystem::clear_folder($path, true);
+            return Std::$fs::clear_folder($path, true);
         }
         return false;
     }
@@ -257,26 +268,32 @@ class ModuleInstall {
         return $module_def;
     }
 
-    public function install($by = null, ?string $from = null) : array {
+    public function install($by = null, ?string $from = null, ?ModuleDefinition $module_def = null) : array {
 
         $from = $from ?? $this->temp_extracted->getRealPath();
         $installed = [];
         
-        $errors = [];
-        $module_def = $this->get_definition_from_folder($from, $errors);
-        if (!empty($errors)) {
-            return [false, $errors, []];
+        if (is_null($module_def)) {
+            // Get the module definition from the given path:
+            $errors = [];
+            $module_def = $this->get_definition_from_folder($from, $errors);
+            if (!empty($errors)) {
+                return [false, $errors, []];
+            }
         }
 
         // Install from module define:
         if ($module_def->get_value("schema_type") === "module") {
+            
             //Install the module:
             [$status, $module_name, $errors] = $this->install_definition($module_def, $by);
+
             if (!$status) {
                 return [false, $errors, $installed];
             } else {
                 $installed[] = $module_name;
             }
+
         } elseif ($module_def->get_value("schema_type") === "install") {
             //Its an install schema:
             switch ($module_def->get_value("this.type")) {
@@ -291,16 +308,78 @@ class ModuleInstall {
                     }
                 } break;
                 case "bundle" : {
-                    return [false, "bundle installation is not supported yet", []];
+                    return [false, ["bundle installation is not supported yet"], []];
                 } break;
             }
         }
     
         //Return
-        return [true, "installed", $installed];
+        return [true, ["installed"], $installed];
     }
 
     private function install_definition(ModuleDefinition $module, $by = null) : array {
+
+        $name = $module->get_value('name');
+        $name = Std::$str::filter_string($name ?? "unknown", ["A-Z","a-z","0-9", "_"]);
+        $type = $module->get_value('type');
+        $path = Std::$fs::path($this->install_in->getRealPath(), $name);
+        
+        // validate its a new module:
+        if ( Std::$fs::path_exists($path) ) {
+            return [true, $name, ["Module already installed - you must uninstall it first or use the update command."]]; // We return true because its allready in
+        }
+
+        // Load the schema to use:
+        $schema = new ModuleSchema("module", $module->get_value("schema"));
+        if (!$schema->is_loaded()) {
+            return [false, $name, [$schema->get_message()]];
+        }
+
+        // install the module:
+        //Now install the module:
+        switch ($type) {
+
+            case "included": {
+
+                //Move temp folder:
+                if (!Std::$fs::xcopy($this->temp_extracted->getRealPath(), $path)) {
+                    return [false , $name , ["failed to copy module to destination"]];
+                }
+
+                //Register on DataBase:
+                $info = $module->struct;
+
+                // Remove the schema and menu from the info:
+                unset($info["menu"]);
+                unset($info["\$schema_naming"]);
+                unset($info["\$schema_required"]);
+
+                // Register the module:
+                // if (!Base::$db->insert("bsik_modules", [
+                //     "name"          => $name,
+                //     "status"        => self::MODULE_STATUS_ACTIVE,
+                //     "updates"       => 0,
+                //     "path"          => $name.DIRECTORY_SEPARATOR,
+                //     "settings"      => "{}",
+                //     "menu"          => json_encode($module->struct[$schema->naming("menu_container")]),
+                //     "version"       => $module->get_value("ver"),
+                //     "created"       => Base::$db->now(),
+                //     "updated"       => Base::$db->now(),
+                //     "info"          => json_encode($info),
+                //     "installed_by"  => $by
+                // ])) {
+                //     //Remove folder:
+                //     BsikFileSystem::clear_folder($path, true);
+                //     return [false, $name, ["failed to register module to database"]];
+                // };
+            } break;
+            case "remote": {
+                return [false, $name, ["remote modules are not supported yet"]];
+            } break;
+        }
+
+        return [true, $name, ["module installed"]];
+
         return [];
     }
 
@@ -313,13 +392,13 @@ class ModuleInstall {
                 Base::$db->where("name", $module_name)->has("bsik_modules")
             ||  Std::$fs::path_exists($module_path)
         ) {
-            return [true, $module_name, "allready installed"]; // We return true because its allready in
+            return [true, $module_name, ["allready installed"]]; // We return true because its allready in
         }
         
         //Load schema:
         $schema = new Schema\ModuleSchema("module", $single_definition["schema"] ?? "");
         if (!$schema->is_loaded()) {
-            return [false, $module_name, $schema->get_message()];
+            return [false, $module_name, [$schema->get_message()]];
         }
 
         //Create the given definition and validate:
@@ -337,8 +416,8 @@ class ModuleInstall {
                     return [false, $module_name, $errors];
                 }
                 //Move temp folder:
-                if (!BsikFileSystem::xcopy($this->temp_extracted->getRealPath(), $module_path)) {
-                    return [false,$module_name,"failed to copy module to destination"];
+                if (!Std::$fs::xcopy($this->temp_extracted->getRealPath(), $module_path)) {
+                    return [false , $module_name , ["failed to copy module to destination"]];
                 }
                 //Register on DataBase:
                 $info = $module->struct;
@@ -359,14 +438,14 @@ class ModuleInstall {
                     "installed_by"  => $by
                 ])) {
                     //Remove folder:
-                    BsikFileSystem::clear_folder($module_path, true);
-                    return [false, $module_name, "failed to register module to database"];
+                    Std::$fs::clear_folder($module_path, true);
+                    return [false, $module_name, ["failed to register module to database"]];
                 };
             } break;
             case "remote": {
-                return [false, $module_name, "remote modules are not supported yet"];
+                return [false, $module_name, ["remote modules are not supported yet"]];
             } break;
         }
-        return [true, $module_name, "module installed"];
+        return [true, $module_name, ["module installed"]];
     }
 }

@@ -23,6 +23,7 @@ class Std {
     public static StdLib\Std_Url           $url;
     public static StdLib\Std_Date          $date;
     public static StdLib\Std_FileSystem    $fs;
+    public static StdLib\Std_Zip           $zip;
     public static StdLib\Std_General       $gen;
 }
 
@@ -32,4 +33,5 @@ Std::$arr       = new StdLib\Std_Array;
 Std::$url       = new StdLib\Std_Url;
 Std::$date      = new StdLib\Std_Date;
 Std::$fs        = new StdLib\Std_FileSystem;
+Std::$zip       = new StdLib\Std_Zip;
 Std::$gen       = new StdLib\Std_General;

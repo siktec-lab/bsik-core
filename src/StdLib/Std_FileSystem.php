@@ -196,7 +196,6 @@ class Std_FileSystem {
         return $file;
     }
 
-        
     /**
      * put_file
      * saves a string to a file and returns true if successful
@@ -270,6 +269,20 @@ class Std_FileSystem {
         }
         return false;
     }
+        
+    /**
+     * delete_files
+     * deletes a list of files if they exist
+     * @param  array $files - packed list of files to delete e.g. delete_files($file1, $file2, $file3);
+     * @return void
+     */
+    final public static function delete_files(...$files) : void {
+        foreach ($files as $file) {
+            if (file_exists($file)) {
+                @unlink($file);
+            }
+        }
+    }
     
     /**
      * path_exists
@@ -285,7 +298,7 @@ class Std_FileSystem {
                 return trim($part, " \t\n\r\\/");
             },
             $path_to_file
-    )   );
+        ));
         if (file_exists($path)) {
             return $path;
         }
@@ -306,8 +319,7 @@ class Std_FileSystem {
         }
         return round($size, $precision).' '.$unit[$i];
     }
-
-        
+     
     /**
      * format_size_to
      * converts between sizes
@@ -383,7 +395,6 @@ class Std_FileSystem {
         'ods' => 'application/vnd.oasis.opendocument.spreadsheet'
     ];
 
-        
     /**
      * get_mimetypes
      * return the full mimetype name
@@ -429,5 +440,138 @@ class Std_FileSystem {
             }
         ));
     }
-
+        
+    /**
+     * list_folder
+     * list all files in a folder recursively 
+     * this method return a RecursiveIteratorIterator unlike list_files_in that return an array
+     * @param  string|\SplFileInfo $path
+     * @return ?RecursiveIteratorIterator - null if the path is not a directory
+     */
+    final public static function list_folder(string|\SplFileInfo $path) : ?\RecursiveIteratorIterator {
+        $folder = is_string($path) ? new \SplFileInfo($path) : $path;
+        if (!$folder->isDir())
+            return null;
+        /** @var \RecursiveIteratorIterator SplFileInfo[] $files */
+        return new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($folder->getRealPath()), \RecursiveIteratorIterator::LEAVES_ONLY);
+    }
+    
+    /**
+     * mkdir
+     * create a directory if not exists
+     * @param  string   $path_dir - the path to the directory
+     * @param  int      $permissions - the permissions default 0777
+     * @param  bool     $recursive - create the directory recursively
+     * @return bool
+     */
+    final public static function mkdir(string $path_dir, int $permissions = 0777, bool $recursive = true) : bool {
+        if (!is_dir($path_dir)) {
+            return mkdir($path_dir, $permissions, $recursive);
+        }
+        return false;
+    }
+    
+    /**
+     * create_folder
+     * create a directory if not exists
+     * alias of mkdir
+     * @param  string   $path_dir - the path to the directory
+     * @param  int      $permissions - the permissions default 0777
+     * @param  bool     $recursive - create the directory recursively
+     * @return bool
+     */
+    final public static function create_folder(string $path_dir, int $permissions = 0777, $recursive = true) : bool {
+        return self::mkdir($path_dir, $permissions, $recursive);
+    }
+    
+    /**
+     * clear_folder
+     * clear a folder and delete all files and subfolders
+     * will remove the folder if $self is true
+     * @param  string $path_dir - the path to the directory
+     * @param  bool $self - remove the folder if true
+     * @return bool - true if the folder is cleared
+     */
+    final public static function clear_folder(string $path_dir, bool $self = false) : bool {
+        if (!file_exists($path_dir)) return false;
+        $di = new \RecursiveDirectoryIterator($path_dir, \FilesystemIterator::SKIP_DOTS);
+        $ri = new \RecursiveIteratorIterator($di, \RecursiveIteratorIterator::CHILD_FIRST);
+        foreach ( $ri as $file ) {
+            $file->isDir() ?  rmdir($file) : self::delete_files($file);
+        }
+        if ($self) {
+            rmdir($path_dir);
+        }
+        return true;
+    }
+    
+    /**
+     * hash_directory
+     * hash a directory and all its subdirectories
+     * creates a hash of all files in a directory and its subdirectories
+     * based on all file names, and directory names
+     * @param  string $path - the path to the directory
+     * @return string|false - the hash or false if the path is not a directory 
+     */
+    final public static function hash_directory(string $path) : string|false {
+        if (!is_dir($path)) { 
+            return false; 
+        }
+        $files = [];
+        $dir = dir($path);
+        while (false !== ($file = $dir->read())) {
+            if ($file != '.' and $file != '..') {
+                if (is_dir($path . DIRECTORY_SEPARATOR . $file)) { 
+                    $files[] = self::hash_directory($path . DIRECTORY_SEPARATOR . $file); 
+                } else { 
+                    $files[] = md5_file($path . DIRECTORY_SEPARATOR . $file); 
+                }
+            }
+        }
+        $dir->close();
+        return md5(implode('', $files));
+    }
+    
+    /**
+     * xcopy
+     * copy a directory and all its subdirectories to a given destination
+     * @param  string $source - the source directory
+     * @param  string $dest - the destination directory
+     * @param  int    $permissions - the permissions default 0755
+     * @return bool
+     */
+    final public static function xcopy(string $source, string $dest, int $permissions = 0755) : bool {
+        $sourceHash = self::hash_directory($source);
+        // Check for symlinks
+        if (is_link($source))
+            return symlink(readlink($source), $dest);
+        // Simple copy for a file
+        if (is_file($source)) {
+            $file = explode(DIRECTORY_SEPARATOR, $source);
+            return copy(
+                    $source, is_dir($dest) 
+                    ? rtrim($dest, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.end($file) 
+                    : $dest
+            );
+        }
+        // Make destination directory
+        if (!is_dir($dest)) 
+            mkdir($dest, $permissions, true);
+        // Loop through the folder
+        $dir = dir($source);
+        while (false !== $entry = $dir->read()) {
+            // Skip pointers
+            if ($entry == '.' || $entry == '..')
+                continue;
+            // Deep copy directories
+            if ($sourceHash != self::hash_directory($source.DIRECTORY_SEPARATOR.$entry)) {
+                if (!self::xcopy($source.DIRECTORY_SEPARATOR.$entry, $dest.DIRECTORY_SEPARATOR.$entry, $permissions)) {
+                    return false;
+                }
+            }
+        }
+        // Clean up
+        $dir->close();
+        return true;
+    }
 }

@@ -4,8 +4,6 @@ require_once "bootstrap.php";
 
 use \PHPUnit\Framework\TestCase;
 use \Siktec\Bsik\Std;
-use \Siktec\Bsik\FsTools\BsikFileSystem;
-use \Siktec\Bsik\FsTools\BsikZip;
 
 use function PHPUnit\Framework\directoryExists;
 use function PHPUnit\Framework\fileExists;
@@ -32,7 +30,7 @@ class FsToolsTest extends TestCase
         //we do that because empty folders are not carried over by git
         $emptyfolder = Std::$fs::path(__DIR__, "resources", "zipfolder", "emptyfolder");
         if (!file_exists($emptyfolder)) {
-            BsikFileSystem::mkdir($emptyfolder);
+            Std::$fs::mkdir($emptyfolder);
         }
     }
 
@@ -43,7 +41,7 @@ class FsToolsTest extends TestCase
 
     public function testListFolderRecursiveIterator() : void {
         /** @var \RecursiveIteratorIterator $list */
-        $list = BsikFileSystem::list_folder(self::$zipfolder) ?? [];
+        $list = Std::$fs::list_folder(self::$zipfolder) ?? [];
         $structure = [];
         foreach ($list as $fullname => $file)
         {
@@ -68,7 +66,7 @@ class FsToolsTest extends TestCase
     public function testFolderZip() : void {
         
         $out = Std::$fs::path(__DIR__, "resources", "temp_zipfolder.zip");
-        BsikZip::zip_folder(self::$zipfolder, $out);
+        Std::$zip::zip_folder(self::$zipfolder, $out);
         $this->assertTrue(file_exists($out), "zip file not created.");
         //Register for teardown clean:
         if (file_exists($out)) {
@@ -77,12 +75,13 @@ class FsToolsTest extends TestCase
     }
 
     public function testFolderUnzip() : void {
+        
         //Only if we have a zip file:
         if (empty(self::$ziptoRemove)) {
             $this->markTestIncomplete("depends on successful zip creation test");
         }
         $to = Std::$fs::path(self::$zipfolder, "emptyfolder");
-        $suc = BsikZip::extract_zip(self::$ziptoRemove, $to);
+        $suc = Std::$zip::extract_zip(self::$ziptoRemove, $to);
         $this->assertTrue($suc, "zip file not created.");
         if ($suc) {
             self::$folderToClear = $to;
@@ -90,12 +89,14 @@ class FsToolsTest extends TestCase
     }
 
     public function testClearFolder() : void {
+        
         //Only if we have a zip file:
         if (empty(self::$folderToClear)) {
             $this->markTestIncomplete("depends on successful zip extract test");
         }
+
         //Clear:
-        BsikFileSystem::clear_folder(self::$folderToClear);
+        Std::$fs::clear_folder(self::$folderToClear);
         $files = scandir(self::$folderToClear);
         $num_files = count($files)-2;
         $this->assertTrue($num_files === 0, "failed to clear folder.");

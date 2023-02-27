@@ -5,7 +5,6 @@ namespace Siktec\Bsik\App\Cli\Commands;
 use \Ahc\Cli\IO\Interactor;
 use \Ahc\Cli\Input\Command;
 use \Siktec\Bsik\Std;
-use \Siktec\Bsik\FsTools\BsikZip as Zip;
 use \Siktec\Bsik\Module\ModuleInstall;
 
 class ExportModuleCommand extends Command
@@ -217,7 +216,7 @@ class ExportModuleCommand extends Command
         }
 
         // Zip the module folder:
-        Zip::zip_folder(
+        Std::$zip::zip_folder(
             path    : $module, 
             out     : $output, 
             exclude : $this->exclude
