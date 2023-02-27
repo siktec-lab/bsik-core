@@ -152,10 +152,18 @@ trait ComposerCommandsTrait
      * @param  string $package package name e.g. "siktec/bsik"
      * @param  string $version version to require e.g. "^1.0.0" if empty the latest version is required
      * @param  bool $dev if true the package is required as dev dependency default false
+     * @param  string $extra extra options e.g. "--no-update" default ""
      * @return array
      */
-    public function run_require(string $package, string $version = '', bool $dev = false): array {
-        $code = $this->run("require " . ($dev ? "--dev " : "") . $package . (!empty($version) ? ":" . $version : ""), true);
+    public function run_require(string $package, string $version = '', bool $dev = false, string $extra = ''): array {
+        $code = $this->run(
+            sprintf("require %s %s %s", 
+                $dev ? "--dev" : "", 
+                $extra, 
+                $package . (!empty($version) ? ":" . $version : "")
+            ), 
+            true
+        );
         $data = $this->stream_contents() ?? "";
         return [
             'result'    => $code === 0,
@@ -168,10 +176,16 @@ trait ComposerCommandsTrait
      * run_update
      * update all packages or a specific package
      * @param  string $package package name e.g. "siktec/bsik" if empty all packages are updated
+     * @param  string $extra extra options e.g. "--no-scripts" default ""
      * @return array
      */
-    public function run_update(string $package = ''): array {
-        $code = $this->run("update " . (!empty($package) ? $package : ""), true);
+    public function run_update(string $package = '', string $extra = ''): array {
+        $code = $this->run(
+            sprintf("update %s %s", 
+                $extra, 
+                !empty($package) ? $package : ""
+            ),
+            "update " . (!empty($package) ? $package : ""), true);
         $data = $this->stream_contents() ?? "";
         return [
             'result'    => $code === 0,
