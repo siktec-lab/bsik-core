@@ -141,7 +141,9 @@ final class Composer
 
         // add cwd option if not already added
         if (strpos($input, self::CWD_OPTION) === false) {
-            $input .= ' ' .  self::CWD_OPTION . '=' . escapeshellarg($this->cwd);
+            // escape the cwd path to avoid problems with spaces and add backslashes to backslashes
+            $cwd = str_replace('\\', '\\\\', $this->cwd);
+            $input .= ' ' .  self::CWD_OPTION . '=' . escapeshellarg($cwd);
         }
 
         // add no interaction option if not already added
@@ -153,7 +155,7 @@ final class Composer
         if (strpos($input, self::QUIET_OPTION) === false) {
             $input .= ' ' .  self::QUIET_OPTION;
         }
-        
+
         // Parse the command line arguments
         $cli_args = is_string($input) && !empty($input) ?
                 new \Symfony\Component\Console\Input\StringInput($input) :
