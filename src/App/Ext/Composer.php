@@ -31,6 +31,8 @@ final class Composer
 
     const NO_INTERACTION_OPTION = '--no-interaction';
 
+    const QUIET_OPTION = '--quiet';
+
     const COMPOSER_JSON_FILE = 'composer.json';
 
     /**
@@ -63,6 +65,8 @@ final class Composer
      * null to use the default current working directory
      */
     private ?string $cwd = null; 
+
+    private bool $quiet = false;
 
     /**
      * constructor
@@ -145,13 +149,15 @@ final class Composer
             $input .= ' ' .  self::NO_INTERACTION_OPTION;
         }
 
+        // add quiet option if not already added
+        if (strpos($input, self::QUIET_OPTION) === false) {
+            $input .= ' ' .  self::QUIET_OPTION;
+        }
+        
         // Parse the command line arguments
         $cli_args = is_string($input) && !empty($input) ?
                 new \Symfony\Component\Console\Input\StringInput($input) :
                 null;
-
-        // show all cli_args parsed
-        // echo $cli_args->__toString();
 
         // Cache the original argv[0] value, if it exists, and set it to a dummy
         if (array_key_exists('argv', $_SERVER) && !empty($_SERVER['argv'])) {
@@ -166,22 +172,6 @@ final class Composer
             ftruncate($this->stream_resource, 0);
             rewind($this->stream_resource);
         }
-
-        // Get windows system include path:
-        // $path = getenv('PATH');
-        // var_dump($_SERVER['PATH'] ?? null);
-        // putenv('SYMFONY_ENV=' . $path);
-        // var_dump($path);
-        var_dump(getenv('Path'));
-
-        // Set the symfony ENV include path to the system include path to avoid issues with the git:
-        // $include_path = get_include_path();
-        // get system include path:
-
-        // var_dump($include_path);
-        // putenv('SYMFONY_ENV=' . $include_path);
-        // var_dump($_ENV);
-        // var_dump($_SERVER['argv'] ?? null);
         
         // Run the Composer application
         $exitcode = $this->application->run(
@@ -193,8 +183,7 @@ final class Composer
         if (isset($argv0))
             $_SERVER['argv'][0] = $argv0;
 
-        // return $exitcode;
-        return 0;
+        return $exitcode;
     }
     
     /** 
@@ -207,11 +196,19 @@ final class Composer
 
         // set the current working directory
         $this->cwd = trim($cwd ?? getcwd());
-
-        // add escape backslashes
-        // $this->cwd = str_replace('\\', '\\\\', $this->cwd); // TODO: check if this is needed or not
     }
-    
+        
+    /**
+     * be_quiet
+     * set quiet mode on or off 
+     * if quiet mode all --quiet options will be added to the composer command
+     * 
+     * @param  mixed $enable
+     * @return void
+     */
+    public function be_quiet(bool $enable = true) : void {
+        $this->quiet = $enable;
+    }
     /**
      * get_composer_config
      * get the composer config file if it exists
