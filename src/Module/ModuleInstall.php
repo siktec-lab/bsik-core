@@ -186,6 +186,7 @@ class ModuleInstall {
         }
         return false;
     }
+    
     /**
      * clean - will clear an remove the temp folder if its there
      * 
