@@ -20,6 +20,27 @@ class Run {
         Commands\ExportModuleCommand::class,
     ];
 
+    const LOGO1 = <<<EOT
+
+    ██████╗  ███████╗ ██╗ ██╗  ██╗
+    ██╔══██╗ ██╔════╝ ██║ ██║ ██╔╝
+    ██████╔╝ ███████╗ ██║ █████╔╝ 
+    ██╔══██╗ ╚════██║ ██║ ██╔═██╗ 
+    ██████╔╝ ███████║ ██║ ██║  ██╗
+    ╚═════╝  ╚══════╝ ╚═╝ ╚═╝  ╚═╝
+
+    EOT;
+
+    const LOGO2 = <<<EOT
+
+     ____   ____   ___  _  __
+    | __ ) / ___| |_ _|| |/ /
+    |  _ \ \___ \  | | | ' / 
+    | |_) | ___) | | | | . \ 
+    |____/ |____/ |___||_|\_\
+                                
+    EOT;
+
     protected string $cwd;
 
     public function __construct($cwd = null) {
@@ -32,6 +53,9 @@ class Run {
         //TODO: maybe its a good idea to load all commands from a folder
         //TODO: maybe its a good idea to prefix all commands with a namespace indicating the source of the command
         
+        //TODO: add response traits to the commands
+        //TODO: add json support to the commands
+
         // InfoCommand:
         $this->cli->add(new Commands\InfoCommand(), Commands\InfoCommand::ALIAS);
         
@@ -64,8 +88,18 @@ class Run {
             alias   : Commands\ExportModuleCommand::ALIAS
         );
         
+        // InstallModuleCommand:
+        $this->cli->add(
+            command : new Commands\InstallModuleCommand( 
+                cwd         : $this->cwd,
+                folder_path : null,
+                as_json     : false
+            ), 
+            alias   : Commands\InstallModuleCommand::ALIAS
+        );
+
         // Set logo
-        $this->cli->logo('BSIK');
+        $this->cli->logo(self::LOGO1); // TODO: add logo from character art
     }
 
     public function handle(?array $argv = null) {
