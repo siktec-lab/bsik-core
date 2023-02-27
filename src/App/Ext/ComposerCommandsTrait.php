@@ -320,27 +320,25 @@ trait ComposerCommandsTrait
      * run_add_classmap
      * add a classmap to the composer.json file
      * @param  array $paths array of paths to add e.g. ["src/", "lib/"]
+     * @param  string $base_path base path to add to the paths e.g. "vendor/siktec/bsik/"
      * @return bool
      */
-    public function run_add_classmap(array $paths) : bool {
+    public function run_add_classmap(array $paths, string $base_path = "") : bool {
         // the classmap is an array of paths:
-        $to_add = [];
         $config = $this->get_composer_config();
         $current = Std::$arr->path_get_one('autoload.classmap', $config, []);
-        if (!empty($current)) {
-            foreach ($paths as $path) {
-                if (!in_array($path, $current)) {
-                    $to_add[] = $path;
-                }
+
+        foreach ($paths as $path) {
+            $path = ltrim(trim($base_path, "\\/ ") . '/' . $path, '/');
+            if (!in_array($path, $current)) {
+                $current[] = $path;
             }
-        } else {
-            $to_add = $paths;
         }
 
         // the classmap is an array of paths:
         return $this->update_composer_config([
             'autoload' => [
-                'classmap' => $to_add
+                'classmap' => $current
             ]
         ]);
     }
@@ -349,15 +347,20 @@ trait ComposerCommandsTrait
      * run_remove_classmap
      * remove a classmap from the composer.json file
      * @param  array $paths array of paths to remove e.g. ["src/", "lib/"]
+     * @param  string $base_path base path to add to the paths e.g. "vendor/siktec/bsik/"
      * @return bool
      */
-    public function run_remove_classmap(array $paths) : bool {
+    public function run_remove_classmap(array $paths, string $base_path = "") : bool {
 
         // the classmap is an array of paths:
         $save = [];
         $config = $this->get_composer_config();
         $current = Std::$arr->path_get_one('autoload.classmap', $config, []);
 
+        // add base path to paths:
+        foreach ($paths as $i => $path) {
+            $paths[$i] = ltrim(trim($base_path, "\\/ ") . '/' . $path, '/');
+        }
         // remove from current:
         foreach ($current as $path) {
             if (!in_array($path, $paths)) {
@@ -374,39 +377,32 @@ trait ComposerCommandsTrait
      * run_add_psr4
      * add a psr4 map to the composer.json file
      * @param  array $maps array of paths to add e.g. ["App\\MyApp\\" => "app/src/", ...]
+     * @param  string $base_path base path to add to the paths e.g. "vendor/siktec/bsik/"
      * @return bool
      */
-    public function run_add_psr4(array $maps) : bool {
+    public function run_add_psr4(array $maps, string $base_path = "") : bool {
         // the classmap is an array of paths:
-        $to_add = [];
         $config = $this->get_composer_config();
         $current = Std::$arr->path_get_one('autoload.psr-4', $config, []);
-
-        if (!empty($current)) {
-            foreach ($maps as $map => $path) {
-                if (array_key_exists($map, $current) && $current[$map] === $path) {
-                    continue;
-                }
-                $to_add[$map] = $path;
+        $count = count($current);
+        foreach ($maps as $map => $path) {
+            $path = ltrim(trim($base_path, "\\/ ") . '/' . $path, '/');
+            if (($current[$map] ?? null) === $path) {
+                continue;
             }
-        } else {
-            $to_add = $maps;
+            $current[$map] = $path;
         }
         
         // if current is empty, and nothing to add, then we're done:
-        if (empty($current) && empty($to_add)) {
+        if ($count === count($current)) {
             return false;
         }
 
-        if (!empty($to_add)) {
-            return $this->update_composer_config([
-                'autoload' => [
-                    'psr-4' => $to_add
-                ]
-            ]);
-        }
-
-        return false;
+        return $this->update_composer_config([
+            'autoload' => [
+                'psr-4' => $current
+            ]
+        ]);
         
     }
     
@@ -416,9 +412,10 @@ trait ComposerCommandsTrait
      * we use only the path to determine if we should remove it
      * 
      * @param  array $paths the paths to remove e.g. ["app/src/", "lib/"]
+     * @param  string $base_path base path to add to the paths e.g. "vendor/siktec/bsik/"
      * @return bool  true if we removed something
      */
-    public function run_remove_psr4(array $paths) : bool {
+    public function run_remove_psr4(array $paths, string $base_path = "") : bool {
 
         $save = [];
         $config = $this->get_composer_config();
@@ -428,6 +425,11 @@ trait ComposerCommandsTrait
         // Current is empty, nothing to remove:
         if (empty($current)) {
             return false;
+        }
+
+        // add base path to paths:
+        foreach ($paths as $i => $path) {
+            $paths[$i] = ltrim(trim($base_path, "\\/ ") . '/' . $path, '/');
         }
 
         // What should we Save:
