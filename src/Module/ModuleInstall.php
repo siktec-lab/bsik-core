@@ -12,14 +12,8 @@ use \Siktec\Bsik\CoreSettings;
 use \Siktec\Bsik\Base;
 use Siktec\Bsik\Module\Schema\ModuleDefinition;
 use \Siktec\Bsik\Module\Schema\ModuleSchema;
+use Siktec\Bsik\Storage\MysqliDb;
 
-/*********************  Load Conf and DataBase  *****************************/
-//TODO: all usage of Base should be removed from this class and passed as a dependency
-//TODO: handle and take care of zip file may be null
-// if (!isset(Base::$db)) {
-//     Base::configure($conf);
-//     Base::connect_db();
-// }
 
 /********************** Installer *******************************************/
 class ModuleInstall {
@@ -34,6 +28,8 @@ class ModuleInstall {
     public  ?SplFileInfo    $temp_extracted         = null;
     private ?SplFileInfo    $source                 = null;
     public  ?ZipArchive     $zip                    = null;
+
+    private ?MysqliDb       $db                     = null;
 
     //Validation related
     public const REQUIRED_FILES_INSTALL = [
@@ -59,7 +55,8 @@ class ModuleInstall {
     public function __construct(
         string|SplFileInfo $source, 
         string|SplFileInfo|null $in = null,
-        bool $load_zip = true
+        bool $load_zip = true,
+        MysqliDb|null $db = null
     ) {
         $in = $in ?? CoreSettings::$path["manage-modules"];
         $this->source           = is_string($source) ? new SplFileInfo($source) : $source;
@@ -69,6 +66,13 @@ class ModuleInstall {
         if ($load_zip) {
             $this->zip = Std::$zip::open_zip($this->source->getRealPath() ?: "");
         } 
+
+        // We try to set the db connection if not passed as a dependency
+        if (is_null($db)) {
+            $this->db = Base::$db;
+        } else {
+            $this->db = $db;
+        }
         
     }
 
@@ -356,23 +360,23 @@ class ModuleInstall {
                 unset($info["\$schema_required"]);
 
                 // Register the module:
-                // if (!Base::$db->insert("bsik_modules", [
-                //     "name"          => $name,
-                //     "status"        => self::MODULE_STATUS_ACTIVE,
-                //     "updates"       => 0,
-                //     "path"          => $name.DIRECTORY_SEPARATOR,
-                //     "settings"      => "{}",
-                //     "menu"          => json_encode($module->struct[$schema->naming("menu_container")]),
-                //     "version"       => $module->get_value("ver"),
-                //     "created"       => Base::$db->now(),
-                //     "updated"       => Base::$db->now(),
-                //     "info"          => json_encode($info),
-                //     "installed_by"  => $by
-                // ])) {
-                //     //Remove folder:
-                //     BsikFileSystem::clear_folder($path, true);
-                //     return [false, $name, ["failed to register module to database"]];
-                // };
+                if (!$this->db->insert("bsik_modules", [
+                    "name"          => $name,
+                    "status"        => self::MODULE_STATUS_ACTIVE,
+                    "updates"       => 0,
+                    "path"          => $name.'/',
+                    "settings"      => "{}",
+                    "menu"          => json_encode($module->struct[$schema->naming("menu_container")]),
+                    "version"       => $module->get_value("ver"),
+                    "created"       => $this->db->now(),
+                    "updated"       => $this->db->now(),
+                    "info"          => json_encode($info),
+                    "installed_by"  => $by // TODO: set the user id or system user.
+                ])) {
+                    //Remove folder:
+                    Std::$fs::clear_folder($path, true);
+                    return [false, $name, ["failed to register module to database"]];
+                };
             } break;
             case "remote": {
                 return [false, $name, ["remote modules are not supported yet"]];
@@ -390,7 +394,7 @@ class ModuleInstall {
 
         // validate its new module:
         if (
-                Base::$db->where("name", $module_name)->has("bsik_modules")
+                $this->db->where("name", $module_name)->has("bsik_modules")
             ||  Std::$fs::path_exists($module_path)
         ) {
             return [true, $module_name, ["allready installed"]]; // We return true because its allready in
@@ -425,16 +429,16 @@ class ModuleInstall {
                 unset($info["menu"]);
                 unset($info["\$schema_naming"]);
                 unset($info["\$schema_required"]);
-                if (!Base::$db->insert("bsik_modules", [
+                if (!$this->db->insert("bsik_modules", [
                     "name"          => $module_name,
                     "status"        => 1,
                     "updates"       => 0,
-                    "path"          => $module_name.DIRECTORY_SEPARATOR,
+                    "path"          => $module_name.'/',
                     "settings"      => "{}",
                     "menu"          => json_encode($module->struct[$schema->naming("menu_container")]),
                     "version"       => $module->struct["ver"],
-                    "created"       => Base::$db->now(),
-                    "updated"       => Base::$db->now(),
+                    "created"       => $this->db->now(),
+                    "updated"       => $this->db->now(),
                     "info"          => json_encode($info),
                     "installed_by"  => $by
                 ])) {
