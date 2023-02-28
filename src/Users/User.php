@@ -21,6 +21,9 @@ use \Siktec\Bsik\Base;
 use \Siktec\Bsik\Privileges as Priv;
 use \Siktec\Bsik\Objects\Password;
 
+if (!defined('PLAT_HASH_SALT')) 
+    define('PLAT_HASH_SALT', "");
+
 class User extends Base {
     
     const USER_TABLE        = "bsik_users";
@@ -93,7 +96,7 @@ class User extends Base {
             $credentials['username'] = strtolower($credentials['username']);
 
             //System password:
-            $Pass = new Password();
+            $Pass = new Password( salt: PLAT_HASH_SALT);
             $Pass->set_password($credentials['password'], false);
 
             //$hashed_password = openssl_digest(PLAT_HASH_SALT.$credentials['password'].PLAT_HASH_SALT, "sha512");
