@@ -109,6 +109,7 @@ class Modules {
      * @throws Exception if module has errors or if the path is not reachable
      * @return bool
      */
+    //TODO: test this what happens if module throws an error should be reflected in the return value
     public static function load_module(string $module_name) : bool {
 
         //If its allready registered:
