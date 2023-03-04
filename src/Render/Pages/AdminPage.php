@@ -239,9 +239,21 @@ class AdminPage extends Base
         foreach (self::$modules::get_all_installed() as &$module_name) {
             $definition = self::$modules::module_installed($module_name);
             $m = json_decode($definition["menu"], true);
-            usort($m["sub"], fn($a, $b) => $a['order'] - $b['order']);
+            // if no menu definition:
+            if (empty($m)) {
+                continue;
+            }
+
+            // if has sub menu:
+            if (!empty($m["sub"] ?? [])) {
+                usort($m["sub"], fn($a, $b) => $a['order'] - $b['order']);
+            }
+
+            // register menu:
             $this->menu[] = $m;
         }
+
+        //Sort menu:
         usort($this->menu, fn($a, $b) => $a['order'] - $b['order']);
     }
     
