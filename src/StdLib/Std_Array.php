@@ -79,8 +79,10 @@ class Std_Array {
      * @return array - filtered array
      */
     final public static function filter_out_by_value(array $input, mixed $exclude, bool $strict = false) : array {
-        if ($key = array_search($exclude, $input, $strict) !== false) {
-            unset($input[$key]);
+        foreach ($input as $key => $value) {
+            if ($strict ? $value === $exclude : $value == $exclude) {
+                unset($input[$key]);
+            }
         }
         return $input;
     }
