@@ -62,75 +62,104 @@ AdminApi::register_endpoint(new ApiEndPoint(
         "offset"        => 0,
     ],
     filter : [ // Defines filters to apply -> this will modify the params.
-        "table_name"    => Validate::filter("trim")::filter("strchars","A-Z","a-z","0-9","_")::create_filter(),
-        "search"        => Validate::filter("trim")::filter("strchars","A-Z","a-z","0-9", "_", " ")::create_filter(),
-        "fields"        => Validate::filter("trim")::filter("strchars","A-Z","a-z","0-9","_")::create_filter(),
+        "table_name"    => Validate::filter("trim")::filter("strchars", "A-Z", "a-z", "0-9", "_", ">")::create_filter(),
+        "search"        => Validate::filter("trim")::filter("strchars", "A-Z", "a-z", "0-9", "_", " ")::create_filter(),
+        "fields"        => Validate::filter("trim")::filter("strchars", "A-Z", "a-z", "0-9", "_")::create_filter(),
         "order"         => Validate::filter("type", "string")::filter("trim")::create_filter(),
-        "sort"          => Validate::filter("trim")::filter("strchars","A-Z","a-z","0-9","_")::create_filter(),
+        "sort"          => Validate::filter("trim")::filter("strchars", "A-Z", "a-z", "0-9", "_")::create_filter(),
         "limit"         => Validate::filter("type", "number")::create_filter(),
         "offset"        => Validate::filter("type", "number")::create_filter(),
-        "searchable"    => Validate::filter("trim")::filter("strchars","A-Z","a-z","0-9","_")::create_filter()
+        "searchable"    => Validate::filter("trim")::filter("strchars", "A-Z", "a-z", "0-9", "_")::create_filter()
     ],
     validation : [ // Defines Validation rules of this endpoint.
-        "table_name"    => Validate::condition("required")::condition("type","string")::create_rule(),
-        "search"        => Validate::condition("type","string")::create_rule(),
-        "fields"        => Validate::condition("type","array")::create_rule(),
-        "searchable"    => Validate::condition("type","array")::create_rule()
+        "table_name"    => Validate::condition("required")::condition("type", "string")::create_rule(),
+        "search"        => Validate::condition("type", "string")::create_rule(),
+        "fields"        => Validate::condition("type", "array")::create_rule(),
+        "searchable"    => Validate::condition("type", "array")::create_rule()
     ],
     //The method to execute -> has Access to BsikApi
     method : function(AdminApi $Api, array $args, ApiEndPoint $Endpoint) {
-        $data = [];
-        $table  = $args["table_name"];
-        $search = $args["search"];
+
+        $data       = [];
+        $tables     = explode(">", $args["table_name"]);
+        $table      = $tables[0];
+        $count      = $tables[1] ?? $table;
+        $search     = $args["search"];
         $searchable = $args["searchable"];
-        $fields = $args["fields"];
-        $sort   = $args["sort"];
-        $order  = $args["order"];
-        $limit  = $args["limit"];
-        $offset = intval($args["offset"] ?? 0);
+        $fields     = $args["fields"];
+        $sort       = $args["sort"];
+        $order      = $args["order"];
+        $limit      = $args["limit"];
+        $offset     = intval($args["offset"] ?? 0);
 
         //Fix offset: 
         $offset = $offset !== 0 ? ($offset / $limit) + 1 : 1;
-        
+
         //Set search term:
-        //$search = !empty($search) && !empty($fields) ? ["term" => "%".$search."%", "in-columns" => $fields] : [];
         $search = !empty($search) && !empty($searchable) ? 
             [   
                 "term" => "%".$search."%", 
                 "in-columns" => array_filter(array_intersect($searchable, $fields), fn($col) => $col !== "NULL" && $col !== "null" && !empty($col))
             ] : [];
-        if (!empty($search)) {
-            $where = [];
-            $params = [];
-            foreach ($search["in-columns"] as $i => $col) {
-                $where[] = "$col LIKE ?";
-                $params[] = $search["term"];
+        
+        //Load to db query builder:
+        $build_where = function(&$Api, $_search) {
+            if (!empty($_search)) {
+                $where = [];
+                $params = [];
+                foreach ($_search["in-columns"] as $i => $col) {
+                    $where[] = "$col LIKE ?";
+                    $params[] = $_search["term"];
+                }
+                if (!empty($where)) {
+                    $Api::$db->where(" ( ".implode(" OR ", $where)." ) ", $params);
+                }
             }
-            if (!empty($where)) {
-                $Api::$db->where(" ( ".implode(" OR ", $where)." ) ", $params);
+        };
+
+        // Build order by:
+        $build_order = function(&$Api, $_sort, $_order) {
+            if (!empty($_sort)) {
+                $Api::$db->orderBy($_sort, $_order);
             }
-        }
-        //Sort results:
-        if (!empty($sort)) {
-            $Api::$db->orderBy($sort, $order);
-        }
-        //Limit page results:
-        if (!empty($limit)) {
-            $Api::$db->pageLimit = $limit;
-        }
+        };
+
+        // Build limit:
+        $build_limit = function(&$Api, $_limit) {
+            if (!empty($_limit)) {
+                $Api::$db->pageLimit = $_limit;
+            }
+        };
+
         try {
-            $data = $Api::$db->paginate($table, $offset, $fields);
+
+            // Prepare query:
+            $build_where($Api, $search);
+            $build_order($Api, $sort, $order);
+            $build_limit($Api, $limit);
+
+            //Get data:
+            $data = $Api::$db->get($table, [
+                $limit * ($offset - 1),
+                $limit
+            ], $fields);
+
+            //Get total:
+            $build_where($Api, $search);
+            $total = $Api::$db->getValue($count, "count(*)");
             $Api->request->update_answer_status(200);
+
         } catch (Exception $e) {
             $Endpoint->log_error(
                 message : "error while executing sql query for dynamic table",
                 context : ["table" => $table, "mysql" => $e->getMessage()]
             );
+            $total = 0;
             $Api->request->update_answer_status(500, $e->getMessage());
         }
         $Api->request->answer_data([
             "rows"      => $data,
-            "total"     => $Api::$db->totalPages * $limit,
+            "total"     => $total,
             "search"    => $search
         ]);
         return true;
