@@ -60,14 +60,29 @@ class Std_Array {
     }
     
     /**
-     * filter_out - copies an array without excluded keys
-     *
+     * filter_out
+     * copies an array without excluded keys
      * @param  array $input - input array
      * @param  array $exclude - excluded keys
      * @return array
      */
     final public static function filter_out(array $input, array $exclude = []) : array {
         return array_diff_key($input, array_flip($exclude));
+    }
+    
+    /**
+     * filter_out_by_value
+     * copies an array without excluded values (by value)
+     * @param  array $input - input array to filter
+     * @param  mixed $exclude - value to exclude
+     * @param  bool $strict - strict comparison (===)
+     * @return array - filtered array
+     */
+    final public static function filter_out_by_value(array $input, mixed $exclude, bool $strict = false) : array {
+        if ($key = array_search($exclude, $input, $strict) !== false) {
+            unset($input[$key]);
+        }
+        return $input;
     }
 
     /**
