@@ -115,7 +115,7 @@ class ValidationCorePack {
         }
         return true;
     }
-    final public static function min(string|int $input, string $min = '0') {
+    final public static function min(string|int|float $input, string $min = '0') {
         //Handle inputs:
         $input = +$input;
         $min   = +$min;
@@ -125,10 +125,10 @@ class ValidationCorePack {
         }
         return true;
     }
-    final public static function max(string|int $input, string $max = '0') {
+    final public static function max(string|int|float $input, string $max = '0') {
         //Handle inputs:
         $input = +$input;
-        $max    = +$max;
+        $max   = +$max;
         //Conditions:
         if ($input > $max) {
             return "@input@ should be smaller or equal to - {$max}";
