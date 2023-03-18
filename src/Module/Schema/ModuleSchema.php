@@ -33,7 +33,7 @@ class ModuleSchema {
      *
      * @param  string $_type - which schema type we are proccessing 
      * @param  ?string $_version - target version or null for default
-     * @throws Exception => E_PLAT_ERROR if schema type is not supported.
+     * @throws Exception => \E_PLAT_ERROR if schema type is not supported.
      * @return void
      */
     public function __construct(string $_type, ?string $_version = null) {

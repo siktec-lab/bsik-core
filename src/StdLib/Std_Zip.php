@@ -120,7 +120,7 @@ class Std_Zip {
      * 
      * @param string        $path - the zip full name (path + name)
      * @param ?int          $flags - ZipArchive FLAGS
-     * @throws Exception    - E_PLAT_ERROR on zip cant be opened.
+     * @throws Exception    - \E_PLAT_ERROR on zip cant be opened.
      * @return ZipArchive   - the zip object
      */
     final public static function open_zip(string $path, int $flags = 0) : ZipArchive {

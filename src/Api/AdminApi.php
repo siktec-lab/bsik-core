@@ -65,7 +65,7 @@ class AdminApi extends BsikApi
                 
                 //validate module is activated and installed:
                 if (!AdminPage::$modules->is_installed($module)) { 
-                    throw new \Exception("tried to use an inactive or uninstalled module", E_PLAT_WARNING);
+                    throw new \Exception("tried to use an inactive or uninstalled module", \E_PLAT_WARNING);
                 }
 
                 //Set global flag mode:

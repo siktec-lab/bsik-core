@@ -149,7 +149,7 @@ class Module {
         if (is_null($view)) return;
         //check we can register:
         if (!array_key_exists($view->name, $this->views) || !is_callable($render)) {
-            throw new Exception("Trying to register an undefined / not-callable view [{$view->name}] in module [{$this->module_name}]", E_PLAT_ERROR);
+            throw new Exception("Trying to register an undefined / not-callable view [{$view->name}] in module [{$this->module_name}]", \E_PLAT_ERROR);
         }
         //Extend parent module privileges if it has specific privileges:
         $view->priv->extends($this->priv);
@@ -213,7 +213,7 @@ class Module {
 
     public function view(string $name) : ModuleView {
         if (!array_key_exists($name, $this->views) || empty($this->views[$name])) {
-            throw new Exception("Trying to render undefined view [{$name}] in module", E_PLAT_ERROR);
+            throw new Exception("Trying to render undefined view [{$name}] in module", \E_PLAT_ERROR);
         }
         return $this->views[$name];
     }

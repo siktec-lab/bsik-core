@@ -33,7 +33,7 @@ use \Siktec\Bsik\Base;
 // Base::configure($conf);
 // Base::connect_db();
 // if (!CoreSettings::extend_from_database(Base::$db)) {
-//     throw new Exception("Cant Load Settings", E_PLAT_ERROR);
+//     throw new Exception("Cant Load Settings", \E_PLAT_ERROR);
 // }
 
 //Core settings:

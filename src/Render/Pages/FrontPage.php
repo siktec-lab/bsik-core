@@ -137,7 +137,7 @@ class FrontPage extends Base {
      */
     final public static function register_page(string $name, string $class_name) {
         if (isset(self::$implemented_pages[$name])) {
-            trigger_error("Tried to register an allready defined page", E_PLAT_ERROR);
+            trigger_error("Tried to register an allready defined page", \E_PLAT_ERROR);
         }
         self::$implemented_pages[$name] = $class_name;
     }
@@ -253,7 +253,7 @@ class FrontPage extends Base {
             self::$paths["global-lib-url"]          = $global_folder["url"]."/lib";
 
         } elseif ($global_folder === false) {
-            trigger_error("front-pages global folder does not exists", E_PLAT_WARNING);
+            trigger_error("front-pages global folder does not exists", \E_PLAT_WARNING);
         }
 
         if (!empty($page_folder)) {
@@ -270,7 +270,7 @@ class FrontPage extends Base {
             self::$paths["page-lib"]            = $page_folder["path"].DS.$dyn_folder_path.DS."lib";
             self::$paths["page-lib-url"]        = $page_folder["url"].'/'.$dyn_folder_url.'/'."lib";
         } elseif ($page_folder === false) {
-            trigger_error("front-pages page folder does not exists", E_PLAT_WARNING);
+            trigger_error("front-pages page folder does not exists", \E_PLAT_WARNING);
         }
     }
 
@@ -321,11 +321,11 @@ class FrontPage extends Base {
     public function include(string $pos, string $type, string $name, array $set, string $add = "") {
         /* SH: added - 2021-03-03 => convert this to db error logging  */
         if (!is_string($pos) || !isset($this->includes[$pos])) {
-            trigger_error("'Page->include' first argument ($pos) is unknown pos value", E_PLAT_WARNING);
+            trigger_error("'Page->include' first argument ($pos) is unknown pos value", \E_PLAT_WARNING);
             return $this;
         }
         if (!is_string($type) || (strtolower($type) !== "js" && strtolower($type) !== "css")) {
-            trigger_error("'Page->include' second argument ($type) must be a valid type argument - js | css.", E_PLAT_WARNING);
+            trigger_error("'Page->include' second argument ($type) must be a valid type argument - js | css.", \E_PLAT_WARNING);
             return $this;
         }
         $path = $set["name"] ?? "";
@@ -422,7 +422,7 @@ class FrontPage extends Base {
             $Block = $ref->newInstanceArgs([$this, $this->engine, $args]);
             return $Block->render();
         } else {
-            trigger_error("Tried to rended and undefined / reachable block [".$path."]", E_PLAT_WARNING);
+            trigger_error("Tried to rended and undefined / reachable block [".$path."]", \E_PLAT_WARNING);
         }
     }
 
@@ -438,7 +438,7 @@ class FrontPage extends Base {
     }
     public static function load_page($name, User $User) {
         if (!isset(self::$implemented_pages[$name])) {
-            trigger_error("Tried to render an unknown implemented page", E_PLAT_ERROR);
+            trigger_error("Tried to render an unknown implemented page", \E_PLAT_ERROR);
         } else {
             $ref = new \ReflectionClass(self::$implemented_pages[$name]);
             $Page = $ref->newInstanceArgs([true, $User]);

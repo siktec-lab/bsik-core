@@ -49,7 +49,7 @@ class ModuleInstall {
      * 
      * @param string $source => path to archive on server.
      * @param string $in   => path to default extract destination folder.
-     * @throws Exception => E_PLAT_ERROR on zip cant be opened.
+     * @throws Exception => \E_PLAT_ERROR on zip cant be opened.
      * @return ModuleInstall
      */
     public function __construct(

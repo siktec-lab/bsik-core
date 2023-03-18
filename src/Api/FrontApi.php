@@ -69,7 +69,7 @@ class FrontApi extends BsikApi
                 
                 //validate page is activated and user has the required permissions:
                 if (!isset(FrontPage::$pages[$page])) {
-                    throw new \Exception("tried to use an inactive or permission restricted api/page", E_PLAT_WARNING);
+                    throw new \Exception("tried to use an inactive or permission restricted api/page", \E_PLAT_WARNING);
                 }
 
                 //Set global flag mode:

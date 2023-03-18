@@ -93,7 +93,7 @@ class PrivilegesTest extends TestCase
         );
         $this->assertTrue($policy->group(Priv\Default\PrivUsers::NAME)->is_allowed("view"), "Expected view to be allowed but was rejected.");
         $this->assertFalse($policy->group(Priv\Default\PrivUsers::NAME)->is_allowed("edit"), "Expected edit to be declined but was granted.");
-        $this->expectExceptionCode(E_PLAT_WARNING);
+        $this->expectExceptionCode(\E_PLAT_WARNING);
         $policy->group(Priv\Default\PrivUsers::NAME)->is_allowed("nodefinedtag");
     }
 

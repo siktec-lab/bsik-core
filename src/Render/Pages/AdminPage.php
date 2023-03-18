@@ -270,11 +270,11 @@ class AdminPage extends Base
     public function include(string $pos, string $type, string $name, array $set, string $add = "") {
         /* SH: added - 2021-03-03 => convert this to db error logging  */
         if (!is_string($pos) || !isset($this->includes[$pos])) {
-            trigger_error("'Page->include' first argument ($pos) is unknown pos value", E_PLAT_WARNING);
+            trigger_error("'Page->include' first argument ($pos) is unknown pos value", \E_PLAT_WARNING);
             return $this;
         }
         if (!is_string($type) || (strtolower($type) !== "js" && strtolower($type) !== "css")) {
-            trigger_error("'Page->include' second argument ($type) must be a valid type argument - js | css.", E_PLAT_WARNING);
+            trigger_error("'Page->include' second argument ($type) must be a valid type argument - js | css.", \E_PLAT_WARNING);
             return $this;
         }
         $path = $set["name"] ?? "";
@@ -484,7 +484,7 @@ class AdminPage extends Base
                 );
                 //make sure that content is string:
                 if (!is_string($content)) 
-                    throw new Exception("error rendering view [".self::$module->module_name."->".self::$module->which."] - view returned non printable content.", E_PLAT_ERROR);
+                    throw new Exception("error rendering view [".self::$module->module_name."->".self::$module->which."] - view returned non printable content.", \E_PLAT_ERROR);
                 //Return the view content:
                 if ($status) {
                     return $content;
@@ -492,7 +492,7 @@ class AdminPage extends Base
                     return $this->render_inline_error(text : $content);
                 }
             } else {
-                throw new Exception("tried to render module from APage - without loading a module.", E_PLAT_ERROR);
+                throw new Exception("tried to render module from APage - without loading a module.", \E_PLAT_ERROR);
             }
         } catch (Throwable $e) {
             self::log("error", "Error captured on module render [{$e->getMessage()}].", [
@@ -514,7 +514,7 @@ class AdminPage extends Base
             $Block = $ref->newInstanceArgs([$this, $this->engine, $args]);
             return $Block->render();
         } else {
-            trigger_error("Tried to rended and undefined / reachable block [".$path."]", E_PLAT_WARNING);
+            trigger_error("Tried to rended and undefined / reachable block [".$path."]", \E_PLAT_WARNING);
         }
     }
 

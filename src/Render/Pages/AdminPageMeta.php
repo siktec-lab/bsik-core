@@ -51,7 +51,7 @@ class AdminPageMeta {
      */
     public function set(string $name, string|bool $set = false) : object|string {
         if (!isset($this->defined_metas[$name]))
-            trigger_error("'Page->meta()' you must use a valid meta type. [unknown entry '$name']", E_PLAT_WARNING);
+            trigger_error("'Page->meta()' you must use a valid meta type. [unknown entry '$name']", \E_PLAT_WARNING);
         if ($set === false) 
             return $this->defined_metas[$name];
         $this->defined_metas[$name] = $set;

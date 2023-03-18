@@ -35,7 +35,7 @@ class Base {
     */
     public function store($name, $data, $protect = true) {
         if ($protect && isset($this->storage[$name])) {
-            trigger_error("'Page->store' you are trying to override a protected storage member", E_PLAT_WARNING);
+            trigger_error("'Page->store' you are trying to override a protected storage member", \E_PLAT_WARNING);
             return false;
         }
         $this->storage[$name] = $data;

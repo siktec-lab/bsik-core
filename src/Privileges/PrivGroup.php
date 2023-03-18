@@ -155,7 +155,7 @@ abstract class PrivGroup {
 			else 
 				$this->privileges[$tag] = null;
 		} else {
-            throw new Exception("tried to grant an unknown privilege tag [{$tag}]", E_PLAT_ERROR);
+            throw new Exception("tried to grant an unknown privilege tag [{$tag}]", \E_PLAT_ERROR);
         }
 	}
 	
@@ -215,7 +215,7 @@ abstract class PrivGroup {
 		if ($this->has($tag)) {
 			return $this->privileges[$tag] ? true : false; // we use this condition to force boolean return as null is avalid tag status.
 		} 
-		throw new Exception("tried to check an unknown privilege tag", E_PLAT_WARNING);
+		throw new Exception("tried to check an unknown privilege tag", \E_PLAT_WARNING);
 		return false;
 	}
 

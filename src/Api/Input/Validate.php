@@ -84,7 +84,7 @@ class Validate {
         if (is_callable($func, false, $method)) {
             self::$filters[$name] = $method;
         } else {
-            trigger_error("tried to register a filter in ".__CLASS__."  that is not reachable or defined", E_PLAT_WARNING);
+            trigger_error("tried to register a filter in ".__CLASS__."  that is not reachable or defined", \E_PLAT_WARNING);
         }
     }
     /**
@@ -142,7 +142,7 @@ class Validate {
         if (is_callable($func, false, $method)) {
             self::$validators[$name] = $method;
         } else {
-            trigger_error("tried to register a validator in ".__CLASS__."  that is not reachable or defined", E_PLAT_WARNING);
+            trigger_error("tried to register a validator in ".__CLASS__."  that is not reachable or defined", \E_PLAT_WARNING);
         }
     }
     /**

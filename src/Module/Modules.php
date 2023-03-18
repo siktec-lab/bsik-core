@@ -61,7 +61,7 @@ class Modules {
     public static function register(mixed $module) : void {
         //Make sure its callable:
         if (!is_object($module) || !$module instanceof Module) {
-            throw new Exception("Trying to register a non callable module", E_PLAT_ERROR);
+            throw new Exception("Trying to register a non callable module", \E_PLAT_ERROR);
         }
 
         //Make sure its installed or skip this one:
@@ -91,7 +91,7 @@ class Modules {
 
         //Make sure its an object and a module:
         if (!is_object($module) || !$module instanceof Module) {
-            throw new Exception("Trying to register a non callable module", E_PLAT_ERROR);
+            throw new Exception("Trying to register a non callable module", \E_PLAT_ERROR);
         }
 
         //Check if its allready registered:
@@ -127,10 +127,10 @@ class Modules {
                     require $module_file["path"];
                     return true;
                 } catch (\Throwable $e) {
-                    throw new Exception("Internal Error captured on module load [{$e->getMessage()}].", E_PLAT_ERROR, $e);
+                    throw new Exception("Internal Error captured on module load [{$e->getMessage()}].", \E_PLAT_ERROR, $e);
                 }
             } else {
-                throw new Exception("Could not find module file to load.", E_PLAT_ERROR);
+                throw new Exception("Could not find module file to load.", \E_PLAT_ERROR);
             }
         }
         return false;
