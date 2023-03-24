@@ -92,12 +92,17 @@ class CliExec {
      * Get the command that will be executed
      * @return string
      */
-    public function get_exec_command() : string {
-        return $this->cli_path . DIRECTORY_SEPARATOR 
-                    . self::CLI_EXEC_NAME . " " 
-                    . $this->command . " " 
-                    . $this->args . " " 
-                    . $this->options;
+    public function get_exec_command(bool $join_stderr = false) : string {
+        $parts = [
+            $this->cli_path . DIRECTORY_SEPARATOR .self::CLI_EXEC_NAME,
+            trim($this->command),
+            trim($this->args),
+            trim($this->options)
+        ];
+        if ($join_stderr) {
+            $parts[] = "2>&1";
+        };
+        return implode(" ", $parts);
     }
         
     /**
@@ -109,12 +114,15 @@ class CliExec {
      * @return int - the return code of the command
      */
     public function run(bool $wait = true, mixed &$output = [], bool $expect_json = false) : int {
-        $command = $this->get_exec_command();
+        
         // Use exec to run the command and get the output and return code:
         $return_code = 0;
         $_output = [];
         //Execute based on platform:
         if (!$wait) {
+            
+            $command = $this->get_exec_command();
+
             if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
 
                 //Execute background windows:
@@ -124,6 +132,9 @@ class CliExec {
                 exec($command . " > /dev/null 2>&1 &", $_output, $return_code);
             }
         } else {
+
+            $command = $this->get_exec_command(join_stderr : true);
+
             //Execute foreground:
             exec($command, $_output, $return_code);
 
@@ -139,4 +150,3 @@ class CliExec {
         return $return_code;
     }
 }
-
