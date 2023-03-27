@@ -193,14 +193,13 @@ class RestClient {
 
         // The response:
         $this->result["code"] = $response->getStatusCode();
-        var_dump($response->getBody()->getContents());
         if ($json) {
             $this->result["data"] = json_decode((string)$response->getBody(), true) ?? [];
         } else {
             $this->result["data"] = (string) $response->getBody()->getContents();
         }
         $this->result["info"] = $response->getHeaders();
-        var_dump($this->result["info"]);
+
         // Return the response code:
         return $this->result["code"];
     }
