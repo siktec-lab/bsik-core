@@ -12,7 +12,7 @@ class RestClient {
     private ?string $content_type       = null; //content type to use
     private array   $request_headers    = []; //headers to use
     private array   $request_params     = []; //params to use
-    private string  $request_params_type = "query"; // [query, form_params]
+    private string  $request_params_type = "query"; // [query, form_params, json, body]
     private string  $request_method     = "POST"; //[post, get]
     private ?GuzzleClient $client       = null; // GuzzleHttp\Client
 
@@ -62,7 +62,7 @@ class RestClient {
      * @param  string $token - the auth token to use
      * @return RestClient
      */
-    public function set_auth(string $token) : RestClient {
+    public function set_auth(?string $token) : RestClient {
         $this->auth_token = $token;
         return $this;
     }
@@ -92,7 +92,7 @@ class RestClient {
     /**
      * set_params
      * Set the params to use for the request
-     * @param  string $type - the type of params to use (query, form_params)
+     * @param  string $type - the type of params to use (query, form_params, json, body)
      * @param  array $params - the params to use
      * @return RestClient
      */
@@ -173,8 +173,7 @@ class RestClient {
      * request
      * Make the request
      * @param  string $endpoint - the endpoint to use / append to the base url
-     * @param  bool $return
-     * @param  bool $follow
+     * @param  bool $json - if the response should be json decoded
      * @return int
      */
     public function request(string $endpoint = "", bool $json = false) : int {
@@ -188,16 +187,20 @@ class RestClient {
         if (!empty($this->request_params)) { 
             $opt[$this->request_params_type] = $this->request_params;
         }
+
         // The request:
         $response = $this->client->request($this->request_method, $endpoint, $opt);
+
         // The response:
         $this->result["code"] = $response->getStatusCode();
+        var_dump($response->getBody()->getContents());
         if ($json) {
             $this->result["data"] = json_decode((string)$response->getBody(), true) ?? [];
         } else {
             $this->result["data"] = (string) $response->getBody()->getContents();
         }
         $this->result["info"] = $response->getHeaders();
+        var_dump($this->result["info"]);
         // Return the response code:
         return $this->result["code"];
     }
