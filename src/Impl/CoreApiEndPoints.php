@@ -63,7 +63,7 @@ AdminApi::register_endpoint(new ApiEndPoint(
     ],
     filter : [ // Defines filters to apply -> this will modify the params.
         "table_name"    => Validate::filter("trim")::filter("strchars", "A-Z", "a-z", "0-9", "_", ">")::create_filter(),
-        "search"        => Validate::filter("trim")::filter("strchars", "A-Z", "a-z", "0-9", "_", " ")::create_filter(),
+        "search"        => Validate::filter("trim")::filter("strchars", "A-Z", "a-z", "0-9", "_", " ", "-", "@", ".", ",")::create_filter(),
         "fields"        => Validate::filter("trim")::filter("strchars", "A-Z", "a-z", "0-9", "_")::create_filter(),
         "order"         => Validate::filter("type", "string")::filter("trim")::create_filter(),
         "sort"          => Validate::filter("trim")::filter("strchars", "A-Z", "a-z", "0-9", "_")::create_filter(),
