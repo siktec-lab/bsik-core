@@ -3,6 +3,7 @@
 namespace Siktec\Bsik\Builder;
 
 use \Exception;
+use \Siktec\Bsik\Std;
 
 /**
  * @method static string helloworld( string $name ) return a hello world message
@@ -44,7 +45,30 @@ class Components {
         return isset(self::$components[$name]);
     }
 
-    public static function __callstatic($name, $arguments) {
+    public static function import_from($module) : bool {
+        // Missing module or component name:
+        if (empty($module)) {
+            return null;
+        }
+        // Possible file paths:
+        $components_file_root     = Std::$fs::path_to("modules", [$module, "components.php"]);
+        $components_file_includes = Std::$fs::path_to("modules", [$module, "includes", "components.php"]);
+        //Load module components:  
+        try {
+            if (file_exists($components_file_root["path"])) {
+                require $components_file_root["path"];
+            }
+            if (file_exists($components_file_includes["path"])) {
+                require $components_file_includes["path"];
+            }
+        } catch (\Throwable $e) {
+            throw new Exception("Internal Error captured on module components load [{$e->getMessage()}].", \E_PLAT_ERROR, $e);
+        }
+        // Execute component if exists:
+        return true;
+    }
+
+    public static function __callstatic($name, $arguments) : mixed {
         
         if (!isset(self::$components[$name])) {
             throw new Exception("Tried to use an undefined component", \E_PLAT_ERROR);
