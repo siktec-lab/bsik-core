@@ -98,6 +98,7 @@ class FiltersCorePack {
                     $input = "".$input;
                 }
             } break;
+            case "integer" :
             case "number" : {
                 if (is_numeric($input)) {
                     $input = intval($input);
