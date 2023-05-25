@@ -292,7 +292,7 @@ class AdminPage extends Base
     public function include_asset($pos, $type, $in, $path) {
         switch ($in) {
             case "me": {
-                $url = Std::$fs::path_url(self::$module->paths["module-lib"], ...$path);
+                $url = Std::$fs::path_url(self::$module->urls["module-lib"], ...$path);
                 $this->include($pos, $type, "link", ["name" => $url]);
             } break;
             case "global": {
