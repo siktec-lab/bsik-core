@@ -163,29 +163,68 @@ class Base {
     /**********************************************************************************************************
     /** DATABASE:
      **********************************************************************************************************/    
+    private const DB_DEFAULT_CREDENTIALS = [
+        "host"      => "localhost", 
+        "port"      => "3306", 
+        "db"        => null, 
+        "username"  => null, 
+        "password"  => null,
+        "charset"   => "utf8mb4",
+        "socket"    => null
+    ];
     public static ?MysqliDb $db = null;
     
+    /**
+     * db_credentials
+     * prepare db credentials array 
+     * expected keys: host, port, name, user, pass, charset, socket
+     * @param  array $credentials
+     * @return array
+     */
+    private static function db_credentials(array $credentials = []) : array {
+        return Std::$arr::extend(self::DB_DEFAULT_CREDENTIALS, $credentials);
+    }
     /**
      * connect_db
      * establish a db connection based on global conf set.
      * @return void
+     * @throws Exception if we cant connect to db
      */
-    public static function connect_db() : void {
+    public static function connect_db() : MysqliDb {
+        $creds = self::db_credentials(self::$conf["db"] ?? []);
         self::$db = new MysqliDb(
-            self::$conf["db"]['host'], 
-            self::$conf["db"]['user'], 
-            self::$conf["db"]['pass'], 
-            self::$conf["db"]['name'], 
-            self::$conf["db"]['port']
+            $creds['host'], 
+            $creds['username'], 
+            $creds['password'], 
+            $creds['db'], 
+            $creds['port'],
+            $creds['charset'],
+            $creds['socket']
         );
+        return self::$db;
     }    
+    /**
+     * add_db_connection
+     * add a new db connection to the db object
+     * @return void
+     */
+    public static function add_db_connection(string $name, array $credentials = []) : bool {
+        $creds = self::db_credentials($credentials);
+        if (!isset(self::$db)) {
+            return false;
+        }
+        self::$db->addConnection($name, $creds);
+        return true;
+    }
+
+
     /**
      * disconnect_db
      * safely disconnect from db
      * @return void
      */
-    public static function disconnect_db() : void {
-        self::$db->disconnect();
+    public static function disconnect_db(string $connection = "default") : void {
+        self::$db->disconnect($connection);
     }
     
     /**********************************************************************************************************
