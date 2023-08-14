@@ -21,19 +21,14 @@ use \Siktec\Bsik\Std;
  * @package Bsik\Objects
  */
 class SettingsObject {
-
-    const OPT_INT      = "integer"; //TODO: remove later this is from old version
-    const OPT_FLOAT    = "float";
-    const OPT_STR      = "string";
-    const OPT_BOOL     = "boolean";
-    const OPT_NOTEMPTY = "notempty";
-    
     
     const FLAG_REMOVE       = "@remove@"; 
     const CHAIN_DELI        = ":";
     const TYPE_OR           = "|";
     const CONSIDERED_TRUE   = [true, 1, '1', "true", "TRUE"];
     const VALIDATE_TYPES    = ["integer", "float", "string", "boolean", "array", "any"];
+
+    // Holds the validators for the settings:
     public static $validators = [];
 
     public array $values        = [];
@@ -41,7 +36,16 @@ class SettingsObject {
     public array $options       = [];
     public array $descriptions  = [];
     
-
+    
+    /**
+     * __construct SettingsObject
+     * construct the settings object
+     * @param  array|string $defaults - all default values of this settings definition
+     * @param  array|string $options - all options of this settings definition
+     * @param  array|string $descriptions - all descriptions of this settings definition
+     * @return SettingsObject
+     * 
+     */
     public function __construct(
         array|string $defaults      = [],
         array|string $options       = [],
@@ -523,6 +527,11 @@ class SettingsObject {
     }
 }
 
+/**
+ * Validators for settings:
+ * Those are custom validators that can be used in the options definition.
+ * 
+ */
 SettingsObject::$validators["notempty"] = function($value, $path) {
     return $value === "" || is_null($value) ? "%s value can not be empty" : true;
 };
