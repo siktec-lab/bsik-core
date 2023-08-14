@@ -97,15 +97,18 @@ class Std_FileSystem {
         if (!is_array($path_to_file)) {
             $path_to_file = [$path_to_file];
         }
+        
         //Trim parts:
         array_walk($path_to_file, function(&$part){
             $part = trim($part, "\\/ ");
         });
+
         //Build:
+        // NOTE: rtrim is important for windows and not ltrim to avoid stripping base path in unix e.g. /var/www/...
         $path = rtrim($path, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.implode(DIRECTORY_SEPARATOR, $path_to_file);
         $url  = rtrim($url, "/")."/".implode("/", Std_Url::normalize_slashes($path_to_file));
-        //Return:
-        return ["path" => trim($path, DIRECTORY_SEPARATOR), "url" => $url];
+        
+        return ["path" => $path, "url" => $url]; 
     }
     
     /**
