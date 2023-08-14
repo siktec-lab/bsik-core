@@ -446,7 +446,7 @@ class MysqliDb
      *
      * @return MysqliDb Returns the current instance.
      */
-    protected function reset()
+    public function reset()
     {
         if (self::$traceEnabled) {
             //$time = number_format((microtime(true) - $this->traceStartQ),5);
