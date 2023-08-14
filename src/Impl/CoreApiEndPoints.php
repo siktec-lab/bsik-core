@@ -62,7 +62,7 @@ AdminApi::register_endpoint(new ApiEndPoint(
         "offset"        => 0,
     ],
     filter : [ // Defines filters to apply -> this will modify the params.
-        "table_name"    => Validate::filter("trim")::filter("strchars", "A-Z", "a-z", "0-9", "_", ">")::create_filter(),
+        "table_name"    => Validate::filter("trim")::filter("strchars", "A-Z", "a-z", "0-9", "_", ">", ":")::create_filter(),
         "search"        => Validate::filter("trim")::filter("strchars", "A-Z", "a-z", "0-9", "_", " ", "-", "@", ".", ",")::create_filter(),
         "fields"        => Validate::filter("trim")::filter("strchars", "A-Z", "a-z", "0-9", "_")::create_filter(),
         "order"         => Validate::filter("type", "string")::filter("trim")::create_filter(),
@@ -83,7 +83,11 @@ AdminApi::register_endpoint(new ApiEndPoint(
         $data       = [];
         $tables     = explode(">", $args["table_name"]);
         $table      = $tables[0];
-        $count      = $tables[1] ?? $table;
+        $count      = $tables[1] ?? null;
+        $db_conn_table  = explode(":", $table);
+        $connection = count($db_conn_table) > 1 ? $db_conn_table[0] : "default";
+        $table      = count($db_conn_table) > 1 ? $db_conn_table[1] : $db_conn_table[0];
+        $count      = is_null($count) ? $table : $count;
         $search     = $args["search"];
         $searchable = $args["searchable"];
         $fields     = $args["fields"];
@@ -103,7 +107,7 @@ AdminApi::register_endpoint(new ApiEndPoint(
             ] : [];
         
         //Load to db query builder:
-        $build_where = function(&$Api, $_search) {
+        $build_where = function(&$Api, $conn, $_search) {
             if (!empty($_search)) {
                 $where = [];
                 $params = [];
@@ -112,41 +116,41 @@ AdminApi::register_endpoint(new ApiEndPoint(
                     $params[] = $_search["term"];
                 }
                 if (!empty($where)) {
-                    $Api::$db->where(" ( ".implode(" OR ", $where)." ) ", $params);
+                    $Api::$db->connection($conn)->where(" ( ".implode(" OR ", $where)." ) ", $params);
                 }
             }
         };
 
         // Build order by:
-        $build_order = function(&$Api, $_sort, $_order) {
+        $build_order = function(&$Api, $conn, $_sort, $_order) {
             if (!empty($_sort)) {
-                $Api::$db->orderBy($_sort, $_order);
+                $Api::$db->connection($conn)->orderBy($_sort, $_order);
             }
         };
 
         // Build limit:
-        $build_limit = function(&$Api, $_limit) {
+        $build_limit = function(&$Api, $conn, $_limit) {
             if (!empty($_limit)) {
-                $Api::$db->pageLimit = $_limit;
+                $Api::$db->connection($conn)->pageLimit = $_limit;
             }
         };
 
         try {
 
             // Prepare query:
-            $build_where($Api, $search);
-            $build_order($Api, $sort, $order);
-            $build_limit($Api, $limit);
+            $build_where($Api, $connection, $search);
+            $build_order($Api, $connection, $sort, $order);
+            $build_limit($Api, $connection, $limit);
 
             //Get data:
-            $data = $Api::$db->get($table, [
+            $data = $Api::$db->connection($connection)->get($table, [
                 $limit * ($offset - 1),
                 $limit
             ], $fields);
 
             //Get total:
-            $build_where($Api, $search);
-            $total = $Api::$db->getValue($count, "count(*)");
+            $build_where($Api, $connection, $search);
+            $total = $Api::$db->connection($connection)->getValue($count, "count(*)");
             $Api->request->update_answer_status(200);
 
         } catch (Exception $e) {
