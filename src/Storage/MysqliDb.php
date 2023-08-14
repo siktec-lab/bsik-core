@@ -361,7 +361,9 @@ class MysqliDb
             throw new \Exception('Connection ' . $name . ' was not added.');
 
         // NOTE : fixed bug of carrying over old params in case of failure execution of query and reconnection:
-        $this->reset();
+        // NOTE : Shlomi disabled this line because it seems to be unnecessary.
+        // NOTE : The important thing is to reset if a query throws an exception.
+        // $this->reset(); 
 
         $this->defConnectionName = $name;
         return $this;
