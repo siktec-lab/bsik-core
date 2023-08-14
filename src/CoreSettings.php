@@ -95,7 +95,7 @@ class CoreSettings {
     ];
     public static array $settings_options = [
         "url-base-domain"                   => "string:notempty",
-        "url-root-folder"                   => "string:notempty",
+        "url-root-folder"                   => "string",            // NOTE: this is not empty because we want to allow empty string if there is no folder
         "module-default-load"               => "string:notempty",
         "module-default-load-view"          => "string:notempty",
         "front-default-page"                => "string:notempty",
@@ -166,9 +166,10 @@ class CoreSettings {
         
         self::$path["logs"] = Std::$fs::path(ROOT_PATH, self::get("core-log-php-errors-folder", DS));
 
-        //urls:
+        //paths and urls:
+        $in_folder = trim(self::get("url-root-folder", ""), "\\/ \t\n\r\0\x0B"); // May be empty
         self::$url["domain"] = trim(self::get("url-base-domain", "http://localhost"), "\\/ \t\n\r\0\x0B");
-        self::$url["base"]   = "/".trim(self::get("url-root-folder", ""), "\\/ \t\n\r\0\x0B");
+        self::$url["base"]   = $in_folder ? "/{$in_folder}" : ""; // NOTE: added to handle empty string
         self::$url["full"]   = self::$url["domain"].self::$url["base"];
         self::$url["manage"] = self::$url["full"]."/manage";
         self::$url["manage-lib"] = self::$url["manage"]."/lib";
