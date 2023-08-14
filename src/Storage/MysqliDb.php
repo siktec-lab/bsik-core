@@ -360,6 +360,9 @@ class MysqliDb
         if (!isset($this->connectionsSettings[$name]))
             throw new \Exception('Connection ' . $name . ' was not added.');
 
+        // NOTE : fixed bug of carrying over old params in case of failure execution of query and reconnection:
+        $this->reset();
+
         $this->defConnectionName = $name;
         return $this;
     }
