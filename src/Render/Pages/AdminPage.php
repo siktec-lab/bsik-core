@@ -1,14 +1,12 @@
 <?php
-/******************************************************************************/
-// Created by: Shlomi Hassid.
-// Release Version : 1.0.1
-// Creation Date: date
-// Copyright 2020, Shlomi Hassid.
-/******************************************************************************/
-/*****************************      Changelog       ****************************
-1.0.1:
-    ->creation - initial
-*******************************************************************************/
+/**
+ * AdminPage.php
+ * The main admin page class.
+ * @author SIKTEC
+ * @version 1.2.0
+ * @since 1.0.0
+ */
+
 namespace Siktec\Bsik\Render\Pages;
 
 use \Siktec\Bsik\Std;
@@ -26,11 +24,11 @@ use \Throwable;
 
 /**
  * AdminPage
- * 
  * The main admin page class.
  * 
  * @package Siktec\Bsik\Render
- * 
+ * @since 1.0.0
+ * @version 1.2.0
  */
 class AdminPage extends Base
 {   
@@ -69,11 +67,14 @@ class AdminPage extends Base
     public $platform_settings = [];
     public $platform_libs = [];
 
-    /* Page constructor.
-     *  @Default-params: none
-     *  @return none
-     *  @Examples:
-    */
+    /**
+     * __construct
+     * 
+     * @param  bool $enable_logger - whether to enable logger
+     * @param  string $logger_channel - the logger channel
+     * @param  Priv\PrivDefinition $issuer_privileges - the issuer privileges
+     * @return void
+     */
     public function __construct(
         bool $enable_logger         = true,
         string $logger_channel      = "general",
@@ -214,9 +215,9 @@ class AdminPage extends Base
             );
             if (!is_null(self::$module)) {
                 //Set template origin:
-                if (file_exists(self::$module->paths["module-templates"])) {
+                if (file_exists(self::$module->paths["templates"])) {
                     $this->engine->addFolders([
-                        self::$module->paths["module-templates"]
+                        self::$module->paths["templates"]
                     ]);
                 }
                 return true;
@@ -292,7 +293,7 @@ class AdminPage extends Base
     public function include_asset($pos, $type, $in, $path) {
         switch ($in) {
             case "me": {
-                $url = Std::$fs::path_url(self::$module->urls["module-lib"], ...$path);
+                $url = Std::$fs::path_url(self::$module->urls["lib"], ...$path);
                 $this->include($pos, $type, "link", ["name" => $url]);
             } break;
             case "global": {
