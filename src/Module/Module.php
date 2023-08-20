@@ -1,14 +1,10 @@
 <?php
-/******************************************************************************/
-// Created by: Shlomi Hassid.
-// Release Version : 1.0.1
-// Creation Date: date
-// Copyright 2020, Shlomi Hassid.
-/******************************************************************************/
-/*****************************      Changelog       ****************************
-1.0.1:
-    ->creation - initial
-*******************************************************************************/
+/**  
+ * Module.php
+ * @author SIKTEC
+ * @version 1.2.0
+ * @since 1.0.0
+*/
 
 namespace Siktec\Bsik\Module;
 
@@ -21,81 +17,236 @@ use \Siktec\Bsik\Api\AdminApi;
 use \Siktec\Bsik\Render\Pages\AdminPage;
 use \Siktec\Bsik\Users\User;
 
-/** 
+/**
  * Module
+ * A module is a collection of views, settings, privileges and events that are
+ * Installed and loaded dynamically to the system.
+ * A module is a standalone component that can be installed and uninstalled and plugged into
+ * the Bsik system.
  * 
- * This is the main module class, it holds all the module data and methods.
- * 
- * @package Bsik\Module
- * 
+ * @package Siktec\Bsik\Module
+ * @version 1.2.0
+ * @since 1.0.0
  */
 class Module {
 
-    public  string $module_name         = "";
-    public  ?ModuleView $current_view   = null;
-    private string $default_view        = "";
-    private array  $views               = [];
-    public  SettingsObject $settings;
+    
+    /**
+     * @var string this module name
+     */
+    public string $module_name = ""; 
 
+    /**
+     * @var ModuleView|null the current view to be rendered
+     */
+    public ?ModuleView $current_view = null;
+
+    /**
+     * @var string the default view to be rendered if none is requested
+     */
+    private string $default_view = "";
+
+    /**
+     * @var array<string, ModuleView> all the defined views of this module
+     */
+    private array $views = [];
+
+    /**
+     * @var SettingsObject the module settings object
+     */
+    public SettingsObject $settings;
+
+    /**
+     * @var Priv\RequiredPrivileges|null holds all the module privileges definition
+     */
     public ?Priv\RequiredPrivileges $priv = null;
     
-    //Holds defined module events:
+    /**
+     * @var array<ModuleEvent> all the module events that can be triggered
+     */
     public array $module_events = [];
 
-    //Additional data from installation data - dynamically loaded:
-    public string $version   = "";   // The installed module version:
-    public string $path      = "";   // The path to the module folder
-    public array  $paths     = [     // Some usefull paths of parts in the module: 
-        "module"            => "",
-        "module-api"        => "",
-        "module-blocks"     => "",
-        "module-templates"  => "",
-        "module-lib"        => "",
-        "module-includes"   => ""
+    /**
+     * @var string the installed module version
+     */
+    public string $version = "";
+
+    /**
+     * @var string the path to the module folder
+     */
+    public string $path = "";
+
+    /**
+     * @var array<string, string> all the module paths of different parts
+     */
+    public array  $paths     = [
+        "module"     => "",
+        "main"       => "",
+        "api"        => "",
+        "blocks"     => "",
+        "templates"  => "",
+        "lib"        => "",
+        "includes"   => ""
     ];
-    public string $url      = "";   // The url to the module folder
-    public array  $urls     = [     // Some usefull paths of parts in the module: 
-        "module"            => "",
-        "module-api"        => "",
-        "module-lib"        => ""
+
+    /**
+     * @var string the url to the module folder
+     */
+    public string $url = "";
+
+    /**
+     * @var array<string, string> all the module urls of different parts
+     */
+    public array $urls = [ 
+        "module"     => "",
+        "main"       => "",
+        "api"        => "",
+        "blocks"     => "",
+        "templates"  => "",
+        "lib"        => "",
+        "includes"   => ""
     ];
-    public string $which    = "";   // Requested view to load
-    public array  $menu     = [];   // the installed menu entry
-    public array  $header   = [];   // dynamic header data
-    public ?AdminApi $api   = null; // a reference to the use api object
-    public ?AdminPage $page = null; // a reference to the use api object
-    public ?MysqliDb $db    = null; //Reference to a $db connection dynamically assigned
-    public ?User $user      = null;
+
+    /**
+     * @var string the requested view name to be loaded
+     */
+    public string $which = "";
+
+    /**
+     * @var array the menu entry of this module
+     */
+    public array $menu = [];
+
+    /**
+     * @var array holds the header data of this module
+     */
+    public array $header = []; 
+
+    /**
+     * @var AdminApi|null a reference to the top api object
+     */
+    public ?AdminApi $api = null;
+
+    /**
+     * @var AdminPage|null a reference Bsik AdminPage object which is the main page
+     */
+    public ?AdminPage $page = null;
+
+    /**
+     * @var MysqliDb|null a reference to the database connections object
+     */
+    public ?MysqliDb $db = null;
+
+    /**
+     * @var User|null a reference to the current user object
+     */
+    public ?User $user = null;
+
 
     /**
      * __construct
-     * @param string $name                      - the module name
-     * @param Priv\RequiredPrivileges $privileges    - the module level required privileges
-     * @param array $views                      - expected views names that are allowed in this module
-     * @param string $default                   - default view name to be loaded if none is requested
+     * @param string $name the module name
+     * @param Priv\RequiredPrivileges $privileges the module level required privileges
+     * @param array $views expected views names that are allowed in this module
+     * @param string $default default view name to be loaded if none is requested
+     * @param SettingsObject $settings the module settings object
      */
     public function __construct(
         string $name, 
         ?Priv\RequiredPrivileges $privileges = null,
-        array $views         = [],
+        array $views = [],
         string $default_view = "",
         ?SettingsObject $settings = null
     ) {
-
         $this->module_name = $name;
         $this->priv        = $privileges ?? new Priv\RequiredPrivileges();
         $this->define_views($views, $default_view);
         $this->settings    = $settings ?? new SettingsObject();
+    }
     
+    
+    /**
+     * path_part
+     * returns a path part by name or the name itself if not found
+     * @static
+     * @param string $part
+     * @return string
+     */
+    public static function path_part(string $part) : string {
+        // Prebuilt paths:
+        switch ($part) {
+            case 'main':
+                return "module.php";
+            case 'api':
+                return "module-api.php";
+            case 'blocks':
+                return "blocks";
+            case 'templates':
+                return "templates";
+            case 'lib':
+                return "lib";
+            case 'includes':
+                return "includes";
+        }
+        return $part;
+    }
+    
+    /**
+     * build_paths
+     * returns an array of paths and urls to the module parts given a base path
+     * @static
+     * @param  string $base
+     * @return array
+     */
+    public static function build_paths(string $base) : array {
+        
+        // Prebuilt paths:
+        $module     = Std::$fs::path_to("modules", [$base]);
+        $main       = Std::$fs::path_to("modules", [$base, self::path_part("main")]);
+        $api        = Std::$fs::path_to("modules", [$base, self::path_part("api")]);
+        $blocks     = Std::$fs::path_to("modules", [$base, self::path_part("blocks")]);
+        $templates  = Std::$fs::path_to("modules", [$base, self::path_part("templates")]);
+        $lib        = Std::$fs::path_to("modules", [$base, self::path_part("lib")]);
+        $includes   = Std::$fs::path_to("modules", [$base, self::path_part("includes")]);
+        return [
+            "paths" => [
+                "module"    => $module["path"],
+                "main"      => $main["path"],
+                "api"       => $api["path"],
+                "blocks"    => $blocks["path"],
+                "templates" => $templates["path"],
+                "lib"       => $lib["path"],
+                "includes"  => $includes["path"]
+            ],
+            "urls"  => [
+                "module"    => $module["url"],
+                "main"      => $main["url"],
+                "api"       => $api["url"],
+                "blocks"    => $blocks["url"],
+                "templates" => $templates["url"],
+                "lib"       => $lib["url"],
+                "includes"  => $includes["url"]
+            ]
+        ];
     }
 
+    /**
+     * load
+     * loads the module with all its data
+     * @param array $data the module data
+     * @param MysqliDb|null $DB database connection object
+     * @param AdminApi|null $Api the top api object
+     * @param AdminPage|null $Page the top page object
+     * @param User|null $User the current user object
+     * @return void
+     */
     public function load(
         array $data         = [], 
         ?MysqliDb $DB       = null, 
         ?AdminApi $Api      = null, 
         ?AdminPage $Page    = null, 
         ?User $User         = null
-    ) {
+    ) : void {
 
         $this->version = $data["version"] ?? "";
         $this->which   = $data["which"] ?? "";
@@ -106,59 +257,80 @@ class Module {
         $this->user    = $User;
 
         //Set paths:
-        $raw_path = $data["path"] ?? "";
-        $folder             = Std::$fs::path_to("modules", $raw_path);
-        $module_api         = Std::$fs::path_to("modules", [$raw_path, "module-api.php"]);
-        $module_blocks      = Std::$fs::path_to("modules", [$raw_path, "blocks"]);
-        $module_templates   = Std::$fs::path_to("modules", [$raw_path, "templates"]);
-        $module_lib         = Std::$fs::path_to("modules", [$raw_path, "lib"]);
-        $module_includes    = Std::$fs::path_to("modules", [$raw_path, "includes"]);
-        $this->path = $folder["path"];
-        $this->paths["module"]              = $this->path;
-        $this->paths["module-api"]          = $module_api["path"];
-        $this->paths["module-blocks"]       = $module_blocks["path"];
-        $this->paths["module-templates"]    = $module_templates["path"];
-        $this->paths["module-lib"]          = $module_lib["path"];
-        $this->paths["module-includes"]     = $module_includes["path"];
-        $this->url = $folder["url"];
-        $this->urls["module"]              = $this->url;
-        $this->urls["module-api"]          = $module_api["url"];
-        $this->urls["module-lib"]          = $module_lib["url"];
+        $structure   = self::build_paths($data["path"] ?? "");
+        $this->path  = $structure["paths"]["module"];
+        $this->url   = $structure["urls"]["module"];
+        $this->paths = $structure["paths"];
+        $this->urls  = $structure["urls"];
 
         //Set requested view:
         $this->set_current_view($this->which);
 
     }
 
+    /**
+     * set_current_view
+     * sets the current view to be rendered by name
+     * if no name is given it will set the default view to be rendered
+     * @param string $view_name the view name to be loaded
+     * @return ModuleView
+     */
     public function set_current_view(string $view_name = "") : ModuleView {
         $name = !empty($view_name) && $view_name !== "default" ? $view_name : $this->default_view;
         $this->current_view = $this->view($name);
         return $this->current_view;
     }
 
+    /**
+     * define_views
+     * defines the views of this module by name and sets the default view
+     * this method should be called before registering any views to the module
+     * @param array $views the views names to be defined
+     * @param string $default the default view name to be loaded if none is requested
+     * @return void
+     */
     public function define_views(array $views, string $default = "") : void {
         $this->views = array_fill_keys($views, null);
         $this->default_view = $default;
     }
 
+    /**
+     * register_view
+     * registers a view to the module
+     * @param ModuleView|null $view the view object to be registered
+     * @param callable|null $render the render method of the view
+     * @return void
+     */
     public function register_view(
         ?ModuleView $view   = null,
         callable $render    = null
     ) : void {
+
         //Early out?
         if (is_null($view)) return;
+        
         //check we can register:
         if (!array_key_exists($view->name, $this->views) || !is_callable($render)) {
             throw new Exception("Trying to register an undefined / not-callable view [{$view->name}] in module [{$this->module_name}]", \E_PLAT_ERROR);
         }
+        
         //Extend parent module privileges if it has specific privileges:
         $view->priv->extends($this->priv);
+        
         //Set closure:
         $view->render = \Closure::bind(\Closure::fromCallable($render), $this);
+        
         //Register:
         $this->views[$view->name] = $view;
     }
 
+    /**
+     * register_event
+     * registers an event to the module
+     * @param array $on_events the events names to be registered
+     * @param callable|null $event_method the event method to be executed
+     * @return void
+     */
     public function register_event(array $on_events = [], ?\Closure $event_method = null) : void {
         $this->register_event_object(new ModuleEvent(
             $on_events, 
@@ -166,6 +338,12 @@ class Module {
         ));
     }
 
+    /**
+     * register_event_object
+     * registers an event object to the module
+     * @param ModuleEvent|null $event the event object to be registered
+     * @return void
+     */
     public function register_event_object(?ModuleEvent $event = null) : void {
         //Early out?
         if (is_null($event)) return;
@@ -173,9 +351,17 @@ class Module {
         $this->module_events[] = $event;
     }
 
+    /**
+     * get_event
+     * returns an event object by name
+     * @param string $event_name the event name to be returned
+     * @return ModuleEvent|null
+     */
     public function get_event(string $event_name) : ?ModuleEvent {
+        
         //Early out?
         if (empty($this->module_events)) return null;
+
         //Loop and find event:
         foreach ($this->module_events as $module_event) {
             /** @var ModuleEvent $module_event */
@@ -183,9 +369,17 @@ class Module {
                 return $module_event;
             }
         }
+
         return null;
     }
 
+    /**
+     * exec_event
+     * executes an event by name
+     * @param string $event_name the event name to be executed
+     * @param array ...$args packed arguments to be passed to the event method
+     * @return bool
+     */
     public function exec_event(string $event_name, ...$args) : bool {
         $event = $this->get_event($event_name);
         if (!is_null($event)) {
@@ -211,6 +405,13 @@ class Module {
         return false;
     }
 
+    /**
+     * view
+     * returns a view object by name
+     * @param string $name the view name to be returned
+     * @return ModuleView
+     * @throws Exception if view is not defined
+     */
     public function view(string $name) : ModuleView {
         if (!array_key_exists($name, $this->views) || empty($this->views[$name])) {
             throw new Exception("Trying to render undefined view [{$name}] in module", \E_PLAT_ERROR);
@@ -218,6 +419,15 @@ class Module {
         return $this->views[$name];
     }
 
+    /**
+     * render
+     * renders a view by name and returns the result
+     * @param string $view_name the view name to be rendered
+     * @param array $args packed arguments to be passed to the view render method
+     * @param Priv\PrivDefinition|null $issuer the issuer of the request
+     * @return array
+     * @throws Exception may throw an exception when execution fails
+     */
     public function render(string $view_name = "", array $args = [], ?Priv\PrivDefinition $issuer = null) : array {
 
         //Get and Set current view only if needed get loaded one:
