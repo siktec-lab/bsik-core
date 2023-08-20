@@ -259,7 +259,7 @@ class Modules {
      * module_part_path
      * a helper function to get a path to a any installed module part:
      * this has prebuilt paths for:
-     *  - all, main, api, blocks, templates, lib, includes
+     *  - all, main, views, api, blocks, templates, lib, includes
      * pass any other string to get a path to that folder in the module.
      * 
      * @param  string $module_name - the module name to get the path to
