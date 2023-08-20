@@ -290,22 +290,17 @@ class Std_FileSystem {
     /**
      * path_exists
      * checks wether a file exists with a simple path
-     * 
-     * @param  array $path_to_file
-     * @return void
+     * @param  array ...$path_to_file - the path to the file packed as an array
+     * @return string|bool - returns the path if exists or false if not
      */
-    final public static function path_exists(...$path_to_file) 
-    {
+    final public static function path_exists(...$path_to_file) : string|bool {
         $path = implode(DIRECTORY_SEPARATOR, array_map(
             function($part){
                 return trim($part, " \t\n\r\\/");
             },
             $path_to_file
         ));
-        if (file_exists($path)) {
-            return $path;
-        }
-        return false;
+        return file_exists($path) ? $path : false;
     }
 
     /**
