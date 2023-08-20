@@ -376,11 +376,6 @@ class BsikApi {
             "registered-endpoints"  => self::get_all_registered_endpoints(),
         ]);
         
-        // var_dump($raw_args);
-        // var_dump($endpoint);
-        // var_dump(self::$external);
-        // var_dump(self::get_all_registered_endpoints());
-        // exit;
         //If not defined check if its globally available: 
         $loaded_global = false;
         if (!self::has_registered_endpoint($endpoint)) {
