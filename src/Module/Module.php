@@ -82,6 +82,7 @@ class Module {
     public array  $paths     = [
         "module"     => "",
         "main"       => "",
+        "views"      => "",
         "api"        => "",
         "blocks"     => "",
         "templates"  => "",
@@ -100,6 +101,7 @@ class Module {
     public array $urls = [ 
         "module"     => "",
         "main"       => "",
+        "views"      => "",
         "api"        => "",
         "blocks"     => "",
         "templates"  => "",
@@ -142,7 +144,6 @@ class Module {
      */
     public ?User $user = null;
 
-
     /**
      * __construct
      * @param string $name the module name
@@ -177,6 +178,8 @@ class Module {
         switch ($part) {
             case 'main':
                 return "module.php";
+            case 'views':
+                return "views";
             case 'api':
                 return "module-api.php";
             case 'blocks':
@@ -203,15 +206,18 @@ class Module {
         // Prebuilt paths:
         $module     = Std::$fs::path_to("modules", [$base]);
         $main       = Std::$fs::path_to("modules", [$base, self::path_part("main")]);
+        $views      = Std::$fs::path_to("modules", [$base, self::path_part("views")]);
         $api        = Std::$fs::path_to("modules", [$base, self::path_part("api")]);
         $blocks     = Std::$fs::path_to("modules", [$base, self::path_part("blocks")]);
         $templates  = Std::$fs::path_to("modules", [$base, self::path_part("templates")]);
         $lib        = Std::$fs::path_to("modules", [$base, self::path_part("lib")]);
         $includes   = Std::$fs::path_to("modules", [$base, self::path_part("includes")]);
+
         return [
             "paths" => [
                 "module"    => $module["path"],
                 "main"      => $main["path"],
+                "views"     => $views["path"],
                 "api"       => $api["path"],
                 "blocks"    => $blocks["path"],
                 "templates" => $templates["path"],
@@ -221,6 +227,7 @@ class Module {
             "urls"  => [
                 "module"    => $module["url"],
                 "main"      => $main["url"],
+                "views"     => $views["url"],
                 "api"       => $api["url"],
                 "blocks"    => $blocks["url"],
                 "templates" => $templates["url"],
@@ -322,6 +329,59 @@ class Module {
         
         //Register:
         $this->views[$view->name] = $view;
+    }
+
+    /**
+     * auto_register_views
+     * automatically registers all the views in the module views folder
+     * this method uses the view-{name}.php naming convention and native php is_file
+     * its not slow because we rely on the stat() system call which is very fast and cached
+     * by the OS and PHP
+     * @param string|null $from the path to the views folder - if null it will use the default
+     * @param string $only if not empty it will register only the view with this name this is useful to avoid registering all views
+     * @return int the number of views registered
+     */
+    public function auto_register_views(string|null $from = null, string $only = "") : int {
+
+        $folder = Std::$fs::file_exists("modules", [$this->module_name, self::path_part("views")]);
+        $registered = 0;
+        
+        if ($folder !== false) {
+
+            $path = $folder["path"];
+            $views = array_keys($this->views);
+
+            // If only is set and its in the views array:
+            if ($only && in_array($only, $views)) 
+                $views = [$only];
+
+            // Scan the directory for files. starts with view-{name}.php
+            foreach ($views as $name) {
+
+                // The view expected file:
+                $view_file = $path.DIRECTORY_SEPARATOR."view-{$name}.php";
+
+                // include it:
+                if ($this->auto_register_view($view_file)) {
+                    $registered++;
+                }
+            }
+        }
+        return $registered;
+    }
+
+    /**
+     * auto_register_view
+     * automatically registers a view by path if it exists
+     * @param string $path
+     * @return bool true if registered false otherwise
+     */
+    public function auto_register_view(string $path) : bool {
+        if (is_file($path)) {
+            include $path;
+            return true;
+        }
+        return false;
     }
 
     /**
