@@ -27,7 +27,7 @@ use \Siktec\Bsik\Users\User;
  */
 class Modules {
     
-    private static  $installed  = []; //This holds the installed modules from db as array definitions
+    private static $installed  = []; //This holds the installed modules from db as array definitions
 
     private static $registered  = []; //This holds loaded modules from code. those are objects
     
@@ -59,15 +59,11 @@ class Modules {
      * @return void
      */    
     public static function register(mixed $module) : void {
+
         //Make sure its callable:
         if (!is_object($module) || !$module instanceof Module) {
             throw new Exception("Trying to register a non callable module", \E_PLAT_ERROR);
         }
-
-        //Make sure its installed or skip this one:
-        // if (self::is_installed($module->module_name)) {
-        //     return;
-        // }
 
         //Extend settings:
         $extend_settings_messages = []; 
@@ -116,22 +112,21 @@ class Modules {
         if (self::is_registered($module_name)) {
             return true;
         }
-        //Make sure its an installed module:
-        if (self::is_installed($module_name)) {
-            $module_installed = self::module_installed($module_name);
-            $module_file = Std::$fs::path_to("modules", [$module_installed["path"], "module.php"]);
-            //Require module
-            if (file_exists($module_file["path"])) {
-                try {
-                    //Load module & views:
-                    require $module_file["path"];
-                    return true;
-                } catch (\Throwable $e) {
-                    throw new Exception("Internal Error captured on module load [{$e->getMessage()}].", \E_PLAT_ERROR, $e);
-                }
-            } else {
-                throw new Exception("Could not find module file to load.", \E_PLAT_ERROR);
+        
+        //Make sure its an installed module and main file exists:
+        $module_file = self::module_part_path($module_name, "main");
+
+        //Require module
+        if (!empty($module_file)) {
+            try {
+                //Load module & views:
+                require $module_file;
+                return true;
+            } catch (\Throwable $e) {
+                throw new Exception("Internal Error captured on module load [{$e->getMessage()}].", \E_PLAT_ERROR, $e);
             }
+        } else {
+            throw new Exception("Could not find module file to load or module not installed properly.", \E_PLAT_ERROR);
         }
         return false;
     }
@@ -258,5 +253,42 @@ class Modules {
      */
     public static function get_all_registered() : array {
         return array_keys(self::$registered);
+    }
+    
+    /**
+     * module_part_path
+     * a helper function to get a path to a any installed module part:
+     * this has prebuilt paths for:
+     *  - all, main, api, blocks, templates, lib, includes
+     * pass any other string to get a path to that folder in the module.
+     * 
+     * @param  string $module_name - the module name to get the path to
+     * @param  string $part  - the part to get the path to
+     * @param  bool $exists - if true will return the path only if it exists
+     * @param  bool $url - if true will return the url instead of the path
+     * @return string|array - the path or url to the module part or an array of paths and urls
+     */
+    public static function module_part_path(string $module_name, string $part = "main", bool $exists = true, bool $url = false) : string|array {
+        $link = "";
+        if (self::is_installed($module_name)) {
+
+            // Get base path to module:
+            $base = self::$installed[$module_name]["path"];
+
+            // Prebuilt paths:
+            switch ($part) {
+                case 'all':
+                    $link = Module::build_paths($base);
+                    return $url ? $link["url"] : $link["path"];
+                default:
+                    $link = Std::$fs::path_to("modules", [
+                        $base,
+                        Module::path_part($part)
+                    ])[($url ? "url" : "path")];    
+                break;
+            }
+        }
+
+        return $link != "" && $exists && !file_exists($link) ? "" : $link;
     }
 }
