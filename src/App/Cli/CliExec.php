@@ -12,7 +12,7 @@ class CliExec {
     private string $args     = "";
     private string $options  = "";
 
-    const CLI_EXEC_NAME = "bsikc";
+    public static string $CLI_EXEC_NAME = "bsikc";
  
     /**
      * __construct
@@ -94,7 +94,7 @@ class CliExec {
      */
     public function get_exec_command(bool $join_stderr = false) : string {
         $parts = [
-            $this->cli_path . DIRECTORY_SEPARATOR .self::CLI_EXEC_NAME,
+            $this->cli_path . DIRECTORY_SEPARATOR .self::$CLI_EXEC_NAME,
             trim($this->command),
             trim($this->args),
             trim($this->options)

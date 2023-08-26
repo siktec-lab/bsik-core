@@ -22,6 +22,34 @@ class Std_String {
     ];
 
     /**
+     * is_empty_after_trim
+     * Check if a string is empty or contains only white spaces
+     * Trim the string before check will change the given string
+     * 
+     * @param string $str - string to check if empty 
+     * @param string $trim - what to trim default: " \t\n\r\0\x0B" null to disable
+     * 
+     * @return bool
+    */
+    final public static function is_empty_after_trim(string &$str, string|null $trim = " \t\n\r\0\x0B") : bool {
+        $str = trim($str, $trim ?? "");
+        return empty($str);
+    }
+
+
+    /**
+     * escape
+     * Escape a string for html output
+     * @param string $str - string to escape
+     * 
+     * @return string
+    */
+    final public static function escape(string $str) : string {
+        // Modern more safe string escape for html utf-8 safe strings:
+        return htmlentities($str, ENT_QUOTES | ENT_HTML5, "UTF-8");
+    }
+
+    /**
      * starts_with
      * Check if a string starts with a string
      * 

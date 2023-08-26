@@ -29,14 +29,17 @@ Components::register("html_ele", function(string $selector = "div", array $add_a
     $id    = $tag[1] ?? null;
     $tag   = $tag[0];
     $attrs = [];
+
     // has classes:
     $attrs["class"] = !empty($parts) ? $parts : [];
     if (isset($add_attrs["class"])) {
         array_push($attrs["class"], ...explode(".",$add_attrs["class"]));
         unset($add_attrs["class"]);
     }
+
     // has id:
     if (!empty($id)) $attrs["id"] = $id;
+    
     //merge additional attributes:
     $attrs = array_merge($attrs, $add_attrs);
     $attrs_str = [];
@@ -52,6 +55,32 @@ Components::register("html_ele", function(string $selector = "div", array $add_a
         $ele[2] = "</$tag>";
     }
     return $ele;
+});
+
+Components::register("html_select", function(
+    string $selector, 
+    array $options = [], 
+    array $add_attrs = [], 
+    int|string|null $selected = null
+) {
+    
+    if (!Std::$str::starts_with($selector, "select"))
+        $selector = "select.".$selector;
+    $tags = Components::html_ele($selector, $add_attrs);
+    $select = [$tags[0]];
+    foreach ($options as $value => $text) {
+        if (!is_null($selected) && $selected === $value) {
+            $option = Components::html_ele("option", 
+                ["value" => $value, "selected" => "selected"], $text);
+        } else {
+            $option = Components::html_ele("option", ["value" => $value], $text);
+        }
+        
+        $select[] = implode($option);
+    }
+    $select[] = $tags[2];
+    return implode($select);
+
 });
 
 /**
@@ -257,7 +286,9 @@ Components::register("defaults_dynamic_table", [ //NULL omits field option
  *  @param string $ele_selector => the table element selector.
  *  @param array $option_attributes => all the tables options extends `defaults_dynamic_table`.
  *  @param string $api => api endpoint to get the results from.
- *  @param string $table => the database table or view name.
+ *  @param string $table => the database table or view name. 
+ *                          use a format of [connection optional]:[table_name required]>[table_name * for count optional] 
+ *                          to use a different connection.
  *  @param array  $fields => fields definition object.
  *  @param array $operations => main operations to attach to the table
  *  @return string => HTML of the table with js inline
@@ -265,11 +296,11 @@ Components::register("defaults_dynamic_table", [ //NULL omits field option
 Components::register("dynamic_table", function(
     string $id, 
     string $ele_selector, 
-    array $option_attributes,
+    array  $option_attributes,
     string $api, 
     string $table, 
-    array $fields, 
-    array $operations = []
+    array  $fields, 
+    array  $operations = []
 ) {
     //Table js:
     $tpl_js   = "
@@ -432,7 +463,7 @@ Components::register("button_card", function(
     string $color       = "primary", 
     string $btn_txt     = "button",
     string $btn_color   = "primary", 
-    string $size        = "md",
+    string $size        = "md", 
     array  $attrs     = [],
     array  $classes     = [],
 ) {
@@ -448,6 +479,156 @@ Components::register("button_card", function(
     return sprintf($tpl, $color, $size, $label, $btn);
 }, true);
 
+
+Components::register("action_element", function(
+    string $type    = "press",
+    string $action  = "",
+    string $text    = "",
+    string $icon    = "",
+    string $html    = "",
+) {
+
+    return sprintf(
+        "<div class='action-element sik-form-init type-%s' data-action='%s'>
+            %s
+            <span class='action-label'>%s</span>
+            %s
+        </div>",
+        Std::$str::escape($type),
+        Std::$str::escape($action),
+        $icon,
+        Std::$str::escape($text),
+        $html
+    );
+
+}, true);
+
+Components::register("action_element_input", function(
+    string $action      = "",
+    string $text        = "",
+    string $icon        = "",
+    string $name        = "action-input",
+    string $placeholder = "",
+    string $input       = "text", // text, number, email, password, ...
+    string|int|null $default = null,
+    string $size        = "sm", // xs, sm, md, lg
+) {
+
+    $element = Components::action_element_stack(
+        [[
+            "type"          => "input",
+            "name"          => $name,
+            "input"         => $input,
+            "default"       => $default,
+            "placeholder"   => $placeholder,
+            "size"          => $size
+        ]]
+    );
+
+    return Components::action_element(
+        "input",
+        $action,
+        $text,
+        $icon,
+        $element
+    );
+
+}, true);
+
+Components::register("action_element_select", function(
+    string $action      = "",
+    string $text        = "",
+    string $icon        = "",
+    string $name        = "action-select",
+    array  $options     = [],
+    string|int|null $selected = null,
+    string $size        = "sm", // xs, sm, md, lg
+) {
+
+    $element = Components::action_element_stack(
+        [[
+            "type"     => "select",
+            "name"     => $name,
+            "options"  => $options,
+            "selected" => $selected,
+            "size"     => $size
+        ]]
+    );
+
+    return Components::action_element(
+        "select",
+        $action,
+        $text,
+        $icon,
+        $element
+    );
+
+}, true);
+
+Components::register("action_element_stack", function(array $controls = []) {
+
+    $stack = [];
+    foreach ($controls as $control) {
+        
+        // skip empty controls:
+        if (is_string($control)) {
+            $stack[] = $control;
+        } elseif (!is_array($control)) {
+            continue;
+        }
+        // A size:
+        $size = in_array($control["size"] ?? "", ["xs", "sm", "md", "lg"]) 
+            ? $control["size"] 
+            : "sm";
+        // build control:
+        switch ($control["type"]) {
+
+            case "select": {
+                $stack[] = Components::html_select(
+                    "select.form-select.form-select-{$size}", 
+                    $control["options"] ?? [], 
+                    ["name" => Std::$str::escape($control["name"] ?? "action-select")],
+                    $control["selected"] ?? null
+                );
+            } break;
+
+            case "input": {
+                $stack[] = implode(Components::html_ele(
+                    "input.form-control.form-control-{$size}.input-carret", 
+                    [
+                        "name"          => Std::$str::escape($control["name"] ?? "action-input"),
+                        "type"          => Std::$str::escape($control["input"] ?? "text"),
+                        "placeholder"   => Std::$str::escape($control["placeholder"] ?? ""),
+                        "value"         => Std::$str::escape($control["default"] ?? ""),
+                    ]
+                ));
+            } break;
+        }
+    }
+    return implode(PHP_EOL, $stack);
+
+}, true);
+
+Components::register("action_element_multi", function(
+    string $action      = "",
+    string $text        = "",
+    string $icon        = "",
+    array  $controls    = []
+) {
+
+    $elements = Components::action_element_stack(
+        $controls
+    );
+
+    return Components::action_element(
+        "multi",
+        $action,
+        $text,
+        $icon,
+        $elements
+    );
+
+}, true);
 
 /**
  * action_bar - a simple flex action bar with data actions.
@@ -467,22 +648,90 @@ Components::register("action_bar", function(
 ) {
     $elements = [];
     foreach ($actions as $action) {
+        
+        // skip empty actions:
         if (empty($action)) continue;
-        $icon = BsikIcon::fas($action["icon"] ?? "star", $colors["icon"] ?? "");
-        $elements[] = sprintf(
-            "<li class='action-item' data-action='%s'>%s<span>%s</span></li>",
-            $action["action"] ?? "",
-            $icon,
-            $action["text"] ?? "",
-        );
+
+        $element = "";
+        $span    = 1;
+        $state   = "";
+
+        // if string action which means it's a separator or html:
+        if (is_array($action)) {
+
+            //Process the action element:
+            $type = $action["type"] ?? "press";
+            $span = intval($action["span"] ?? 1);
+            $state = $action["state"] ?? "";
+
+            switch ($type) {
+
+                case "raw": {
+                    $element = $action["html"] ?? "";
+                } break;
+                
+                case "press": {
+                    $element = Components::action_element(
+                        "press",
+                        $action["action"] ?? "none",
+                        $action["text"] ?? "",
+                        $action["icon"] ?? ""
+                    );
+                } break;
+                case "input": {
+                    $element = Components::action_element_input(
+                        $action["action"] ?? "none",
+                        $action["text"] ?? "",
+                        $action["icon"] ?? "",
+                        $action["name"] ?? "action-input",
+                        $action["placeholder"] ?? "",
+                        $action["input"] ?? "text",
+                        $action["default"] ?? null,
+                        $action["size"] ?? "sm"
+                    );
+                } break;
+                case "select": {
+                    $element = Components::action_element_select(
+                        $action["action"] ?? "none",
+                        $action["text"] ?? "",
+                        $action["icon"] ?? "",
+                        $action["name"] ?? "action-select",
+                        $action["options"] ?? [],
+                        $action["selected"] ?? null,
+                        $action["size"] ?? "sm"
+                    );
+                } break;
+                case "multi": {
+                    $element = Components::action_element_multi(
+                        $action["action"] ?? "none",
+                        $action["text"] ?? "",
+                        $action["icon"] ?? "",
+                        $action["controls"] ?? []
+                    );
+                } break;
+            }
+        } elseif (is_string($action)) {
+            $element = trim($action);
+        }
+
+        // add element to the list:
+        if (!empty($element)) {
+            $elements[] = sprintf(
+                "<li class='action-item %s %s'>%s</li>", 
+                $span > 1 ? "span-{$span}" : "",
+                $state,
+                $element
+            );
+        }
     }
     return sprintf(
         "<ul class='bsik-action-bar %s' style='%s %s'>%s</ul>",
         $class,
-        !empty($colors["bg"])   ? "background-color:{$colors["bg"]};" : "",
-        !empty($colors["text"]) ? "color:{$colors["text"]};"         : "",
+        !empty($colors["bg"])   ? "background-color:{$colors["bg"]};"   : "",
+        !empty($colors["text"]) ? "color:{$colors["text"]};"            : "",
         implode(PHP_EOL, $elements)
     );
+
 }, true);
 
 
