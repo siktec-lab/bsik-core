@@ -573,6 +573,7 @@ Components::register("action_element_stack", function(array $controls = []) {
         // skip empty controls:
         if (is_string($control)) {
             $stack[] = $control;
+            continue;
         } elseif (!is_array($control)) {
             continue;
         }
@@ -580,6 +581,7 @@ Components::register("action_element_stack", function(array $controls = []) {
         $size = in_array($control["size"] ?? "", ["xs", "sm", "md", "lg"]) 
             ? $control["size"] 
             : "sm";
+
         // build control:
         switch ($control["type"]) {
 
@@ -655,15 +657,16 @@ Components::register("action_bar", function(
         $element = "";
         $span    = 1;
         $state   = "";
-
+        $state = $action["state"] ?? "";
+        $state = is_array($state) ? implode(" ", $state) : $state;
+        
         // if string action which means it's a separator or html:
         if (is_array($action)) {
 
             //Process the action element:
             $type = $action["type"] ?? "press";
             $span = intval($action["span"] ?? 1);
-            $state = $action["state"] ?? "";
-
+            
             switch ($type) {
 
                 case "raw": {
