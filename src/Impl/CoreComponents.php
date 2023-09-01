@@ -296,6 +296,7 @@ Components::register("defaults_dynamic_table", [ //NULL omits field option
  *                          to use a different connection.
  *  @param array  $fields => fields definition object.
  *  @param array $operations => main operations to attach to the table
+ *  @param string $endpoint => the endpoint to use for the table default is `core.get_for_datatable`
  *  @return string => HTML of the table with js inline
 */
 Components::register("dynamic_table", function(
@@ -305,7 +306,8 @@ Components::register("dynamic_table", function(
     string $api, 
     string $table, 
     array  $fields, 
-    array  $operations = []
+    array  $operations = [],
+    string $endpoint = "core.get_for_datatable"
 ) {
     //Table js:
     $tpl_js   = "
@@ -316,7 +318,7 @@ Components::register("dynamic_table", function(
                     ajax: function(params) {
                         params.data['fields'] = %s;
                         params.data['table_name'] = '%s';
-                        Bsik.dataTables.get('%s', 'core.get_for_datatable', params);
+                        Bsik.dataTables.get('%s', '%s', params);
                     },
                     columns: %s
                 });
@@ -356,6 +358,7 @@ Components::register("dynamic_table", function(
         json_encode(array_filter(array_column($fields, 'field'), fn($v) => $v !== "operate")),
         $table,
         $api,
+        $endpoint,
         preg_replace('/"@js:([\w.]+)"/m', '$1', $columns), // Fixed a bug this allows to define object names and functions 
         sprintf($tpl_operations, $operate_formatter_name, implode('', $eles_operation))
     );
