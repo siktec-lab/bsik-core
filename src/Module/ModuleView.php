@@ -5,13 +5,10 @@
 // Creation Date: date
 // Copyright 2020, Shlomi Hassid.
 /******************************************************************************/
-/*****************************      Changelog       ****************************
-1.0.1:
-    ->creation - initial
-*******************************************************************************/
+
 namespace Siktec\Bsik\Module;
 
-use \Siktec\Bsik\Std;
+use \Siktec\Bsik\StdLib as BsikStd;
 use \Siktec\Bsik\Privileges as Priv;
 use \Siktec\Bsik\Objects\SettingsObject;
 use \Siktec\Bsik\Render\Pages\AdminModuleRequest;
@@ -38,7 +35,7 @@ class ModuleView {
     ) {
         
         //Set legal view name:
-        $this->name = Std::$str::filter_string($name, AdminModuleRequest::$which_pattern);
+        $this->name = BsikStd\Strings::filter_string($name, AdminModuleRequest::$which_pattern);
 
         //Privileges:
         $this->priv = $privileges ?? new Priv\RequiredPrivileges();

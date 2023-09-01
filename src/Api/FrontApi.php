@@ -5,14 +5,10 @@
 // Creation Date: 2021-03-17
 // Copyright 2021, SIKTEC.
 /******************************************************************************/
-/*****************************      Changelog       ****************************
-1.0.0:
-    ->initial
-*******************************************************************************/
 
 namespace Siktec\Bsik\Api;
 
-use \Siktec\Bsik\Std;
+use \Siktec\Bsik\StdLib as BsikStd;
 use \Siktec\Bsik\Trace;
 use \Siktec\Bsik\CoreSettings;
 use \Siktec\Bsik\Privileges as Priv;
@@ -62,10 +58,10 @@ class FrontApi extends BsikApi
             "endpoint"      => $endpoint_name
         ]);
         //TODO: here also we need to make sure we are loading only registered pages:
-        if (Std::$fs::file_exists("front-pages", [$page, "page-api.php"])) {
+        if (BsikStd\FileSystem::file_exists("front-pages", [$page, "page-api.php"])) {
             try {
 
-                $extend_api_file = Std::$fs::path_to("front-pages", [$page, "page-api.php"]);
+                $extend_api_file = BsikStd\FileSystem::path_to("front-pages", [$page, "page-api.php"]);
                 
                 //validate page is activated and user has the required permissions:
                 if (!isset(FrontPage::$pages[$page])) {

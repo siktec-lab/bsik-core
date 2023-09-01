@@ -1,9 +1,15 @@
 <?php
+/******************************************************************************/
+// Created by: Shlomi Hassid.
+// Release Version : 1.0.1
+// Creation Date: date
+// Copyright 2020, Shlomi Hassid.
+/******************************************************************************/
+/******************************************************************************/
+// inspiration from:
+// https://github.com/jasny/twig-extensions
+/******************************************************************************/
 
-/*
- * inspiration from:
- * https://github.com/jasny/twig-extensions
- */
 namespace Siktec\Bsik\Render\Templates;
 
 use Twig\TwigFunction;

@@ -1,9 +1,14 @@
 <?php
+/******************************************************************************/
+// Created by: Shlomi Hassid.
+// Release Version : 1.0.1
+// Creation Date: date
+// Copyright 2020, Shlomi Hassid.
+/******************************************************************************/
 
 namespace Siktec\Bsik\Module\Schema;
 
-use \Exception;
-use \Siktec\Bsik\Std;
+use \Siktec\Bsik\StdLib as BsikStd;
 
 //TODO: implement a nested schema validator
 //TODO implement a schema validator for the module menu
@@ -33,14 +38,14 @@ class ModuleSchema {
      *
      * @param  string $_type - which schema type we are proccessing 
      * @param  ?string $_version - target version or null for default
-     * @throws Exception => \E_PLAT_ERROR if schema type is not supported.
+     * @throws \Exception => \E_PLAT_ERROR if schema type is not supported.
      * @return void
      */
     public function __construct(string $_type, ?string $_version = null) {
         $this->type            = trim($_type);
         $this->version         = trim($_version ?? self::DEFAULT_VERSION);
         //Load the correct template:
-        if (array_key_exists($this->type, self::SCHEMAS) && Std::$str::is_version($this->version)) {
+        if (array_key_exists($this->type, self::SCHEMAS) && BsikStd\Strings::is_version($this->version)) {
             $this->template_name     = sprintf(self::SCHEMAS[$this->type]["template"], $this->version);
             $this->schema_template = $this->get_template($this->template_name);
         } else {
@@ -53,7 +58,7 @@ class ModuleSchema {
         $sch = new SchemaObj();
         
         //Find the schema template:
-        $template_path = Std::$fs::file_exists("raw", [__DIR__, self::SCHEMA_FOLDER, $template_name]);
+        $template_path = BsikStd\FileSystem::file_exists("raw", [__DIR__, self::SCHEMA_FOLDER, $template_name]);
         
         //If not found return:
         if ($template_path === false) {
@@ -62,7 +67,7 @@ class ModuleSchema {
             return $sch;
         }
         //Load the schema:
-        $sch->struct = Std::$fs::get_json_file($template_path["path"]) ?? [];
+        $sch->struct = BsikStd\FileSystem::get_json_file($template_path["path"]) ?? [];
         if (empty($sch->struct)) {
             $sch->status    = false;
             $sch->message   = "Schema is corrupted";
@@ -99,7 +104,7 @@ class ModuleSchema {
      */
     public function validate(ModuleDefinition $definition) : bool {
         return $this->is_loaded() 
-                ? Std::$arr::validate(
+                ? BsikStd\Arrays::validate(
                     $this->schema_template->struct['$schema_required'], 
                     $definition->struct, 
                     ModuleSchema::$CUSTOM_VALIDATORS, 
@@ -115,7 +120,7 @@ class ModuleSchema {
         
         // clone the schema template:
         $definition->schema = $this;
-        $definition->struct = Std::$arr::extend($this->schema_template->struct, $struct);
+        $definition->struct = BsikStd\Arrays::extend($this->schema_template->struct, $struct);
         $definition->valid = $this->validate($definition);
         return $definition;
     }
@@ -127,7 +132,7 @@ class ModuleSchema {
  * Later bindings because we are using static methods
  */
 
-ModuleSchema::$CUSTOM_VALIDATORS["version"] = \Closure::fromCallable([Std::$str, "is_version"]);
+ModuleSchema::$CUSTOM_VALIDATORS["version"] = \Closure::fromCallable([BsikStd\FileSystem::class, "is_version"]);
 ModuleSchema::$CUSTOM_VALIDATORS["strlen"] = function($value, $min, $max) {
     if (strlen($value) > $max) 
         return "value is too long";

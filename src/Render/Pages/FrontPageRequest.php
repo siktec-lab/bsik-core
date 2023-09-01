@@ -14,7 +14,7 @@ namespace Siktec\Bsik\Render\Pages;
 
 require_once BSIK_AUTOLOAD;
 
-use \Siktec\Bsik\Std;
+use \Siktec\Bsik\StdLib as BsikStd;
 
 class FrontPageRequest {
     
@@ -66,7 +66,7 @@ class FrontPageRequest {
      */
     public function page(string $default) : bool {
         $this->page = isset($this->requested["page"])
-                        ? Std::$str::filter_string($this->requested["page"], self::$name_pattern)
+                        ? BsikStd\Strings::filter_string($this->requested["page"], self::$name_pattern)
                         : $default;
         return !empty($this->page);
     }    
@@ -79,7 +79,7 @@ class FrontPageRequest {
      */
     public function which(string $default) : bool {
         $this->which = (isset($this->requested["which"]))
-                            ? Std::$str::filter_string($this->requested["which"], self::$which_pattern)
+                            ? BsikStd\Strings::filter_string($this->requested["which"], self::$which_pattern)
                             : $default;
         return !empty($this->which);
     }
@@ -91,7 +91,7 @@ class FrontPageRequest {
      * @return void
      */
     public function when(string $time_str = "") : void {
-        $this->when = empty($time_str) ? Std::$date::time_datetime() : $time_str;
+        $this->when = empty($time_str) ? BsikStd\Dates::time_datetime() : $time_str;
     }
     
     /**
@@ -100,7 +100,7 @@ class FrontPageRequest {
      * @return array
      */
     public function get() : array {
-        return Std::$obj::to_array($this, filter : [
+        return BsikStd\Objects::to_array($this, filter : [
             "name_pattern",
             "which_pattern",
             "types",

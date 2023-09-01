@@ -5,13 +5,10 @@
 // Creation Date: date
 // Copyright 2020, Shlomi Hassid.
 /******************************************************************************/
-/*****************************      Changelog       ****************************
-1.0.1:
-    ->creation - initial
-*******************************************************************************/
+
 namespace Siktec\Bsik\Objects;
 
-use \Siktec\Bsik\Std;
+use \Siktec\Bsik\StdLib as BsikStd;
 
 /**
  * SettingsObject
@@ -74,10 +71,10 @@ class SettingsObject {
     public function import(string|array $from) : void {
         //If json:
         if (is_string($from)) {
-            $from = Std::$str::parse_json($from, onerror: []);
+            $from = BsikStd\Strings::parse_json($from, onerror: []);
         }
         //Get parts:
-        $settings = Std::$arr::get_from($from, ["values", "defaults", "options", "descriptions"], []);
+        $settings = BsikStd\Arrays::get_from($from, ["values", "defaults", "options", "descriptions"], []);
         $this->extend_descriptions($settings["descriptions"]);
         $this->extend_options($settings["options"]);
         $this->extend_defaults($settings["defaults"]);
@@ -134,7 +131,7 @@ class SettingsObject {
                 }
 
                 $value_errors = [];
-                if (!Std::$arr::validate([$key => $condition_str], [$key => $final_value ], self::$validators, $value_errors)) {
+                if (!BsikStd\Arrays::validate([$key => $condition_str], [$key => $final_value ], self::$validators, $value_errors)) {
                     if (!empty($value_errors)) {
                         $value_errors = array_values($value_errors);
                         foreach ($value_errors as $err) {
@@ -166,9 +163,9 @@ class SettingsObject {
     public function extend_options(array|string $options) {
         //If json:
         if (is_string($options)) {
-            $options = Std::$str::parse_json($options, onerror: []);
+            $options = BsikStd\Strings::parse_json($options, onerror: []);
         }
-        $this->options = Std::$arr::extend($this->options, $options);
+        $this->options = BsikStd\Arrays::extend($this->options, $options);
     }
 
     /**
@@ -180,9 +177,9 @@ class SettingsObject {
     public function extend_descriptions(array|string $descriptions) {
         //If json:
         if (is_string($descriptions)) {
-            $descriptions = Std::$str::parse_json($descriptions, onerror: []);
+            $descriptions = BsikStd\Strings::parse_json($descriptions, onerror: []);
         }
-        $this->descriptions = Std::$arr::extend($this->descriptions, $descriptions);
+        $this->descriptions = BsikStd\Arrays::extend($this->descriptions, $descriptions);
     }
 
     /**
@@ -196,11 +193,11 @@ class SettingsObject {
      */
     public function extend_defaults(array|string $extend, array &$errors = [], bool $cast = true) : bool {
         if (is_string($extend)) {
-            $extend = Std::$str::parse_json($extend, onerror: []);
+            $extend = BsikStd\Strings::parse_json($extend, onerror: []);
         }
         [$valid, $values] = $this->is_valid($extend, $errors, $cast);
         if ($valid) {
-            $this->defaults = Std::$arr::extend($this->defaults, $values);
+            $this->defaults = BsikStd\Arrays::extend($this->defaults, $values);
         }
         return $valid;
     }
@@ -216,11 +213,11 @@ class SettingsObject {
      */
     public function extend(array|string $extend, array &$errors = [], bool $cast = true) : bool {
         if (is_string($extend)) {
-            $extend = Std::$str::parse_json($extend, onerror: []);
+            $extend = BsikStd\Strings::parse_json($extend, onerror: []);
         }
         [$valid, $values] = $this->is_valid($extend, $errors, $cast);
         if ($valid) {
-            $this->values = Std::$arr::extend($this->values, $values);
+            $this->values = BsikStd\Arrays::extend($this->values, $values);
             $this->unset(); // removes all flagged values
         }
         return $valid;
@@ -355,7 +352,7 @@ class SettingsObject {
      * @return array
      */
     public function get_all(bool $merged = true) : array {
-        return $merged ? Std::$arr::extend($this->defaults, $this->values)
+        return $merged ? BsikStd\Arrays::extend($this->defaults, $this->values)
                        : $this->values;
     }
     

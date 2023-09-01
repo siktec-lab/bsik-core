@@ -5,20 +5,15 @@
 // Creation Date: date
 // Copyright 2020, Shlomi Hassid.
 /******************************************************************************/
-/*****************************      Changelog       ****************************
-1.0.1:
-    ->creation - initial
-*******************************************************************************/
+
 namespace Siktec\Bsik\Render\Pages;
 
-use \Siktec\Bsik\Std;
+use \Siktec\Bsik\StdLib as BsikStd;
 
 /**
  * AdminModuleRequest
  * 
  * This class is used to parse the request and validate it.
- * 
- * @package Siktec\Bsik\Render
  */
 class AdminModuleRequest {
     
@@ -71,7 +66,7 @@ class AdminModuleRequest {
      */
     public function module(string $default) : bool {
         $this->module = isset($this->requested["module"])
-                        ? Std::$str::filter_string($this->requested["module"], self::$name_pattern)
+                        ? BsikStd\Strings::filter_string($this->requested["module"], self::$name_pattern)
                         : $default;
         return !empty($this->module);
     }    
@@ -84,7 +79,7 @@ class AdminModuleRequest {
      */
     public function which(string $default) : bool {
         $this->which = (isset($this->requested["which"]))
-                            ? Std::$str::filter_string($this->requested["which"], self::$which_pattern)
+                            ? BsikStd\Strings::filter_string($this->requested["which"], self::$which_pattern)
                             : $default;
         return !empty($this->which);
     }
@@ -96,7 +91,7 @@ class AdminModuleRequest {
      * @return void
      */
     public function when(string $time_str = "") : void {
-        $this->when = empty($time_str) ? Std::$date::time_datetime() : $time_str;
+        $this->when = empty($time_str) ? BsikStd\Dates::time_datetime() : $time_str;
     }
     
     /**
@@ -105,7 +100,7 @@ class AdminModuleRequest {
      * @return array
      */
     public function get() : array {
-        return Std::$obj::to_array($this, filter : [
+        return BsikStd\Objects::to_array($this, filter : [
             "name_pattern",
             "which_pattern",
             "types",

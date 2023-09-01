@@ -2,8 +2,8 @@
 
 namespace Siktec\Bsik\App\Ext;
 
-use \Siktec\Bsik\Std;
-use Composer\Semver\VersionParser;
+use \Siktec\Bsik\StdLib as BsikStd;
+use \Composer\Semver\VersionParser;
 
 /**
  * Composer wrapper class
@@ -326,7 +326,7 @@ trait ComposerCommandsTrait
     public function run_add_classmap(array $paths, string $base_path = "") : bool {
         // the classmap is an array of paths:
         $config = $this->get_composer_config();
-        $current = Std::$arr->path_get_one('autoload.classmap', $config, []);
+        $current = BsikStd\Arrays::path_get_one('autoload.classmap', $config, []);
 
         foreach ($paths as $path) {
             $path = ltrim(trim($base_path, "\\/ ") . '/' . $path, '/');
@@ -355,7 +355,7 @@ trait ComposerCommandsTrait
         // the classmap is an array of paths:
         $save = [];
         $config = $this->get_composer_config();
-        $current = Std::$arr->path_get_one('autoload.classmap', $config, []);
+        $current = BsikStd\Arrays::path_get_one('autoload.classmap', $config, []);
 
         // add base path to paths:
         foreach ($paths as $i => $path) {
@@ -383,7 +383,7 @@ trait ComposerCommandsTrait
     public function run_add_psr4(array $maps, string $base_path = "") : bool {
         // the classmap is an array of paths:
         $config = $this->get_composer_config();
-        $current = Std::$arr->path_get_one('autoload.psr-4', $config, []);
+        $current = BsikStd\Arrays::path_get_one('autoload.psr-4', $config, []);
         $count = count($current);
         foreach ($maps as $map => $path) {
             $path = ltrim(trim($base_path, "\\/ ") . '/' . $path, '/');
@@ -417,10 +417,10 @@ trait ComposerCommandsTrait
      */
     public function run_remove_psr4(array $paths, string $base_path = "") : bool {
 
-        $save = [];
-        $config = $this->get_composer_config();
-        $autoload = Std::$arr->path_get_one('autoload', $config, []);
-        $current = Std::$arr->path_get_one('psr-4',     $autoload, []);
+        $save       = [];
+        $config     = $this->get_composer_config();
+        $autoload   = BsikStd\Arrays::path_get_one('autoload', $config, []);
+        $current    = BsikStd\Arrays::path_get_one('psr-4',     $autoload, []);
 
         // Current is empty, nothing to remove:
         if (empty($current)) {
@@ -444,7 +444,7 @@ trait ComposerCommandsTrait
         // we do this because we don't want to leave an empty psr-4 key in the composer.json file
         // if we do, the json file will be invalid as it will be [] instead of {}
         if (empty($save)) {
-            Std::$arr->path_unset('psr-4', $autoload);
+            BsikStd\Arrays::path_unset('psr-4', $autoload);
             return $this->set_composer_config_property('autoload', $autoload);
         }
 

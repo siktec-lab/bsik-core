@@ -1,15 +1,14 @@
 <?php
-/**
- * AdminPage.php
- * The main admin page class.
- * @author SIKTEC
- * @version 1.2.0
- * @since 1.0.0
- */
+/******************************************************************************/
+// Created by: Shlomi Hassid.
+// Release Version : 1.0.1
+// Creation Date: date
+// Copyright 2020, Shlomi Hassid.
+/******************************************************************************/
 
 namespace Siktec\Bsik\Render\Pages;
 
-use \Siktec\Bsik\Std;
+use \Siktec\Bsik\StdLib as BsikStd;
 use \Siktec\Bsik\Base;
 use \Siktec\Bsik\Api\BsikApi;
 use \Siktec\Bsik\Module\Modules;
@@ -19,16 +18,9 @@ use \Siktec\Bsik\Privileges as Priv;
 use \Siktec\Bsik\CoreSettings;
 use \Siktec\Bsik\Users\User;
 
-use \Exception;
-use \Throwable;
-
 /**
  * AdminPage
  * The main admin page class.
- * 
- * @package Siktec\Bsik\Render
- * @since 1.0.0
- * @version 1.2.0
  */
 class AdminPage extends Base
 {   
@@ -222,7 +214,7 @@ class AdminPage extends Base
                 }
                 return true;
             }
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $origin = $e->getPrevious();
             self::log("error", $e->getMessage(), 
                 context : [
@@ -279,7 +271,7 @@ class AdminPage extends Base
             return $this;
         }
         $path = $set["name"] ?? "";
-        if (Std::$str::starts_with($name,"link") || Std::$str::starts_with($name,"path")) {
+        if (BsikStd\Strings::starts_with($name,"link") || BsikStd\Strings::starts_with($name,"path")) {
             $path = $path;
             $name = $name[0] == 'l' ? "link" : "path"; 
         } else {
@@ -293,15 +285,15 @@ class AdminPage extends Base
     public function include_asset($pos, $type, $in, $path) {
         switch ($in) {
             case "me": {
-                $url = Std::$fs::path_url(self::$module->urls["lib"], ...$path);
+                $url = BsikStd\FileSystem::path_url(self::$module->urls["lib"], ...$path);
                 $this->include($pos, $type, "link", ["name" => $url]);
             } break;
             case "global": {
-                $url = Std::$fs::path_url(CoreSettings::$url["manage-lib"], ...$path);
+                $url = BsikStd\FileSystem::path_url(CoreSettings::$url["manage-lib"], ...$path);
                 $this->include($pos, $type, "link", ["name" => $url]);
             } break;
             case "required": {
-                $url = Std::$fs::path_url(CoreSettings::$url["manage-lib"], "required", ...$path);
+                $url = BsikStd\FileSystem::path_url(CoreSettings::$url["manage-lib"], "required", ...$path);
                 $this->include($pos, $type, "link", ["name" => $url]);
             } break;
         }
@@ -338,7 +330,7 @@ class AdminPage extends Base
             foreach ($inpos_lib as $type_libs) {
                 $type = $type_libs["type"];
                 foreach ($type_libs["libs"] as $lib) {
-                    if (Std::$str::starts_with($lib,"//") || Std::$str::starts_with($lib,"http")) {
+                    if (BsikStd\Strings::starts_with($lib,"//") || BsikStd\Strings::starts_with($lib,"http")) {
                         $this->static_links_counter++;
                         $this->lib_toload[$type]["link".$this->static_links_counter] = ["name" => $lib, "pos" => $pos];
                     } else {
@@ -485,7 +477,7 @@ class AdminPage extends Base
                 );
                 //make sure that content is string:
                 if (!is_string($content)) 
-                    throw new Exception("error rendering view [".self::$module->module_name."->".self::$module->which."] - view returned non printable content.", \E_PLAT_ERROR);
+                    throw new \Exception("error rendering view [".self::$module->module_name."->".self::$module->which."] - view returned non printable content.", \E_PLAT_ERROR);
                 //Return the view content:
                 if ($status) {
                     return $content;
@@ -493,9 +485,9 @@ class AdminPage extends Base
                     return $this->render_inline_error(text : $content);
                 }
             } else {
-                throw new Exception("tried to render module from APage - without loading a module.", \E_PLAT_ERROR);
+                throw new \Exception("tried to render module from APage - without loading a module.", \E_PLAT_ERROR);
             }
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             self::log("error", "Error captured on module render [{$e->getMessage()}].", [
                 "module"    => self::$module->module_name, 
                 "view"      => self::$module->which, 

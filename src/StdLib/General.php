@@ -5,17 +5,14 @@
 // Creation Date: date
 // Copyright 2020, Shlomi Hassid.
 /******************************************************************************/
-/*****************************      Changelog       ****************************
-1.0.1:
-    ->creation - initial
-*******************************************************************************/
+
 namespace Siktec\Bsik\StdLib;
 
 
 /**********************************************************************************************************
-* General helper Methods:
+* General Methods:
 **********************************************************************************************************/
-class Std_General {
+class General {
 
     /**
      * print_pre
@@ -23,9 +20,10 @@ class Std_General {
      * @param  mixed $out = packed values
      * @return void
      */
-    public static function print_pre(...$out) {
+    final public static function print_pre(...$out) {
         print "<pre>";
-        foreach ($out as $value) print_r($value);
+        foreach ($out as $value) 
+            print_r($value);
         print "</pre>";
     }
 

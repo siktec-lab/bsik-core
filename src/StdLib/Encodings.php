@@ -1,6 +1,16 @@
 <?php
+/******************************************************************************/
+// Created by: Shlomi Hassid.
+// Release Version : 1.0.1
+// Creation Date: date
+// Copyright 2020, Shlomi Hassid.
+/******************************************************************************/
 
 namespace Siktec\Bsik\StdLib;
+
+/**********************************************************************************************************
+* Encoding Methods:
+**********************************************************************************************************/
 
 class Encoding {
 
@@ -15,7 +25,7 @@ class Encoding {
     * 
     * @return string
     */
-    static function removeBOM(string $str="") : string {
+    final public static function removeBOM(string $str="") : string {
         if(substr($str, 0,3) === pack("CCC",0xef,0xbb,0xbf)) {
         $str = substr($str, 3);
         }
@@ -29,7 +39,7 @@ class Encoding {
      * 
      * @return int
      */
-    protected static function strlen(string $text) : int {
+    final public static function strlen(string $text) : int {
         return (function_exists('mb_strlen') && ((int) ini_get('mbstring.func_overload')) & 2) ?
             mb_strlen($text,'8bit') : strlen($text);
     }
@@ -41,7 +51,7 @@ class Encoding {
      * 
      * @return string
      */
-    public static function normalize_encoding_label(string $encoding_label) : string {
+    final public static function normalize_encoding_label(string $encoding_label) : string {
         $encoding = strtoupper($encoding_label);
         $encoding = preg_replace('/[^a-zA-Z0-9\s]/', '', $encoding);
         $equivalences = array(
@@ -72,7 +82,7 @@ class Encoding {
      * 
      * @return mixed
      */
-    public static function detect(string $text, string|array|null $from = "auto", mixed $fail = null) : mixed {
+    final public static function detect(string $text, string|array|null $from = "auto", mixed $fail = null) : mixed {
         
         //if mb_string is available:
         if (function_exists('mb_detect_encoding')) {
@@ -94,7 +104,7 @@ class Encoding {
      * @return string
      * @throws ValueError if the encoding is not supported or mb_string, iconv is not available
      */
-    public static function encode(string $text, string $to, string|array|null $from = 'AUTO') : string {
+    final public static function encode(string $text, string $to, string|array|null $from = 'AUTO') : string {
         // Normalize encoding labels:
         $from   = self::normalize_encoding_label($from);
         $to     = self::normalize_encoding_label($to);

@@ -22,7 +22,7 @@ if (!defined('BSIK_IN_FOLDER'))
     define("BSIK_IN_FOLDER", "");
 
 
-use \Siktec\Bsik\Std;
+use \Siktec\Bsik\StdLib as BsikStd;
 use \Siktec\Bsik\Storage\MysqliDb;
 use \Siktec\Bsik\Objects\SettingsObject;
 
@@ -164,7 +164,7 @@ class CoreSettings {
         if (!defined("BSIK_AUTOLOAD")) 
             define("BSIK_AUTOLOAD", self::$path["autoload"]);
         
-        self::$path["logs"] = Std::$fs::path(ROOT_PATH, self::get("core-log-php-errors-folder", DS));
+        self::$path["logs"] = BsikStd\FileSystem::path(ROOT_PATH, self::get("core-log-php-errors-folder", DS));
 
         //paths and urls:
         $in_folder = trim(self::get("url-root-folder", ""), "\\/ \t\n\r\0\x0B"); // May be empty

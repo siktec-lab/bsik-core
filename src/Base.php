@@ -1,9 +1,15 @@
 <?php
+/******************************************************************************/
+// Created by: Shlomi Hassid.
+// Release Version : 1.0.1
+// Creation Date: date
+// Copyright 2020, Shlomi Hassid.
+/******************************************************************************/
 
 namespace Siktec\Bsik;
 
 
-use \Siktec\Bsik\Std;
+use \Siktec\Bsik\StdLib as BsikStd;
 use \Siktec\Bsik\Storage\MysqliDb;
 
 use \Monolog\Logger;
@@ -124,7 +130,7 @@ class Base {
         //Logger:
         self::$logger = new Logger($channel);
         self::$logger->pushHandler(new StreamHandler(
-            Std::$fs::path($path,$channel.".log")
+            BsikStd\FileSystem::path($path,$channel.".log")
         ));
         self::$logger->pushProcessor(function ($record) {
             $record['extra']['user'] = self::$user_string;
@@ -182,7 +188,7 @@ class Base {
      * @return array
      */
     private static function db_credentials(array $credentials = []) : array {
-        return Std::$arr::extend(self::DB_DEFAULT_CREDENTIALS, $credentials);
+        return BsikStd\Arrays::extend(self::DB_DEFAULT_CREDENTIALS, $credentials);
     }
     /**
      * connect_db
@@ -211,10 +217,10 @@ class Base {
         }
 
         //Additional connections:
-        foreach ($connections as $name => $creds) {
+        foreach ($connections as $name => $credentials) {
             if ($name === "default") continue;
-            $creds = self::db_credentials($creds);
-            self::$db->addConnection($name, $creds);
+            $credentials = self::db_credentials($credentials);
+            self::$db->addConnection($name, $credentials);
         }
 
         return self::$db;
@@ -226,11 +232,11 @@ class Base {
      * @return void
      */
     public static function add_db_connection(string $name, array $credentials = []) : bool {
-        $creds = self::db_credentials($credentials);
+        $credentials = self::db_credentials($credentials);
         if (!isset(self::$db)) {
             return false;
         }
-        self::$db->addConnection($name, $creds);
+        self::$db->addConnection($name, $credentials);
         return true;
     }
 

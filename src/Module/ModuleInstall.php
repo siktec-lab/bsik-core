@@ -1,13 +1,18 @@
 <?php
+/******************************************************************************/
+// Created by: Shlomi Hassid.
+// Release Version : 1.0.1
+// Creation Date: date
+// Copyright 2020, Shlomi Hassid.
+/******************************************************************************/
 
 namespace Siktec\Bsik\Module;
 
 /******************************  Requires       *****************************/
-use \Exception;
-use \Throwable;
+
 use \ZipArchive;
 use \SplFileInfo;
-use \Siktec\Bsik\Std;
+use \Siktec\Bsik\StdLib as BsikStd;
 use \Siktec\Bsik\CoreSettings;
 use \Siktec\Bsik\Base;
 use Siktec\Bsik\Module\Schema\ModuleDefinition;
@@ -49,7 +54,7 @@ class ModuleInstall {
      * 
      * @param string $source => path to archive on server.
      * @param string $in   => path to default extract destination folder.
-     * @throws Exception => \E_PLAT_ERROR on zip cant be opened.
+     * @throws \Exception => \E_PLAT_ERROR on zip cant be opened.
      * @return ModuleInstall
      */
     public function __construct(
@@ -61,19 +66,14 @@ class ModuleInstall {
         $in = $in ?? CoreSettings::$path["manage-modules"];
         $this->source           = is_string($source) ? new SplFileInfo($source) : $source;
         $this->install_in       = is_string($in) ? new SplFileInfo($in) : $in;
-        $this->rand_id          = std::$date::time_datetime("YmdHis");
-        $this->temp_folder_path = Std::$fs::path($this->install_in->getRealPath(), self::TEMP_FOLDER_PREFIX.$this->rand_id);
+        $this->rand_id          = BsikStd\Dates::time_datetime("YmdHis");
+        $this->temp_folder_path = BsikStd\FileSystem::path($this->install_in->getRealPath(), self::TEMP_FOLDER_PREFIX.$this->rand_id);
         if ($load_zip) {
-            $this->zip = Std::$zip::open_zip($this->source->getRealPath() ?: "");
+            $this->zip = BsikStd\Zip::open_zip($this->source->getRealPath() ?: "");
         } 
 
         // We try to set the db connection if not passed as a dependency
-        if (is_null($db)) {
-            $this->db = Base::$db;
-        } else {
-            $this->db = $db;
-        }
-        
+        $this->db = $db ?? Base::$db;
     }
 
     /** 
@@ -85,7 +85,7 @@ class ModuleInstall {
         $errors = [];
         if ($this->zip->filename && $this->zip->status === ZipArchive::ER_OK) {
             //List the files in zip
-            $list = Std::$zip::list_files($this->zip);
+            $list = BsikStd\Zip::list_files($this->zip);
             //Validate required - simple validation just of presence and format:
             foreach ($required as $file => $validate) {
                 if (array_key_exists($file, $list)) {
@@ -112,11 +112,11 @@ class ModuleInstall {
         $folder = $folder ?? $this->temp_extracted->getRealPath();
         $errors = [];
         foreach ($required as $file => $validate) {
-            if (!Std::$fs::path_exists($folder, $file)) {
+            if (!BsikStd\FileSystem::path_exists($folder, $file)) {
                 $errors[] = "Required file missing [{$file}]";
                 continue;
             }
-            if (!$this->validate_file(Std::$fs::path($folder, $file), $validate)) {
+            if (!$this->validate_file(BsikStd\FileSystem::path($folder, $file), $validate)) {
                 $errors[] = "File is invalid [{$file}] expected [{$validate}]";
             }
         }
@@ -137,8 +137,8 @@ class ModuleInstall {
                 if (is_null($content)) {
                     $content = file_get_contents($path) ?? "";
                 }
-                $json = Std::$str::strip_comments($content);
-                if (!Std::$str::is_json($json)) {
+                $json = BsikStd\Strings::strip_comments($content);
+                if (!BsikStd\Strings::is_json($json)) {
                     return false;
                 }
             } break; 
@@ -147,7 +147,7 @@ class ModuleInstall {
                     $content = file_get_contents($path) ?? "";
                 }
                 $json = $content;
-                if (!Std::$str::is_json($json)) {
+                if (!BsikStd\Strings::is_json($json)) {
                     return false;
                 }
             } break;
@@ -163,7 +163,7 @@ class ModuleInstall {
     public function close_zip() {
         try {
             $this->zip->close();
-        } catch (Throwable) { ; }
+        } catch (\Throwable) { ; }
     }
 
     /** 
@@ -175,7 +175,7 @@ class ModuleInstall {
      * @return  bool true when success
      */
     public function temp_deploy(bool $close_after = false, int $flags = 0) : bool {
-        if ($result = Std::$zip::extract_zip($this->zip, $this->temp_folder_path, $flags)) {
+        if ($result = BsikStd\Zip::extract_zip($this->zip, $this->temp_folder_path, $flags)) {
             $this->temp_extracted = new SplFileInfo($this->temp_folder_path);
         } 
         if ($close_after) {
@@ -186,7 +186,7 @@ class ModuleInstall {
     
     public function temp_delete() : bool {
         if ($this->temp_extracted && $path = $this->temp_extracted->getRealPath()) {
-            return Std::$fs::clear_folder($path, true);
+            return BsikStd\FileSystem::clear_folder($path, true);
         }
         return false;
     }
@@ -198,7 +198,7 @@ class ModuleInstall {
      */
     public function clean() : bool {
         if ($this->temp_extracted && $path = $this->temp_extracted->getRealPath()) {
-            return Std::$fs::clear_folder($path, true);
+            return BsikStd\FileSystem::clear_folder($path, true);
         }
         return false;
     }
@@ -208,7 +208,7 @@ class ModuleInstall {
 
         if ($this->zip->locateName('module.jsonc') !== false) {
             $json = $this->zip->getFromName('module.jsonc') ?: "";
-            $module_json = Std::$str::parse_jsonc($json);
+            $module_json = BsikStd\Strings::parse_jsonc($json);
         }
 
         if (!is_array($module_json) || empty($module_json)) {
@@ -224,8 +224,8 @@ class ModuleInstall {
         $folder = $folder ?? $this->temp_extracted->getRealPath();
 
         // get the module.jsonc: 
-        $module_json = Std::$fs::get_json_file(
-            Std::$fs::path($folder, "module.jsonc")
+        $module_json = BsikStd\FileSystem::get_json_file(
+            BsikStd\FileSystem::path($folder, "module.jsonc")
         );
 
         if (empty($module_json)) {
@@ -325,12 +325,12 @@ class ModuleInstall {
     private function install_definition(ModuleDefinition $module, $by = null) : array {
 
         $name = $module->get_value('name');
-        $name = Std::$str::filter_string($name ?? "unknown", ["A-Z","a-z","0-9", "_"]);
+        $name = BsikStd\Strings::filter_string($name ?? "unknown", ["A-Z","a-z","0-9", "_"]);
         $type = $module->get_value('type');
-        $path = Std::$fs::path($this->install_in->getRealPath(), $name);
+        $path = BsikStd\FileSystem::path($this->install_in->getRealPath(), $name);
         
         // validate its a new module:
-        if ( Std::$fs::path_exists($path) ) {
+        if ( BsikStd\FileSystem::path_exists($path) ) {
             return [true, $name, ["Module already installed - you must uninstall it first or use the update command."]]; // We return true because its allready in
         }
 
@@ -347,7 +347,7 @@ class ModuleInstall {
             case "included": {
 
                 //Move temp folder:
-                if (!Std::$fs::xcopy($this->temp_extracted->getRealPath(), $path)) {
+                if (!BsikStd\FileSystem::xcopy($this->temp_extracted->getRealPath(), $path)) {
                     return [false , $name , ["failed to copy module to destination"]];
                 }
 
@@ -374,7 +374,7 @@ class ModuleInstall {
                     "installed_by"  => $by // TODO: set the user id or system user.
                 ])) {
                     //Remove folder:
-                    Std::$fs::clear_folder($path, true);
+                    BsikStd\FileSystem::clear_folder($path, true);
                     return [false, $name, ["failed to register module to database"]];
                 };
             } break;
@@ -389,13 +389,13 @@ class ModuleInstall {
     }
 
     private function install_bundle(array $single_definition, $by = null) : array {
-        $module_name = Std::$str::filter_string($single_definition["name"] ?? "unknown", ["A-Z","a-z","0-9", "_"]);
-        $module_path = Std::$fs::path($this->install_in->getRealPath(), $module_name);
+        $module_name = BsikStd\Strings::filter_string($single_definition["name"] ?? "unknown", ["A-Z","a-z","0-9", "_"]);
+        $module_path = BsikStd\FileSystem::path($this->install_in->getRealPath(), $module_name);
 
         // validate its new module:
         if (
                 $this->db->where("name", $module_name)->has("bsik_modules")
-            ||  Std::$fs::path_exists($module_path)
+            ||  BsikStd\FileSystem::path_exists($module_path)
         ) {
             return [true, $module_name, ["allready installed"]]; // We return true because its allready in
         }
@@ -421,7 +421,7 @@ class ModuleInstall {
                     return [false, $module_name, $errors];
                 }
                 //Move temp folder:
-                if (!Std::$fs::xcopy($this->temp_extracted->getRealPath(), $module_path)) {
+                if (!BsikStd\FileSystem::xcopy($this->temp_extracted->getRealPath(), $module_path)) {
                     return [false , $module_name , ["failed to copy module to destination"]];
                 }
                 //Register on DataBase:
@@ -443,7 +443,7 @@ class ModuleInstall {
                     "installed_by"  => $by
                 ])) {
                     //Remove folder:
-                    Std::$fs::clear_folder($module_path, true);
+                    BsikStd\FileSystem::clear_folder($module_path, true);
                     return [false, $module_name, ["failed to register module to database"]];
                 };
             } break;

@@ -1,4 +1,10 @@
 <?php
+/******************************************************************************/
+// Created by: shlomo hassid.
+// Release Version : 1.0.2
+// Creation Date: 06/04/2020
+// Copyright 2020, shlomo hassid.
+/******************************************************************************/
 
 namespace Siktec\Bsik\Objects;
 
@@ -7,8 +13,6 @@ namespace Siktec\Bsik\Objects;
  * Password
  * 
  * This class is used to validate and hash passwords.
- * 
- * @package Siktec\Bsik\Objects
  */
 class Password {
 

@@ -1,9 +1,14 @@
 <?php
+/******************************************************************************/
+// Created by: Shlomi Hassid.
+// Release Version : 1.0.1
+// Creation Date: date
+// Copyright 2020, Shlomi Hassid.
+/******************************************************************************/
 
-use \Siktec\Bsik\Std;
+use \Siktec\Bsik\StdLib as BsikStd;
 use \Siktec\Bsik\Builder\Components;
 use \Siktec\Bsik\Builder\BsikButtons;
-use \Siktec\Bsik\Builder\BsikIcon;
 use \Siktec\Bsik\Render\Templates\Template;
 use \Siktec\Bsik\Objects\SettingsObject;
 
@@ -64,7 +69,7 @@ Components::register("html_select", function(
     int|string|null $selected = null
 ) {
     
-    if (!Std::$str::starts_with($selector, "select"))
+    if (!BsikStd\Strings::starts_with($selector, "select"))
         $selector = "select.".$selector;
     $tags = Components::html_ele($selector, $add_attrs);
     $select = [$tags[0]];
@@ -184,7 +189,7 @@ Components::register("modal", function(
         if (count($button) < 4 || empty($button[0]) || !is_string($button[0])) {
             continue;
         }
-        if (!isset($button[1]["type"]) && Std::$str::starts_with($button[0], "button"))
+        if (!isset($button[1]["type"]) && BsikStd\Strings::starts_with($button[0], "button"))
             $button[1]["type"] = "button";
         if (!isset($button[1]["data-bs-dismiss"]) && $button[3])
             $button[1]["data-bs-dismiss"] = "modal";
@@ -319,7 +324,7 @@ Components::register("dynamic_table", function(
             %s
         </script>".PHP_EOL;
     $tpl_operations = "function %s() { return '%s'; }";
-    $operate_formatter_name = Std::$str::filter_string($id)."_operateFormatter";
+    $operate_formatter_name = BsikStd\Strings::filter_string($id)."_operateFormatter";
     //Build columns:
     $columns = [];
     foreach ($fields as $field) {
@@ -340,7 +345,7 @@ Components::register("dynamic_table", function(
     foreach ($operations as $op) {
         $eles_operation[] = implode(Components::html_ele(
             "a.".($op["name"] ?? "notset"), 
-            array_merge(["href" => "javascript:void(0)"], Std::$arr::filter_out($op, ["name", "href"])),
+            array_merge(["href" => "javascript:void(0)"], BsikStd\Arrays::filter_out($op, ["name", "href"])),
             implode(Components::html_ele("i", ["class" => $op["icon"] ?? "no-icon"]))
         ));
     }
@@ -405,7 +410,7 @@ Components::register("dropdown", function(
 Components::register("summary_card", function(string $title, mixed $number, string $icon, string $color, mixed $trend = null) {
     $trend = "";
     if (!empty($trend) && is_array($trend)) {
-        $trend = Std::$arr::get_from($trend, ["dir","change","text"], "");
+        $trend = BsikStd\Arrays::get_from($trend, ["dir","change","text"], "");
         $trend = <<<HTML
             <p class="mt-3 mb-0 text-muted text-sm">
                 <span class="text-danger mr-2"><i class="fas fa-arrow-{$trend['dir']}"></i>{$trend["change"]}</span>
@@ -494,10 +499,10 @@ Components::register("action_element", function(
             <span class='action-label'>%s</span>
             %s
         </div>",
-        Std::$str::escape($type),
-        Std::$str::escape($action),
+        BsikStd\Strings::escape($type),
+        BsikStd\Strings::escape($action),
         $icon,
-        Std::$str::escape($text),
+        BsikStd\Strings::escape($text),
         $html
     );
 
@@ -589,7 +594,7 @@ Components::register("action_element_stack", function(array $controls = []) {
                 $stack[] = Components::html_select(
                     "select.form-select.form-select-{$size}", 
                     $control["options"] ?? [], 
-                    ["name" => Std::$str::escape($control["name"] ?? "action-select")],
+                    ["name" => BsikStd\Strings::escape($control["name"] ?? "action-select")],
                     $control["selected"] ?? null
                 );
             } break;
@@ -598,10 +603,10 @@ Components::register("action_element_stack", function(array $controls = []) {
                 $stack[] = implode(Components::html_ele(
                     "input.form-control.form-control-{$size}.input-carret", 
                     [
-                        "name"          => Std::$str::escape($control["name"] ?? "action-input"),
-                        "type"          => Std::$str::escape($control["input"] ?? "text"),
-                        "placeholder"   => Std::$str::escape($control["placeholder"] ?? ""),
-                        "value"         => Std::$str::escape($control["default"] ?? ""),
+                        "name"          => BsikStd\Strings::escape($control["name"] ?? "action-input"),
+                        "type"          => BsikStd\Strings::escape($control["input"] ?? "text"),
+                        "placeholder"   => BsikStd\Strings::escape($control["placeholder"] ?? ""),
+                        "value"         => BsikStd\Strings::escape($control["default"] ?? ""),
                     ]
                 ));
             } break;

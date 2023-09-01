@@ -5,18 +5,10 @@
 // Creation Date: 06/04/2020
 // Copyright 2020, shlomo hassid.
 /******************************************************************************/
-/*****************************      DEPENDENCE      ***************************/
-
-/******************************************************************************/
-/*****************************      Changelog       ****************************
- 1.0: initial
- 1.0.2 :
-    -> users now has merged privileges -> they take a role and user specific privileges extend them
-*******************************************************************************/
 
 namespace Siktec\Bsik\Users;
 
-use \Siktec\Bsik\Std;
+use \Siktec\Bsik\StdLib as BsikStd;
 use \Siktec\Bsik\Base;
 use \Siktec\Bsik\Privileges as Priv;
 use \Siktec\Bsik\Objects\Password;
@@ -43,7 +35,7 @@ class User extends Base {
     }  
     
     public static function get_user_session() : array {
-        return Std::$arr::get_from($_SESSION ?? [], [
+        return BsikStd\Arrays::get_from($_SESSION ?? [], [
             self::SESSION_TOKEN_KEY, 
             self::SESSION_ID_KEY
         ]);
@@ -74,9 +66,9 @@ class User extends Base {
         $request = empty($request) ? $_POST : $request;
         
         //Get required credentials from the request:
-        $credentials = Std::$arr::get_from($request, ["username", "password", "csrftoken"], null);
+        $credentials = BsikStd\Arrays::get_from($request, ["username", "password", "csrftoken"], null);
 
-        if (Std::$arr::values_are_not($credentials)) {
+        if (BsikStd\Arrays::values_are_not($credentials)) {
 
             //Make sure same session call:
             if ($credentials["csrftoken"] !== self::get_session("csrftoken")) {
@@ -142,7 +134,7 @@ class User extends Base {
         //First check if already signed:
         $current_seesion =self::get_user_session();
 
-        if (Std::$arr::values_are_not($current_seesion)) {
+        if (BsikStd\Arrays::values_are_not($current_seesion)) {
             //User has access token
             $this->user_data = self::$db->where("a.id", $current_seesion[self::SESSION_ID_KEY])
                                          ->where("a.e_token", $current_seesion[self::SESSION_TOKEN_KEY])
@@ -211,7 +203,7 @@ class User extends Base {
      * @return string
      */
     private static function generate_user_token(string $hashed_pass, string $user_name) : string {
-        return openssl_digest(Std::$date::time_datetime().$hashed_pass.$user_name, "sha512");
+        return openssl_digest(BsikStd\Dates::time_datetime().$hashed_pass.$user_name, "sha512");
     }
 
     /* Get the location of user .

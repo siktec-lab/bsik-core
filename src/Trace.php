@@ -5,19 +5,6 @@
 // Creation Date: 12/09/2013
 // Copyright 2013, shlomo hassid.
 /******************************************************************************/
-/******************************************************************************/
-
-/*****************************      Changelog       ***************************/
-// 1.1: initial
-// 1.2:
-//      -> added a remove button in the debugger console.
-//      -> Improved styling by stretching left:0, right:0 of the console.
-// 1.3
-//      -> Improved add_trace to support several argument registration. 
-//      -> Added multiple vars registration reg_vars(["name" => $var1, "name" => $var])
-//      -> fixed bug with multiple var registration assignment in add_trace.
-//      -> fixed bug/Error in reg_var -> changed var to vars.
-/******************************************************************************/
 
 namespace Siktec\Bsik;
 

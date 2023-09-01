@@ -1,10 +1,10 @@
 <?php
-
-/*
- * This file is part of the Siktec Bsik Framework.
- * It extends the PHP-CLI package Shell wrapper for better environment handling.
- * 
- */
+/******************************************************************************/
+// Created by: Shlomi Hassid.
+// Release Version : 1.0.1
+// Creation Date: date
+// Copyright 2020, Shlomi Hassid.
+/******************************************************************************/
 
 namespace Siktec\Bsik\Tools;
 

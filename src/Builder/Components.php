@@ -2,9 +2,9 @@
 
 namespace Siktec\Bsik\Builder;
 
-use \Exception;
-use \Siktec\Bsik\Std;
+use \Siktec\Bsik\StdLib as BsikStd;
 
+//TODO: update those for better type hinting
 /**
  * @method static string helloworld( string $name ) return a hello world message
  * @method static array html_ele( string $selector, array $add_attrs, string $content ) builds a html element give the elemnet definition
@@ -23,7 +23,7 @@ class Components {
 
     public static function register(string $name, $set, $protected = true) : void {
         if (isset(self::$components[$name]) && self::$components[$name]["protected"]) {
-            throw new Exception("Tried to override a protected component", \E_PLAT_ERROR);
+            throw new \Exception("Tried to override a protected component", \E_PLAT_ERROR);
         }
         self::$components[$name] = [
             "cb"        => $set,
@@ -51,8 +51,8 @@ class Components {
             return null;
         }
         // Possible file paths:
-        $components_file_root     = Std::$fs::path_to("modules", [$module, "components.php"]);
-        $components_file_includes = Std::$fs::path_to("modules", [$module, "includes", "components.php"]);
+        $components_file_root     = BsikStd\FileSystem::path_to("modules", [$module, "components.php"]);
+        $components_file_includes = BsikStd\FileSystem::path_to("modules", [$module, "includes", "components.php"]);
         //Load module components:  
         try {
             if (file_exists($components_file_root["path"])) {
@@ -62,7 +62,7 @@ class Components {
                 require $components_file_includes["path"];
             }
         } catch (\Throwable $e) {
-            throw new Exception("Internal Error captured on module components load [{$e->getMessage()}].", \E_PLAT_ERROR, $e);
+            throw new \Exception("Internal Error captured on module components load [{$e->getMessage()}].", \E_PLAT_ERROR, $e);
         }
         // Execute component if exists:
         return true;
@@ -71,7 +71,7 @@ class Components {
     public static function __callstatic($name, $arguments) : mixed {
         
         if (!isset(self::$components[$name])) {
-            throw new Exception("Tried to use an undefined component", \E_PLAT_ERROR);
+            throw new \Exception("Tried to use an undefined component", \E_PLAT_ERROR);
         }
         if (is_callable(self::$components[$name]["cb"])) {
             return call_user_func_array(self::$components[$name]["cb"], $arguments);

@@ -32,8 +32,6 @@ Validate::add_class_validator(new MyValidators);
 
 namespace Siktec\Bsik\Api\Input;
 
-use \Exception;
-
 //Make sure we have a charset definition: 
 if (!defined("PLAT_VALIDATION_INPUT_CHARSET")) {
     if (!defined("PLAT_CHARSET")) {
@@ -118,13 +116,13 @@ class Validate {
      * @param  mixed $input
      * @param  string $procedures
      * @return mixed
-     * @throws Exception => E_NOTICE when trying to use an unknown filter
+     * @throws \Exception => E_NOTICE when trying to use an unknown filter
      */
     final public static function filter_input(mixed $input, string $procedures) {
         $parsed_procedures = self::parse_rule($procedures);
         foreach ($parsed_procedures as $procedure) {
             if (!isset(self::$filters[$procedure["func"]]) || !is_callable(self::$filters[$procedure["func"]])) 
-                throw new Exception("Trying to filter with unknown procedure [".$procedure["func"]."]", E_NOTICE);
+                throw new \Exception("Trying to filter with unknown procedure [".$procedure["func"]."]", E_NOTICE);
             $input = call_user_func_array(self::$filters[$procedure["func"]], [$input, ...$procedure["args"]]);
         }
         return $input;
@@ -178,14 +176,14 @@ class Validate {
      * @param  string $rule
      * @param  array $messages
      * @return bool
-     * @throws Exception => E_NOTICE when trying to use an unknown validator
+     * @throws \Exception => E_NOTICE when trying to use an unknown validator
      */
     final public static function validate_input(mixed $input, string $rule, array &$messages) : bool {
         $parsed_rule = self::parse_rule($rule);
         $valid = true;
         foreach ($parsed_rule as $condition) {
             if (!isset(self::$validators[$condition["func"]]) || !is_callable(self::$validators[$condition["func"]])) 
-                throw new Exception("Trying to validate with unknown func [".$condition["func"]."]", E_NOTICE);
+                throw new \Exception("Trying to validate with unknown func [".$condition["func"]."]", E_NOTICE);
             $test = call_user_func_array(self::$validators[$condition["func"]], [$input, ...$condition["args"]]);
 
             //Skip is a special return result to break the chain:

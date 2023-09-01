@@ -1,16 +1,15 @@
 <?php
-/**  
- * Module.php
- * @author SIKTEC
- * @version 1.2.0
- * @since 1.0.0
-*/
+/******************************************************************************/
+// Created by: Shlomi Hassid.
+// Release Version : 1.0.1
+// Creation Date: date
+// Copyright 2020, Shlomi Hassid.
+/******************************************************************************/
 
 namespace Siktec\Bsik\Module;
 
-use \Exception;
+use \Siktec\Bsik\StdLib as BsikStd;
 use \Siktec\Bsik\Storage\MysqliDb;
-use \Siktec\Bsik\Std;
 use \Siktec\Bsik\Privileges as Priv;
 use \Siktec\Bsik\Objects\SettingsObject;
 use \Siktec\Bsik\Api\AdminApi;
@@ -24,9 +23,6 @@ use \Siktec\Bsik\Users\User;
  * A module is a standalone component that can be installed and uninstalled and plugged into
  * the Bsik system.
  * 
- * @package Siktec\Bsik\Module
- * @version 1.2.0
- * @since 1.0.0
  */
 class Module {
 
@@ -204,14 +200,14 @@ class Module {
     public static function build_paths(string $base) : array {
         
         // Prebuilt paths:
-        $module     = Std::$fs::path_to("modules", [$base]);
-        $main       = Std::$fs::path_to("modules", [$base, self::path_part("main")]);
-        $views      = Std::$fs::path_to("modules", [$base, self::path_part("views")]);
-        $api        = Std::$fs::path_to("modules", [$base, self::path_part("api")]);
-        $blocks     = Std::$fs::path_to("modules", [$base, self::path_part("blocks")]);
-        $templates  = Std::$fs::path_to("modules", [$base, self::path_part("templates")]);
-        $lib        = Std::$fs::path_to("modules", [$base, self::path_part("lib")]);
-        $includes   = Std::$fs::path_to("modules", [$base, self::path_part("includes")]);
+        $module     = BsikStd\FileSystem::path_to("modules", [$base]);
+        $main       = BsikStd\FileSystem::path_to("modules", [$base, self::path_part("main")]);
+        $views      = BsikStd\FileSystem::path_to("modules", [$base, self::path_part("views")]);
+        $api        = BsikStd\FileSystem::path_to("modules", [$base, self::path_part("api")]);
+        $blocks     = BsikStd\FileSystem::path_to("modules", [$base, self::path_part("blocks")]);
+        $templates  = BsikStd\FileSystem::path_to("modules", [$base, self::path_part("templates")]);
+        $lib        = BsikStd\FileSystem::path_to("modules", [$base, self::path_part("lib")]);
+        $includes   = BsikStd\FileSystem::path_to("modules", [$base, self::path_part("includes")]);
 
         return [
             "paths" => [
@@ -318,7 +314,7 @@ class Module {
         
         //check we can register:
         if (!array_key_exists($view->name, $this->views) || !is_callable($render)) {
-            throw new Exception("Trying to register an undefined / not-callable view [{$view->name}] in module [{$this->module_name}]", \E_PLAT_ERROR);
+            throw new \Exception("Trying to register an undefined / not-callable view [{$view->name}] in module [{$this->module_name}]", \E_PLAT_ERROR);
         }
         
         //Extend parent module privileges if it has specific privileges:
@@ -343,7 +339,7 @@ class Module {
      */
     public function auto_register_views(string|null $from = null, string $only = "") : int {
 
-        $folder = Std::$fs::file_exists("modules", [$this->module_name, self::path_part("views")]);
+        $folder = BsikStd\FileSystem::file_exists("modules", [$this->module_name, self::path_part("views")]);
         $registered = 0;
         
         if ($folder !== false) {
@@ -470,11 +466,11 @@ class Module {
      * returns a view object by name
      * @param string $name the view name to be returned
      * @return ModuleView
-     * @throws Exception if view is not defined
+     * @throws \Exception if view is not defined
      */
     public function view(string $name) : ModuleView {
         if (!array_key_exists($name, $this->views) || empty($this->views[$name])) {
-            throw new Exception("Trying to render undefined view [{$name}] in module", \E_PLAT_ERROR);
+            throw new \Exception("Trying to render undefined view [{$name}] in module", \E_PLAT_ERROR);
         }
         return $this->views[$name];
     }
@@ -486,7 +482,7 @@ class Module {
      * @param array $args packed arguments to be passed to the view render method
      * @param Priv\PrivDefinition|null $issuer the issuer of the request
      * @return array
-     * @throws Exception may throw an exception when execution fails
+     * @throws \Exception may throw an exception when execution fails
      */
     public function render(string $view_name = "", array $args = [], ?Priv\PrivDefinition $issuer = null) : array {
 

@@ -5,10 +5,7 @@
 // Creation Date: date
 // Copyright 2020, Shlomi Hassid.
 /******************************************************************************/
-/*****************************      Changelog       ****************************
-1.0.1:
-    ->creation - initial
-*******************************************************************************/
+
 namespace Siktec\Bsik\StdLib;
 
 use \Siktec\Bsik\CoreSettings;
@@ -16,7 +13,7 @@ use \Siktec\Bsik\CoreSettings;
 /**********************************************************************************************************
 * File System Helper Methods:
 **********************************************************************************************************/
-class Std_FileSystem {
+class FileSystem {
     
     /**
      * path
@@ -106,14 +103,14 @@ class Std_FileSystem {
         //Build:
         // NOTE: rtrim is important for windows and not ltrim to avoid stripping base path in unix e.g. /var/www/...
         $path = rtrim($path, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.implode(DIRECTORY_SEPARATOR, $path_to_file);
-        $url  = rtrim($url, "/")."/".implode("/", Std_Url::normalize_slashes($path_to_file));
+        $url  = rtrim($url, "/")."/".implode("/", Urls::normalize_slashes($path_to_file));
         
         return ["path" => $path, "url" => $url]; 
     }
     
     /**
      * get_json_file
-     * loads a json file and return its content this method is a wrapper for Std_String::parse_jsonc
+     * loads a json file and return its content this method is a wrapper for Strings::parse_jsonc
      * @param  string $path - the path to the file
      * @param  bool   $remove_bom - remove byte order mark
      * @param  bool   $associative - return an associative array
@@ -125,7 +122,7 @@ class Std_FileSystem {
             $json = @file_get_contents($path) ?: "";
         }
         if (!empty($json)) {
-            return Std_String::parse_jsonc($json, $remove_bom, null, $associative);
+            return Strings::parse_jsonc($json, $remove_bom, null, $associative);
         }
         return null;
     }    
@@ -420,7 +417,7 @@ class Std_FileSystem {
     final public static function list_files_in(string $path, string $ext = ".php") : array {
         return array_filter(
             scandir($path), function($k) use($ext) { 
-                return is_string($k) && Std_String::ends_with($k, $ext); 
+                return is_string($k) && Strings::ends_with($k, $ext); 
             }
         );
     }

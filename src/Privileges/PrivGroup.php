@@ -5,32 +5,7 @@
 // Creation Date: 2021-03-18
 // Copyright 2021, SIKTEC.
 /******************************************************************************/
-/*****************************      Changelog       ****************************
-1.0.1:
-    ->initial
-1.0.2:
-    -> added update capabilities to merge definitions.
-	-> added some rendering tags helper to definitions to give some easy dump for debugging.
-	-> included core platform by definition -> this may change in the future:
-1.0.3:
-    -> now groups has metadat -> icon, description.
-	-> entire groups are dynamically registered and evaluated.
-	-> added support for updating and extending based on arrays and json
-1.0.4:
-	-> fixed bug and error in RegisteredPrivGroup - was accepting empty names and not checking correctly if was allready registered.
-	-> Improved register - performance wise.
-	-> group has improved to support null values of privileges tags.
-	-> function names -> allowed() in groups is now is_allowed(). 
-	-> function names -> groups() in definitions is now defined_groups(). 
-	-> added group method called defined() that returns both true and false tags.
-	-> all_granted() improved - now accepts a boolean to implode results, also filters out empty tags.
-	-> fixed null overriding on update - now on update null tags will be ignored.
-1.0.5
-	-> intreduced in definition helper methods if() -> then() for quick inline checks.
-    -> added a helper called can() that is shorter for if()->then() to get boolean response.
-1.0.6
-	-> fixed bug with god flags not set when serializing.
-********************************************************************************/
+
 namespace Siktec\Bsik\Privileges;
 
 use \Exception;

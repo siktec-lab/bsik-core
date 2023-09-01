@@ -5,16 +5,13 @@
 // Creation Date: date
 // Copyright 2020, Shlomi Hassid.
 /******************************************************************************/
-/*****************************      Changelog       ****************************
-1.0.1:
-    ->creation - initial
-*******************************************************************************/
+
 namespace Siktec\Bsik\StdLib;
 
 /**********************************************************************************************************
-* Object Methods:
+* Objects Methods:
 **********************************************************************************************************/
-class Std_Object {
+class Objects {
 
     /**
      * objectToArray
@@ -24,8 +21,8 @@ class Std_Object {
      * @param object $obj
      * @param bool $deep = true
      * @return array
-     * @throws \Exception
-     */
+     * @throws \ReflectionException - if the class does not exist 
+     */ 
     public static function to_array(object $obj, bool $deep = true, array $filter = []) : array {
         $reflectionClass = new \ReflectionClass(get_class($obj));
         $array = [];

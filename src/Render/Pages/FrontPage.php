@@ -12,13 +12,14 @@
 
 namespace Siktec\Bsik\Render\Pages;
 
-use \Siktec\Bsik\Std;
+use \Siktec\Bsik\StdLib as BsikStd;
 use \Siktec\Bsik\Base;
-use \Siktec\Bsik\Render\Template;
+use \Siktec\Bsik\Render\Templates\Template;
+use \Siktec\Bsik\Builder\Components;
 use \Siktec\Bsik\Objects\SettingsObject;
 use \Siktec\Bsik\Users\User;
 use \Siktec\Bsik\Privileges as Priv;
-use \Siktec\Bsik\Settings\CoreSettings;
+use \Siktec\Bsik\CoreSettings;
 
 class FrontPage extends Base {   
 
@@ -63,7 +64,7 @@ class FrontPage extends Base {
     public static $page_type;
 
     // Components:
-    public \Bsik\Builder\Components $components;
+    public Components $components;
 
     // Page Status
     public FrontPageStatus $status;
@@ -238,8 +239,8 @@ class FrontPage extends Base {
     final public static function load_paths(array $global_dir = [], array $page_dir = []) {
 
         
-        $global_folder = !empty( $global_dir ) ? Std::$fs::file_exists("root", $global_dir) : [];
-        $page_folder   = !empty( $page_dir ) ? Std::$fs::file_exists("root", $page_dir) : [];
+        $global_folder = !empty( $global_dir ) ? BsikStd\FileSystem::file_exists("root", $global_dir) : [];
+        $page_folder   = !empty( $page_dir ) ? BsikStd\FileSystem::file_exists("root", $page_dir) : [];
 
         if (!empty($global_folder)) {
 
@@ -258,7 +259,7 @@ class FrontPage extends Base {
 
         if (!empty($page_folder)) {
             $dyn_folder_path = trim(self::$page["page_folder"], '/\\');
-            $dyn_folder_url = Std::$url::normalize_slashes($dyn_folder_path);
+            $dyn_folder_url = BsikStd\Urls::normalize_slashes($dyn_folder_path);
             self::$paths["page"]                = $page_folder["path"].DS.$dyn_folder_path;
             self::$paths["page-url"]            = $page_folder["url"].'/'.$dyn_folder_url;
             self::$paths["page-api"]            = $page_folder["path"].DS.$dyn_folder_path.DS."page-api.php";
@@ -292,14 +293,14 @@ class FrontPage extends Base {
 
         //Load platform globals:
         $global = self::$db->where("name", $which)->getOne("bsik_settings", ["object"]);
-        $global = Std::$str::parse_json($global["object"] ?? "", onerror: []);
-        Std::$arr::rename_key("values", "defaults", $global);
+        $global = BsikStd\Strings::parse_json($global["object"] ?? "", onerror: []);
+        BsikStd\Arrays::rename_key("values", "defaults", $global);
         
         //Load local if any:
-        $local =  Std::$fs::get_json_file(
-            Std::$fs::path_to("front-pages", [self::$page["page_folder"], "settings.jsonc"])["path"]
+        $local =  BsikStd\FileSystem::get_json_file(
+            BsikStd\FileSystem::path_to("front-pages", [self::$page["page_folder"], "settings.jsonc"])["path"]
         ) ?? [];
-        Std::$arr::rename_key("values", "defaults", $local);
+        BsikStd\Arrays::rename_key("values", "defaults", $local);
 
         //Extend with page:
         self::$settings->import($global);
@@ -329,7 +330,7 @@ class FrontPage extends Base {
             return $this;
         }
         $path = $set["name"] ?? "";
-        if (Std::$str::starts_with($name,"link") || Std::$str::starts_with($name,"path")) {
+        if (BsikStd\Strings::starts_with($name,"link") || BsikStd\Strings::starts_with($name,"path")) {
             $path = $path;
             $name = $name[0] == 'l' ? "link" : "path"; 
         } else {
@@ -364,7 +365,7 @@ class FrontPage extends Base {
             } break;
             case "page":
             case "global": {
-                $this->include($pos, $type, "link", ["name" => Std::$fs::path_url(self::$paths["$root-lib-url"], $type, ...$path)]);
+                $this->include($pos, $type, "link", ["name" => BsikStd\FileSystem::path_url(self::$paths["$root-lib-url"], $type, ...$path)]);
             } break;
         }
     }

@@ -5,16 +5,14 @@
 // Creation Date: date
 // Copyright 2020, Shlomi Hassid.
 /******************************************************************************/
-/*****************************      Changelog       ****************************
-1.0.1:
-    ->creation - initial
-*******************************************************************************/
+
 namespace Siktec\Bsik\StdLib;
 
 /**********************************************************************************************************
-* String Methods:
+* Strings Methods:
 **********************************************************************************************************/
-class Std_String {
+
+class Strings {
     
     public static $regex = [
         "filter-none" => '~[^%s]~',
@@ -149,7 +147,7 @@ class Std_String {
      */
     final public static function parse_jsonc(string $jsonc, bool $remove_bom = true, $onerror = false, bool $assoc = true) {
         $json = trim(
-            Std_String::strip_comments($jsonc), 
+            Strings::strip_comments($jsonc), 
             $remove_bom ? "\xEF\xBB\xBF \t\n\r\0\x0B" : " \t\n\r\0\x0B"
         );
         return json_decode($json, $assoc) ?? $onerror;

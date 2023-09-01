@@ -5,14 +5,10 @@
 // Creation Date: date
 // Copyright 2020, Shlomi Hassid.
 /******************************************************************************/
-/*****************************      Changelog       ****************************
-1.0.1:
-    ->creation - initial
-*******************************************************************************/
 
 namespace Siktec\Bsik\Render\Pages;
 
-use \Siktec\Bsik\Std;
+use \Siktec\Bsik\StdLib as BsikStd;
 
 class FrontPageMeta {
 
@@ -32,7 +28,7 @@ class FrontPageMeta {
      * @return void
      */
     public function define(array $_metas = []) : void {
-        $this->defined_metas = Std::$arr::is_assoc($_metas) ? $_metas : array_fill_keys($_metas, "");
+        $this->defined_metas = BsikStd\Arrays::is_assoc($_metas) ? $_metas : array_fill_keys($_metas, "");
     }
     
     /**
@@ -81,7 +77,7 @@ class FrontPageMeta {
      * @return array
      */
     public function get() : array {
-        return Std::$obj::to_array($this, filter : [
+        return BsikStd\Objects::to_array($this, filter : [
             "name_pattern",
             "which_pattern",
             "types",

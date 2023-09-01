@@ -5,14 +5,10 @@
 // Creation Date: 2021-03-16
 // Copyright 2021, SIKTEC.
 /******************************************************************************/
-/*****************************      Changelog       ****************************
-1.0.0:
-    ->initial
-*******************************************************************************/
 
 namespace Siktec\Bsik\Api\EndPoint;
 
-use \Siktec\Bsik\Std;
+use \Siktec\Bsik\StdLib as BsikStd;
 use \Siktec\Bsik\Privileges as Priv;
 use \Siktec\Bsik\Api\BsikApi;
 
@@ -62,8 +58,8 @@ class ApiEndPoint {
         string  $describe       = ""
     ) {
 
-        $this->module       = Std::$str::filter_string($module, ["A-Z", "a-z", "0-9", " ", "_"]);
-        $this->name         = $this->module.'.'.Std::$str::filter_string($name, ["A-Z", "a-z", "0-9", " ", "_", "."]);
+        $this->module       = BsikStd\Strings::filter_string($module, ["A-Z", "a-z", "0-9", " ", "_"]);
+        $this->name         = $this->module.'.'.BsikStd\Strings::filter_string($name, ["A-Z", "a-z", "0-9", " ", "_", "."]);
         $this->params       = $params;
         $this->filters      = $filter;
         $this->conditions   = $validation;

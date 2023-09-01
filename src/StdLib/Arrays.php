@@ -5,16 +5,12 @@
 // Creation Date: date
 // Copyright 2020, Shlomi Hassid.
 /******************************************************************************/
-/*****************************      Changelog       ****************************
-1.0.1:
-    ->creation - initial
-*******************************************************************************/
 namespace Siktec\Bsik\StdLib;
 
 /**********************************************************************************************************
-* Array Methods:
+* Arrays Methods:
 **********************************************************************************************************/
-class Std_Array {
+class Arrays {
 
     /**
      * is_assoc
@@ -22,7 +18,7 @@ class Std_Array {
      * @param  array $array
      * @return bool
      */
-    public static function is_assoc(array $array) : bool {
+    final public static function is_assoc(array $array) : bool {
         $keys = array_keys($array);
         return $keys !== array_keys($keys);
     }

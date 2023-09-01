@@ -2,7 +2,7 @@
 
 namespace Siktec\Bsik\App\Cli;
 
-use \Siktec\Bsik\Std;
+use \Siktec\Bsik\StdLib as BsikStd;
 use \Siktec\Bsik\CoreSettings;
 
 class CliExec {
@@ -143,7 +143,7 @@ class CliExec {
                 $output = preg_replace("/\e\[[0-9;]*m/", "", $output);
             } else {
                 $result = preg_replace("/\e\[[0-9;]*m/", "", implode("", $_output));
-                $output = Std::$str::parse_json($result, "", true);
+                $output = BsikStd\Strings::parse_json($result, "", true);
             }
         }
         

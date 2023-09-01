@@ -5,10 +5,7 @@
 // Creation Date: date
 // Copyright 2020, Shlomi Hassid.
 /******************************************************************************/
-/*****************************      Changelog       ****************************
-1.0.1:
-    ->creation - initial
-*******************************************************************************/
+
 namespace Siktec\Bsik\Module;
 
 /** 
@@ -16,8 +13,6 @@ namespace Siktec\Bsik\Module;
  * 
  * This class is used to create a module event.
  * Those events are used to trigger actions on module events.
- * 
- * @package Bsik\Module
  */
 class ModuleEvent {
     /**

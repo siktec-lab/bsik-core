@@ -6,7 +6,7 @@ use \Exception;
 use \SplFileInfo;
 use \ZipArchive;
 
-class Std_Zip {
+class Zip {
 
     /**
      * zip_status_message
@@ -83,7 +83,7 @@ class Std_Zip {
         $zip = self::open_zip($out, ZipArchive::CREATE | ZipArchive::OVERWRITE);
         /** @var \RecursiveIteratorIterator $files */
         $origin_path = new SplFileInfo($path);
-        $files = Std_FileSystem::list_folder($origin_path) ?? [];
+        $files = FileSystem::list_folder($origin_path) ?? [];
         foreach ($files as $name => $file) {
             // Get real and relative path for current file
             $filePath = $file->getRealPath();

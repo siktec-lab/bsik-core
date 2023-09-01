@@ -2,9 +2,9 @@
 
 namespace Siktec\Bsik\App\Cli\Commands;
 
+use \Siktec\Bsik\StdLib as BsikStd;
 use \Ahc\Cli\IO\Interactor;
 use \Ahc\Cli\Input\Command;
-use \Siktec\Bsik\Std;
 
 // TODO: implement output as json
 
@@ -82,7 +82,7 @@ class LogsCommand extends Command
     public function set_folder(string $path) : void {
 
         // check if path is valid
-        $build_path = Std::$fs->path($this->cwd, $path);
+        $build_path = BsikStd\FileSystem::path($this->cwd, $path);
 
         // check if path is a directory
         if (!file_exists($build_path) || !is_dir($build_path)) {
@@ -127,7 +127,7 @@ class LogsCommand extends Command
         if (!$this->log_file_defined($name))
             return null;
 
-        $path = Std::$fs->path($this->cwd, $this->path, $this->supported[$name]);
+        $path = BsikStd\FileSystem::path($this->cwd, $this->path, $this->supported[$name]);
 
         if (!$this->log_file_exists($path))
             return null;

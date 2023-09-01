@@ -2,9 +2,9 @@
 
 namespace Siktec\Bsik\App\Cli\Commands;
 
+use \Siktec\Bsik\StdLib as BsikStd;
 use \Ahc\Cli\IO\Interactor;
 use \Ahc\Cli\Input\Command;
-use \Siktec\Bsik\Std;
 use \Siktec\Bsik\Module\ModuleInstall;
 
 class ExportModuleCommand extends Command
@@ -76,7 +76,7 @@ class ExportModuleCommand extends Command
     public function set_folder(string $path) : void {
 
         // check if path is valid
-        $build_path = Std::$fs->path($this->cwd, $path);
+        $build_path = BsikStd\FileSystem::path($this->cwd, $path);
 
         // check if path is a directory
         if (!file_exists($build_path) || !is_dir($build_path)) {
@@ -97,7 +97,7 @@ class ExportModuleCommand extends Command
 
         $name = strtolower(trim($name));
 
-        $path = Std::$fs->path($this->cwd, $this->def_path, $name);
+        $path = BsikStd\FileSystem::path($this->cwd, $this->def_path, $name);
 
         if (!file_exists($path) || !is_dir($path)) {
             return null;
@@ -147,7 +147,7 @@ class ExportModuleCommand extends Command
                 $rel_output = substr($rel_output, strlen($char));
             }
         }
-        $output = Std::$fs->path($this->cwd, $rel_output);
+        $output = BsikStd\FileSystem::path($this->cwd, $rel_output);
         $this->set('output', $output);
 
     }
@@ -174,7 +174,7 @@ class ExportModuleCommand extends Command
         //if output is a folder then add the module name to the path
         if (is_dir($output)) {
             $gen_name = $this->auto_generate_name($module);
-            $output = Std::$fs->path($output, $gen_name);
+            $output = BsikStd\FileSystem::path($output, $gen_name);
         } elseif (!str_ends_with(strtolower($output), '.zip')) {
             // this is not a folder and the output does not end with .zip
             $io->error("Invalid output file name: {$output} - must be a folder or a .zip file");
@@ -216,7 +216,7 @@ class ExportModuleCommand extends Command
         }
 
         // Zip the module folder:
-        Std::$zip::zip_folder(
+        BsikStd\Zip::zip_folder(
             path    : $module, 
             out     : $output, 
             exclude : $this->exclude

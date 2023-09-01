@@ -5,16 +5,11 @@
 // Creation Date: 2021-03-16
 // Copyright 2021, SIKTEC.
 /******************************************************************************/
-/*****************************      Changelog       ****************************
-1.0.0:
-    ->initial
-*******************************************************************************/
 
 namespace Siktec\Bsik\Api;
 
-use \Exception;
 use \Siktec\Bsik\Trace;
-use \Siktec\Bsik\Std;
+use \Siktec\Bsik\StdLib as BsikStd;
 use \Siktec\Bsik\Base;
 use \Siktec\Bsik\Privileges as Priv;
 use \Monolog\Logger;
@@ -272,7 +267,7 @@ class BsikApi {
     public function parse_request(array $input, array $ignore = ["type", "module", "page", "which", "request_type", "request_token"]) {
         $this->request->token = $input["request_token"] ?? "";
         $this->request->type  = $input["request_type"] ?? "";
-        $this->request->args  = Std::$arr::filter_out($input, $ignore);
+        $this->request->args  = BsikStd\Arrays::filter_out($input, $ignore);
         //Validate origin token:
         if (empty($this->csrf) || empty($this->request->token) || $this->csrf !== $this->request->token) {
             $this->request->update_answer_status(403, "Token is not set or invalid");
@@ -287,7 +282,7 @@ class BsikApi {
         $filters    = $Endpoint->filters;
 
         //Get defined or null:
-        $defined_args = Std::$arr::get_from($raw_args, array_keys($params), null);
+        $defined_args = BsikStd\Arrays::get_from($raw_args, array_keys($params), null);
         
         //Set defaults on null or empty string:
         array_walk($defined_args, 
@@ -507,26 +502,28 @@ class BsikApi {
         // Check MIME Type by yourself.
         $finfo = new \finfo(FILEINFO_MIME_TYPE);
         $got_mime = $finfo->file($_FILES[$name]['tmp_name']);
-        $allowed_mime = Std::$fs::get_mimetypes(...$mime);
+        $allowed_mime = BsikStd\FileSystem::get_mimetypes(...$mime);
         $ext = array_search($got_mime, $allowed_mime, true);
         if (!empty($mime) && !is_string($ext) ) {
             return [false, 'invalid file format'];
         }
+        
         // You should name it uniquely.
         // DO NOT USE $_FILES['file']['name'] WITHOUT ANY VALIDATION !!
         $temp_name = sprintf("%s.%s", 
-            Std::$str::filter_string(
+            BsikStd\Strings::filter_string(
                 pathinfo($_FILES[$name]['name'], PATHINFO_FILENAME), 
                 ["A-Z","a-z","0-9","_",".","\\-"]
             ), 
             $ext
         );
-        $full_to = Std::$fs::path($to, $temp_name);
+        $full_to = BsikStd\FileSystem::path($to, $temp_name);
+
         //Move the file:
         try {
             if (!move_uploaded_file($_FILES[$name]['tmp_name'], $full_to))
                 return [false, 'failed to move file'];
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return [false, 'failed to move file'];
         }
         return [true, $full_to];

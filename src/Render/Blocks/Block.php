@@ -1,8 +1,14 @@
 <?php
+/******************************************************************************/
+// Created by: Shlomi Hassid.
+// Release Version : 1.0.1
+// Creation Date: date
+// Copyright 2020, Shlomi Hassid.
+/******************************************************************************/
 
 namespace Siktec\Bsik\Render\Blocks;
 
-use \Siktec\Bsik\Std;
+use \Siktec\Bsik\StdLib as BsikStd;
 use \Siktec\Bsik\Render\Templates\Template;
 
 class Block {
@@ -29,7 +35,7 @@ class Block {
     }
 
     public function extend_defaults(array $settings = []) {
-        $this->settings = Std::$arr::extend($this->defaults, $settings);
+        $this->settings = BsikStd\Arrays::extend($this->defaults, $settings);
     }
 
     public function render() : string {

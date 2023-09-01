@@ -2,7 +2,7 @@
 
 namespace Siktec\Bsik\App\Ext;
 
-use \Siktec\Bsik\Std;
+use \Siktec\Bsik\StdLib as BsikStd;
 use \Composer\Console\Application as ComposerApplication;
 use \Symfony\Component\Console\Output\StreamOutput as ComposerStreamOutput;
 
@@ -219,10 +219,10 @@ final class Composer
     public function get_composer_config() : ?array {
         
         // check if composer config is in the current working directory:
-        $composer_config_file = Std::$fs->path($this->cwd, 'composer.json');
+        $composer_config_file = BsikStd\FileSystem::path($this->cwd, 'composer.json');
 
         // Will return null if the file does not exist or is not readable:
-        return Std::$fs->get_json_file($composer_config_file);
+        return BsikStd\FileSystem::get_json_file($composer_config_file);
 
     }
     
@@ -238,19 +238,19 @@ final class Composer
     public function update_composer_config(array $composer_config) : bool {
         
         // check if composer config is in the current working directory:
-        $composer_config_file = Std::$fs->path($this->cwd, 'composer.json');
+        $composer_config_file = BsikStd\FileSystem::path($this->cwd, 'composer.json');
         $current = $this->get_composer_config();
         if (empty($current)) {
             return false;
         }
-        $composer_config = Std::$arr->merge_recursive_distinct(
+        $composer_config = BsikStd\Arrays::merge_recursive_distinct(
             $current, 
             $composer_config
         );
         // write the file to disk clearing the contents first:
         // NOTE: We are not escaping slashes here because we want to keep the slashes in the paths
         //       Its the responsibility of the user to escape the slashes if needed
-        return Std::$fs->put_json_file($composer_config_file, $composer_config, true, JSON_UNESCAPED_SLASHES, false);
+        return BsikStd\FileSystem::put_json_file($composer_config_file, $composer_config, true, JSON_UNESCAPED_SLASHES, false);
     }
     
     /**
@@ -265,17 +265,17 @@ final class Composer
      */
     public function set_composer_config_property(string $path, mixed $value) : bool {
         // check if composer config is in the current working directory:
-        $composer_config_file = Std::$fs->path($this->cwd, 'composer.json');
+        $composer_config_file = BsikStd\FileSystem::path($this->cwd, 'composer.json');
         $composer_config = $this->get_composer_config();
         if (!is_array($composer_config)) {
             return false;
         }
-        Std::$arr->path_set($path, $composer_config, $value);
+        BsikStd\Arrays::path_set($path, $composer_config, $value);
 
         // write the file to disk clearing the contents first:
         // NOTE: We are not escaping slashes here because we want to keep the slashes in the paths
         //       Its the responsibility of the user to escape the slashes if needed
-        return Std::$fs->put_json_file($composer_config_file, $composer_config, true, JSON_UNESCAPED_SLASHES, false);
+        return BsikStd\FileSystem::put_json_file($composer_config_file, $composer_config, true, JSON_UNESCAPED_SLASHES, false);
     }
 
     /**

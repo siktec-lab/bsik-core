@@ -5,10 +5,6 @@
 // Creation Date: date
 // Copyright 2020, Shlomi Hassid.
 /******************************************************************************/
-/*****************************      Changelog       ****************************
-1.0.1:
-    ->creation - initial
-*******************************************************************************/
 
 namespace Siktec\Bsik\Render\Pages;
 
@@ -16,8 +12,6 @@ namespace Siktec\Bsik\Render\Pages;
  * FrontPageStatus
  * 
  * This class is used to store the status of the front page
- * 
- * @package Siktec\Bsik\Render\Pages
  */
 class FrontPageStatus {
 

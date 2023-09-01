@@ -1,12 +1,18 @@
 <?php
+/******************************************************************************/
+// Created by: SIKTEC.
+// Release Version : 1.0.0
+// Creation Date: 2021-03-16
+// Copyright 2021, SIKTEC.
+/******************************************************************************/
 
 namespace Siktec\Bsik\Builder;
 
 class BsikButtons {
 
-    const BTN_CLASS = "btn";
-    const BTN_COLOR_CLASS = "btn-%s";
-    const BTN_SIZE_CLASS = "btn-%s";
+    const BTN_CLASS         = "btn";
+    const BTN_COLOR_CLASS   = "btn-%s";
+    const BTN_SIZE_CLASS    = "btn-%s";
 
     public static function button(
         string $id,

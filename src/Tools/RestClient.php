@@ -1,8 +1,14 @@
 <?php
+/******************************************************************************/
+// Created by: Shlomi Hassid.
+// Release Version : 1.0.1
+// Creation Date: date
+// Copyright 2020, Shlomi Hassid.
+/******************************************************************************/
 
 namespace Siktec\Bsik\Tools;
 
-use \Siktec\Bsik\Std;
+use \Siktec\Bsik\StdLib as BsikStd;
 use \GuzzleHttp\Client as GuzzleClient;
 
 class RestClient {
@@ -102,7 +108,7 @@ class RestClient {
         if ($params === []) {
             $this->request_params = [];
         } else {
-            $this->request_params = Std::$arr::merge_recursive_distinct(
+            $this->request_params = BsikStd\Arrays::merge_recursive_distinct(
                 $this->request_params, 
                 $params
             );
@@ -117,7 +123,7 @@ class RestClient {
      * @return RestClient
      */
     public function set_headers(array $headers) : RestClient {
-        $this->request_headers = Std::$arr::merge_recursive_distinct(
+        $this->request_headers = BsikStd\Arrays::merge_recursive_distinct(
             $this->request_headers, 
             $headers
         );

@@ -5,25 +5,29 @@
 // Creation Date: date
 // Copyright 2020, Shlomi Hassid.
 /******************************************************************************/
-/*****************************      Changelog       ****************************
-1.0.1:
-    ->creation - initial
-*******************************************************************************/
+
 namespace Siktec\Bsik\StdLib;
 
 /**********************************************************************************************************
-* Url handling Methods:
+* Dates Helper Methods:
 **********************************************************************************************************/
-class Std_Url {
-    
+class Dates {
+
     /**
-     * normalize_slashes
-     * replaces backslashes in url string
-     * @param  string|array $url
-     * @return string|array
+     * time_datetime
+     * return a time stamp in a pre defined format
+     * @param  string $w - the format to use
+     * @return string|bool -> string or false when error
      */
-    public static function normalize_slashes(string|array $url) : string|array {
-        return str_replace('\\', '/', $url);
+    final public static function time_datetime(string $w = "now-str") : string|bool {
+        switch ($w) {
+            case "now-str" :
+                return date('Y-m-d H:i:s');
+            case "now-mysql" :
+                return date('Y-m-d H:i:s');
+            default:
+                return date($w);
+        }
     }
 
 }

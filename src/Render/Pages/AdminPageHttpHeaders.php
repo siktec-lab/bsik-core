@@ -5,18 +5,13 @@
 // Creation Date: date
 // Copyright 2020, Shlomi Hassid.
 /******************************************************************************/
-/*****************************      Changelog       ****************************
-1.0.1:
-    ->creation - initial
-*******************************************************************************/
+
 namespace Siktec\Bsik\Render\Pages;
 
 /**
  * AdminPageHttpHeaders
  * 
  * This class is a static class that contains all the HTTP response codes which maps to a message.
- * 
- * @package Siktec\Bsik\Render
  * 
  */
 class AdminPageHttpHeaders {

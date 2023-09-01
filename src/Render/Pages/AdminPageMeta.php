@@ -5,20 +5,15 @@
 // Creation Date: date
 // Copyright 2020, Shlomi Hassid.
 /******************************************************************************/
-/*****************************      Changelog       ****************************
-1.0.1:
-    ->creation - initial
-*******************************************************************************/
+
 namespace Siktec\Bsik\Render\Pages;
 
-use \Siktec\Bsik\Std;
+use \Siktec\Bsik\StdLib as BsikStd;
 
 /** 
  * AdminPageMeta
  * 
  * defines the page meta tags.
- * 
- * @package Siktec\Bsik\Render
  */
 class AdminPageMeta {
 
@@ -38,7 +33,7 @@ class AdminPageMeta {
      * @return void
      */
     public function define(array $_metas = []) : void {
-        $this->defined_metas = Std::$arr::is_assoc($_metas) ? $_metas : array_fill_keys($_metas, "");
+        $this->defined_metas = BsikStd\Arrays::is_assoc($_metas) ? $_metas : array_fill_keys($_metas, "");
     }
     
     /**
@@ -74,6 +69,15 @@ class AdminPageMeta {
         return $this;
     }
 
+    /**
+     * data_object
+     * add a data object to the page which will be rendered as a meta tag
+     * 
+     * @param array $data - the data to encode as an array
+     * @param string $name - the name of the meta tag
+     * 
+     * @return void
+     */
     public function data_object(array $data, string $name = "module-data") : void {
         $this->add([
             "name"      => $name, 
@@ -86,7 +90,7 @@ class AdminPageMeta {
      * @return array
      */
     public function get() : array {
-        return Std::$obj::to_array($this, filter : [
+        return BsikStd\Objects::to_array($this, filter : [
             "name_pattern",
             "which_pattern",
             "types",

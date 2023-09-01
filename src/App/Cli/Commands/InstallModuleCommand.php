@@ -2,9 +2,9 @@
 
 namespace Siktec\Bsik\App\Cli\Commands;
 
+use \Siktec\Bsik\StdLib as BsikStd;
 use \Ahc\Cli\IO\Interactor;
 use \Ahc\Cli\Input\Command;
-use \Siktec\Bsik\Std;
 use \Siktec\Bsik\Base;
 use \Siktec\Bsik\Module\ModuleInstall;
 use \Siktec\Bsik\App\Ext\Composer;
@@ -86,7 +86,7 @@ class InstallModuleCommand extends Command
     public function set_folder(string $path) : void {
 
         // check if path is valid
-        $build_path = Std::$fs->path($this->cwd, $path);
+        $build_path = BsikStd\FileSystem::path($this->cwd, $path);
 
         // check if path is a directory
         if (!file_exists($build_path) || !is_dir($build_path)) {
@@ -105,7 +105,7 @@ class InstallModuleCommand extends Command
      */
     public function module_folder(string $name) : string {
 
-        return Std::$fs->path($this->cwd, $this->def_path, strtolower(trim($name)));
+        return BsikStd\FileSystem::path($this->cwd, $this->def_path, strtolower(trim($name)));
     }
 
     // This method is auto called before `self::execute()`
@@ -115,7 +115,7 @@ class InstallModuleCommand extends Command
         // force json output?
         $this->force_json = $this->force_json || $this->json;
 
-        $module_path = Std::$fs::path($this->cwd, $this->module ?? "");
+        $module_path = BsikStd\FileSystem::path($this->cwd, $this->module ?? "");
         // get the module path to file
         $module = file_exists($module_path) ? $module_path : null;
 
@@ -142,7 +142,7 @@ class InstallModuleCommand extends Command
         $io = $this->app()->io();
 
         $file           = new \SplFileInfo($this->module); // we know this is a valid file
-        $modules_folder = Std::$fs->path($this->cwd, $this->def_path);
+        $modules_folder = BsikStd\FileSystem::path($this->cwd, $this->def_path);
 
         // if module file is not a valid file or not a zip file:
         if (!$file->isFile() || !$file->isReadable() || strtolower($file->getExtension()) !== self::MODULE_FILE_EXT) {
@@ -214,7 +214,7 @@ class InstallModuleCommand extends Command
         $module_target_folder = $this->module_folder($module_name);
 
         // check if module already exists
-        if (Std::$fs::file_exists("raw", $module_target_folder)) {
+        if (BsikStd\FileSystem::file_exists("raw", $module_target_folder)) {
             $this->response_error($io, 
                 'Module already installed: %s - you must uninstall it first or use the update command.', 
                 [$module_name], 

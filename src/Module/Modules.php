@@ -5,14 +5,11 @@
 // Creation Date: date
 // Copyright 2020, Shlomi Hassid.
 /******************************************************************************/
-/*****************************      Changelog       ****************************
-1.0.1:
-    ->creation - initial
-*******************************************************************************/
+
 namespace Siktec\Bsik\Module;
 
 use \Exception;
-use \Siktec\Bsik\Std;
+use \Siktec\Bsik\StdLib as BsikStd;
 use \Siktec\Bsik\Storage\MysqliDb;
 use \Siktec\Bsik\Api\AdminApi;
 use \Siktec\Bsik\Render\Pages\AdminPage;
@@ -55,14 +52,14 @@ class Modules {
      * register
      * register a module object
      * @param  mixed $module
-     * @throws Exception if module is not a Module instance
+     * @throws \Exception if module is not a Module instance
      * @return void
      */    
     public static function register(mixed $module) : void {
 
         //Make sure its callable:
         if (!is_object($module) || !$module instanceof Module) {
-            throw new Exception("Trying to register a non callable module", \E_PLAT_ERROR);
+            throw new \Exception("Trying to register a non callable module", \E_PLAT_ERROR);
         }
 
         //Extend settings:
@@ -80,14 +77,14 @@ class Modules {
      * register_module_once
      * register a module object only if its a new name.
      * @param  mixed $module
-     * @throws Exception if module is not a Module instance
+     * @throws \Exception if module is not a Module instance
      * @return void
      */
     public static function register_module_once(mixed $module) : void {
 
         //Make sure its an object and a module:
         if (!is_object($module) || !$module instanceof Module) {
-            throw new Exception("Trying to register a non callable module", \E_PLAT_ERROR);
+            throw new \Exception("Trying to register a non callable module", \E_PLAT_ERROR);
         }
 
         //Check if its allready registered:
@@ -102,7 +99,7 @@ class Modules {
     /**
      * loads a module code which will register itself.
      * @param  string $module
-     * @throws Exception if module has errors or if the path is not reachable
+     * @throws \Exception if module has errors or if the path is not reachable
      * @return bool
      */
     //TODO: test this what happens if module throws an error should be reflected in the return value
@@ -121,12 +118,13 @@ class Modules {
             try {
                 //Load module & views:
                 require $module_file;
+                
                 return true;
             } catch (\Throwable $e) {
-                throw new Exception("Internal Error captured on module load [{$e->getMessage()}].", \E_PLAT_ERROR, $e);
+                throw new \Exception("Internal Error captured on module load [{$e->getMessage()}].", \E_PLAT_ERROR, $e);
             }
         } else {
-            throw new Exception("Could not find module file to load or module not installed properly.", \E_PLAT_ERROR);
+            throw new \Exception("Could not find module file to load or module not installed properly.", \E_PLAT_ERROR);
         }
         return false;
     }
@@ -138,7 +136,7 @@ class Modules {
      * @param  ?AdminApi $Api
      * @param  ?AdminPage $Page
      * @param  ?User $User
-     * @throws Exception from self::load_module
+     * @throws \Exception from self::load_module
      * @return ?Module
      */
     public static function initiate_module(
@@ -281,7 +279,7 @@ class Modules {
                     $link = Module::build_paths($base);
                     return $url ? $link["url"] : $link["path"];
                 default:
-                    $link = Std::$fs::path_to("modules", [
+                    $link = BsikStd\FileSystem::path_to("modules", [
                         $base,
                         Module::path_part($part)
                     ])[($url ? "url" : "path")];    
