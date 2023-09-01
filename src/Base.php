@@ -188,21 +188,38 @@ class Base {
      * connect_db
      * establish a db connection based on global conf set.
      * @return void
-     * @throws Exception if we cant connect to db
+     * @throws Exception if no default db connection found
      */
     public static function connect_db() : MysqliDb {
-        $creds = self::db_credentials(self::$conf["db"] ?? []);
-        self::$db = new MysqliDb(
-            $creds['host'], 
-            $creds['username'], 
-            $creds['password'], 
-            $creds['db'], 
-            $creds['port'],
-            $creds['charset'],
-            $creds['socket']
-        );
+
+        $connections = self::$conf["db"] ?? [];
+
+        //Default connection:
+        if (array_key_exists("default", $connections)) {
+            $default = self::db_credentials($connections["default"]);
+            self::$db = new MysqliDb(
+                $default['host'], 
+                $default['username'], 
+                $default['password'], 
+                $default['db'], 
+                $default['port'],
+                $default['charset'],
+                $default['socket']
+            );
+        } else {
+            throw new \Exception("No default db connection found", \E_PLAT_ERROR);
+        }
+
+        //Additional connections:
+        foreach ($connections as $name => $creds) {
+            if ($name === "default") continue;
+            $creds = self::db_credentials($creds);
+            self::$db->addConnection($name, $creds);
+        }
+
         return self::$db;
     }    
+    
     /**
      * add_db_connection
      * add a new db connection to the db object
