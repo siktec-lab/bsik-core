@@ -3,7 +3,7 @@
 require_once "bootstrap.php";
 
 use \PHPUnit\Framework\TestCase;
-use \Siktec\Bsik\Std;
+use \Siktec\Bsik\StdLib as BsikStd;
 
 class StandardLibTest extends TestCase
 {
@@ -40,7 +40,7 @@ class StandardLibTest extends TestCase
         $expected1 = '{"one":{"test":"yes"},"two":{"two1":"two","two2":"twoo"},"jump":"yes"}';
         $this->assertEquals(
             $expected1, 
-            json_encode(Std::$arr::extend($def1, $val1)),
+            json_encode(BsikStd\Arrays::extend($def1, $val1)),
             "Failed extending array - test1"
         );
 
@@ -70,7 +70,7 @@ class StandardLibTest extends TestCase
         $expected2 = '{"0":"one1","1":"two","2":"three","more":[3,4,5],"test":{"lvl1":{"me":"no","lvl2":{"me":"yes"}},"lvl11":"added"},"3":"four"}';
         $this->assertEquals(
             $expected2, 
-            json_encode(Std::$arr::extend($def2, $val2)),
+            json_encode(BsikStd\Arrays::extend($def2, $val2)),
             "Failed extending array - test2"
         );
     }
@@ -86,19 +86,19 @@ class StandardLibTest extends TestCase
                 "three" => null
             ]
         ];
-        $simple = Std::$arr::validate([
+        $simple = BsikStd\Arrays::validate([
             "name"   => "string", 
             "usable" => "boolean",
             "child"  => "any"
         ], $usecase);
         $this->assertTrue($simple, "failed simple array validate helper std");
 
-        $empty = Std::$arr::validate([
+        $empty = BsikStd\Arrays::validate([
             "child" => "string:empty"
         ], $usecase);
         $this->assertFalse($empty, "failed empty check array validate helper std");
 
-        $traversal = Std::$arr::validate([
+        $traversal = BsikStd\Arrays::validate([
             "data.two"   => "integer",
             "data.three" => "NULL",
         ], $usecase);
@@ -107,7 +107,7 @@ class StandardLibTest extends TestCase
         $fn = [
             "onlystringortrue" => function($v) { return $v ? true : false; }
         ];
-        $withcustom = Std::$arr::validate([
+        $withcustom = BsikStd\Arrays::validate([
             "usable"   => "integer|boolean:onlystringortrue"
         ], $usecase, $fn);
         $this->assertTrue($withcustom, "failed check array with custom functions and mixed datatypes");
@@ -158,7 +158,7 @@ class StandardLibTest extends TestCase
         ];
 
         $errors = [];
-        $test_good = Std::$arr::validate($rules, $data, $fn, $errors);
+        $test_good = BsikStd\Arrays::validate($rules, $data, $fn, $errors);
         $this->assertTrue($test_good, "failed check array with custom functions and mixed datatypes");
         
         // Test optional:
@@ -166,7 +166,7 @@ class StandardLibTest extends TestCase
             "optional" => function($v) { return !is_null($v) && $v !== []; },
             "equal"    => function($v, $t) { return $v === $t; }
         ];
-        $optional = Std::$arr::validate(
+        $optional = BsikStd\Arrays::validate(
             rules : [
                 "name"   => "string:optional:equal['myname']",
                 "opt"    => "string:optional:equal['test']",
@@ -179,7 +179,7 @@ class StandardLibTest extends TestCase
         );
         $this->assertTrue($optional, "failed check array with optional and equal missing optional value 1");
 
-        $optional = Std::$arr::validate(
+        $optional = BsikStd\Arrays::validate(
             rules : [
                 "name"   => "string:optional:equal['myname']",
                 "opt"    => "string:optional:equal['test']",
@@ -191,7 +191,7 @@ class StandardLibTest extends TestCase
             add_path_to_cb : false
         );
         $this->assertTrue($optional, "failed check array with optional and equal missing optional value 2");
-        $optional = Std::$arr::validate(
+        $optional = BsikStd\Arrays::validate(
             rules : [
                 "name"   => "string:optional:equal['myname']",
                 "opt"    => "string:optional:equal['test']",
@@ -220,19 +220,19 @@ class StandardLibTest extends TestCase
             ]
         ];
 
-        $test1 = Std::$arr::path_get("go.there", $usecase);
+        $test1 = BsikStd\Arrays::path_get("go.there", $usecase);
         $this->assertEqualsCanonicalizing(["siktec1"], $test1, "failed simple path traversal get");
 
-        $test2 = Std::$arr::path_get("num.0.test", $usecase);
+        $test2 = BsikStd\Arrays::path_get("num.0.test", $usecase);
         $this->assertEqualsCanonicalizing(["siktec2"], $test2, "failed path traversal get with numeric indexes");
 
-        $test3 = Std::$arr::path_get("num.1.0", $usecase);
+        $test3 = BsikStd\Arrays::path_get("num.1.0", $usecase);
         $this->assertEqualsCanonicalizing(["siktec3"], $test3, "failed path traversal get with numeric indexes combined");
 
-        $test4 = Std::$arr::path_get("colors.*.color", $usecase);
+        $test4 = BsikStd\Arrays::path_get("colors.*.color", $usecase);
         $this->assertEqualsCanonicalizing(["blue", "red"], $test4, "failed path traversal get with wildcard extract");
 
-        $test5 = Std::$arr::path_get("colors.name", $usecase, false);
+        $test5 = BsikStd\Arrays::path_get("colors.name", $usecase, false);
         $this->assertFalse($test5, "failed default return value in path traversal array helper");
     }
 
@@ -264,31 +264,31 @@ class StandardLibTest extends TestCase
             ]
         ];
 
-        $get = Std::$arr::path_get("author.deep.deeper", $complex);
+        $get = BsikStd\Arrays::path_get("author.deep.deeper", $complex);
         $this->assertEqualsCanonicalizing(["hii"], $get, "failed path traversal get with deep walk");
 
-        $get = Std::$arr::path_get("this.~.num", $complex);
+        $get = BsikStd\Arrays::path_get("this.~.num", $complex);
         $this->assertEqualsCanonicalizing(["test2"], $get, "failed path traversal get with skip operator");
         
-        $get = Std::$arr::path_get("this.*.num", $complex);
+        $get = BsikStd\Arrays::path_get("this.*.num", $complex);
         $this->assertEqualsCanonicalizing([[2,3],"test2"], $get, "failed path traversal get with wild operator");
         
-        $get = Std::$arr::path_get("*.num", $complex);
+        $get = BsikStd\Arrays::path_get("*.num", $complex);
         $this->assertEqualsCanonicalizing([2,"test1",["one"=>2,"two"=>3],[2,3],"test2"], $get, "failed path traversal get with wild search from root");
 
-        $get = Std::$arr::path_get("~.num", $complex);
+        $get = BsikStd\Arrays::path_get("~.num", $complex);
         $this->assertEqualsCanonicalizing(["test1",[2,3]], $get, "failed path traversal get with skip root");
 
-        $get = Std::$arr::path_get("*.num.two", $complex);
+        $get = BsikStd\Arrays::path_get("*.num.two", $complex);
         $this->assertEqualsCanonicalizing([3], $get, "failed path traversal get with wild and then traverse");
 
-        $get = Std::$arr::path_get("*.num.0", $complex);
+        $get = BsikStd\Arrays::path_get("*.num.0", $complex);
         $this->assertEqualsCanonicalizing([2], $get, "failed path traversal get with wild and then traverse with numeric index");
 
-        $get = Std::$arr::path_get("*.deep.~.one", $complex);
+        $get = BsikStd\Arrays::path_get("*.deep.~.one", $complex);
         $this->assertEqualsCanonicalizing([2], $get, "failed path traversal get with combination wild + skip + traverse");
 
-        $get = Std::$arr::path_get("*.author.*.num", $complex);
+        $get = BsikStd\Arrays::path_get("*.author.*.num", $complex);
         $this->assertEqualsCanonicalizing(["test1",["one"=>2,"two"=>3]], $get, "failed path traversal get with combination of two wilds");
 
     }
@@ -308,15 +308,15 @@ class StandardLibTest extends TestCase
                 "name" : "siktec" 
             }
             EOD;
-        $this->assertEquals($expected, Std::$str::strip_comments($input), "failed striping comments - crucial for jsonc parsing");
+        $this->assertEquals($expected, BsikStd\Strings::strip_comments($input), "failed striping comments - crucial for jsonc parsing");
     }
 
     //fs_get_json_file() 
     public function testGetLocalJsonFile() : void {
-        $test1 = Std::$fs::get_json_file(__DIR__.DS."resources".DS."test.jsonc") ?? [];
+        $test1 = BsikStd\FileSystem::get_json_file(__DIR__.DS."resources".DS."test.jsonc") ?? [];
         $this->assertEquals("siktec", $test1["name"] ?? "fail", "failed loading local jsonc");
 
-        $test2 = Std::$fs::get_json_file("resources\\test.jsonc") ?? "not-found";
+        $test2 = BsikStd\FileSystem::get_json_file("resources\\test.jsonc") ?? "not-found";
         $this->assertEquals("not-found", $test2, "failed gracefully failing loading local jsonc");
     }
 }

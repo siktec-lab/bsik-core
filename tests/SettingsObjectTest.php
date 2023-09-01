@@ -3,7 +3,6 @@
 require_once "bootstrap.php";
 
 use \PHPUnit\Framework\TestCase;
-use \Siktec\Bsik\Std;
 use \Siktec\Bsik\Objects\SettingsObject;
 
 class SettingsObjectTest extends TestCase
