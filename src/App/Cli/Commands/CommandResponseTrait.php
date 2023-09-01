@@ -15,6 +15,43 @@ trait CommandResponseTrait
     const JSON_STATUS_ABORT     = 'abort';
     const JSON_STATUS_INFO      = 'info';
 
+    const DEFAULT_EXIT_CODES = [
+        "done"      =>  0,
+        "info"      =>  1,
+        "warning"   =>  2,
+        "error"     =>  3,
+        "abort"     =>  4
+    ];
+
+    /**
+     * get_response_code
+     * get the response code for the status
+     * @param string $status - the status to get the code for
+     * @return int
+     */
+    private function get_response_code(string $status) : int {
+        return self::DEFAULT_EXIT_CODES[$status] ?? 3;
+    }
+
+    /**
+     * finalize_response
+     * finalize the response and exit if needed
+     * @param bool $die - exit the script?
+     * @param string $type - the type of response to finalize
+     * @param int $exit_code - the exit code to use default is -1 which is automatic
+     * 
+     * @return void
+     */
+    private function finalize_response(bool $die = false, string $type = "done", int $exit_code = -1) : void {
+        if ($die) {
+            exit(
+                $exit_code == -1 ? 
+                    self::DEFAULT_EXIT_CODES[$type] : 
+                    $exit_code
+            );
+        }
+    }
+
     /**
      * prepare_response
      * prepare the response message
@@ -46,6 +83,7 @@ trait CommandResponseTrait
      * @param  array $data the data to add to the response (json only)
      * @param  bool $new_line - add a new line after the message
      * @param  bool $die - exit the script with code 1
+     * @param  int $exit_code - the exit code to use default is -1 which is automatic
      * @return void
      */
     public function response_error(
@@ -54,13 +92,18 @@ trait CommandResponseTrait
         array $args = [],
         array $data = [], 
         bool $new_line = true, 
-        bool $die = false
+        bool $die = false,
+        int $exit_code = -1 
     ) : void {
+        
+        // Prepare response:
         $respose = $this->prepare_response($io, $message, $args, $data, self::JSON_STATUS_ERROR);
+
+        // Print response:
         $io->error($respose, $new_line);
-        if ($die) {
-            exit(1);
-        }
+
+        // Finalize response:
+        $this->finalize_response($die, "error", $exit_code);
     }
 
     /**
@@ -72,6 +115,7 @@ trait CommandResponseTrait
      * @param  array $data the data to add to the response (json only)
      * @param  bool $new_line - add a new line after the message
      * @param  bool $die - exit the script with code 1
+     * @param  int $exit_code - the exit code to use default is -1 which is automatic
      * @return void
      */
     public function response_success(
@@ -80,13 +124,18 @@ trait CommandResponseTrait
         array $args = [],
         array $data = [], 
         bool $new_line = true, 
-        bool $die = false
+        bool $die = false,
+        int $exit_code = -1 
     ) : void {
+
+        // Prepare response:
         $respose = $this->prepare_response($io, $message, $args, $data, self::JSON_STATUS_DONE);
+        
+        // Print response:
         $io->ok($respose, $new_line);
-        if ($die) {
-            exit(1);
-        }
+
+        // Finalize response:
+        $this->finalize_response($die, "done", $exit_code);
     }
 
     /**
@@ -98,6 +147,7 @@ trait CommandResponseTrait
      * @param  array $data the data to add to the response (json only)
      * @param  bool $new_line - add a new line after the message
      * @param  bool $die - exit the script with code 1
+     * @param  int $exit_code - the exit code to use default is -1 which is automatic
      * @return void
      */
     public function response_warning(
@@ -106,13 +156,18 @@ trait CommandResponseTrait
         array $args = [],
         array $data = [], 
         bool $new_line = true, 
-        bool $die = false
+        bool $die = false,
+        int $exit_code = -1 
     ) : void {
+
+        // Prepare response:
         $respose = $this->prepare_response($io, $message, $args, $data, self::JSON_STATUS_WARNING);
+
+        // Print response:
         $io->warn($respose, $new_line);
-        if ($die) {
-            exit(1);
-        }
+        
+        // Finalize response:
+        $this->finalize_response($die, "warning", $exit_code);
     }
 
     /**
@@ -124,6 +179,7 @@ trait CommandResponseTrait
      * @param  array $data the data to add to the response (json only)
      * @param  bool $new_line - add a new line after the message
      * @param  bool $die - exit the script with code 1
+     * @param  int $exit_code - the exit code to use default is -1 which is automatic
      * @return void
      */
     public function response_info(
@@ -132,13 +188,18 @@ trait CommandResponseTrait
         array $args = [],
         array $data = [], 
         bool $new_line = true, 
-        bool $die = false
+        bool $die = false,
+        int $exit_code = -1 
     ) : void {
+
+        // Prepare response:
         $respose = $this->prepare_response($io, $message, $args, $data, self::JSON_STATUS_INFO);
+
+        // Print response:
         $io->info($respose, $new_line);
-        if ($die) {
-            exit(1);
-        }
+        
+        // Finalize response:
+        $this->finalize_response($die, "info", $exit_code);
     }
 
     /**
@@ -150,6 +211,7 @@ trait CommandResponseTrait
      * @param  array $data the data to add to the response (json only)
      * @param  bool $new_line - add a new line after the message
      * @param  bool $die - exit the script with code 1
+     * @param  int $exit_code - the exit code to use default is -1 which is automatic
      * @return void
      */
     public function response_abort(
@@ -158,12 +220,17 @@ trait CommandResponseTrait
         array $args = [],
         array $data = [], 
         bool $new_line = true, 
-        bool $die = false
+        bool $die = false,
+        int $exit_code = -1 
     ) : void {
+
+        // Prepare response:
         $respose = $this->prepare_response($io, $message, $args, $data, self::JSON_STATUS_ABORT);
+
+        // Print response:
         $io->warn($respose, $new_line);
-        if ($die) {
-            exit(1);
-        }
+        
+        // Finalize response:
+        $this->finalize_response($die, "abort", $exit_code);
     }
 }
