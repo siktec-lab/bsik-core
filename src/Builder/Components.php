@@ -68,6 +68,13 @@ class Components {
         return true;
     }
 
+    public static function get(string $name) : mixed {
+        if (!isset(self::$components[$name])) {
+            throw new \Exception("Tried to use an undefined component", \E_PLAT_ERROR);
+        }
+        return self::$components[$name]["cb"];
+    }
+
     public static function __callstatic($name, $arguments) : mixed {
         
         if (!isset(self::$components[$name])) {
