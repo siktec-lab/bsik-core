@@ -297,6 +297,7 @@ Components::register("defaults_dynamic_table", [ //NULL omits field option
  *  @param array  $fields => fields definition object.
  *  @param array $operations => main operations to attach to the table
  *  @param string $endpoint => the endpoint to use for the table default is `core.get_for_datatable`
+ *  @param string $component_mutator => "module:component" a component mutator function to modify the component before rendering.
  *  @return string => HTML of the table with js inline
 */
 Components::register("dynamic_table", function(
@@ -307,7 +308,8 @@ Components::register("dynamic_table", function(
     string $table, 
     array  $fields, 
     array  $operations = [],
-    string $endpoint = "core.get_for_datatable"
+    string $endpoint = "core.get_for_datatable",
+    string $component_mutator = ""
 ) {
     //Table js:
     $tpl_js   = "
@@ -318,6 +320,7 @@ Components::register("dynamic_table", function(
                     ajax: function(params) {
                         params.data['fields'] = %s;
                         params.data['table_name'] = '%s';
+                        params.data['component_mutator'] = '%s';
                         Bsik.dataTables.get('%s', '%s', params);
                     },
                     columns: %s
@@ -357,6 +360,7 @@ Components::register("dynamic_table", function(
         $id,
         json_encode(array_filter(array_column($fields, 'field'), fn($v) => $v !== "operate")),
         $table,
+        $component_mutator,
         $api,
         $endpoint,
         preg_replace('/"@js:([\w.]+)"/m', '$1', $columns), // Fixed a bug this allows to define object names and functions 
