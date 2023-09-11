@@ -246,6 +246,10 @@ AdminApi::register_endpoint(new ApiEndPoint(
                 $limit
             ], $fields);
 
+            $Api->request->add_debug_data([
+                "queries" => [ "get" => $Api::$db->getLastQuery() ]
+            ]);
+
             //Get total:
             if ($query_control["where"]) {
                 $build_where($Api, $connection, $where);
@@ -256,6 +260,10 @@ AdminApi::register_endpoint(new ApiEndPoint(
             
 
             $total = $Api::$db->connection($connection)->getValue($count, "count(*)");
+
+            $Api->request->append_debug_data("queries", $Api::$db->getLastQuery(), "total");
+
+
             $Api->request->update_answer_status(200);
 
         } catch (Exception $e) {
@@ -284,7 +292,7 @@ AdminApi::register_endpoint(new ApiEndPoint(
 ));
 
 /****************************************************************************/
-/**********************  FRONT-END API GATE       ***************************/
+/**********************  FRONT-END API GATE   ***************************/
 /****************************************************************************/
 AdminApi::register_endpoint(new ApiEndPoint(
     module  : "core",
