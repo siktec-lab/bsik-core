@@ -58,14 +58,33 @@ class ApiRequestObj {
             $this->answer->data[$key] = $value;
     }
 
-    public function add_debug_data(array $data = []) {
+    /**
+     * add_debug_data
+     * adds data to the debug array with key => value
+     * @param array $data - the data to add
+     * @return void
+     * @return void
+     */
+    public function add_debug_data(array $data = []) : void {
         foreach ($data as $key => $value)
             $this->answer->debug[$key] = $value;
     }
 
-    public function append_debug_data(string $to, $value) {
+    /**
+     * append_debug_data
+     * appends data to the debug array
+     * @param string $to - the key to append to
+     * @param mixed $value - the value to append
+     * @param string|null $key - the key to append to - if null appends to the end of the array
+     * 
+     * @return void
+     */
+    public function append_debug_data(string $to, $value, string|null $key = null) : void {
         if (isset($this->answer->debug[$to]) && is_array($this->answer->debug[$to])) {
-            $this->answer->debug[$to][] = $value;
+            if (is_null($key))
+                $this->answer->debug[$to][] = $value;
+            else
+                $this->answer->debug[$to][$key] = $value;
         }
     }
     /**
