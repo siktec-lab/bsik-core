@@ -16,7 +16,7 @@ use \Monolog\Logger;
 use \Siktec\Bsik\Storage\MysqliDb;
 use \Siktec\Bsik\Api\Input\Validate;
 use \Siktec\Bsik\Api\EndPoint\ApiEndPoint;
-use \Siktec\Bsik\Api\EndPoint\RegisteredEndpoints;
+use \Siktec\Bsik\Api\EndPoint\RegisteredEndPoints;
 
 /**
  * BsikApi
@@ -46,7 +46,7 @@ class BsikApi {
     public static  bool $ignore_visibility  = false;            //This flag when raised is to avoid external / front / global checks when registering endpoints
     //Containers:
     public ApiRequestObj $request; // Implement an object defining the result returned
-    public static ?RegisteredEndpoints $endpoints = null; // A class that holds all implemented end points
+    public static ?RegisteredEndPoints $endpoints = null; // A class that holds all implemented end points
 
     public static $codes = [
         200 => 'OK',
@@ -75,7 +75,7 @@ class BsikApi {
         $this->csrf         = $csrf;
         $this->debug        = $debug;
         if (self::$endpoints === null) {
-            self::$endpoints = new RegisteredEndpoints();
+            self::$endpoints = new RegisteredEndPoints();
         }
         self::$issuer_privileges = $issuer_privileges ?? new Priv\GrantedPrivileges();
     }
@@ -535,4 +535,4 @@ BsikApi::$user_string       = &Base::$user_string;
 BsikApi::$logger            = &Base::$logger;
 BsikApi::$logger_enabled    = &Base::$logger_enabled;
 BsikApi::$db                = &Base::$db;
-// BsikApi::$endpoints         = new RegisteredEndpoints(); //TODO: removed this line maybe? 
+// BsikApi::$endpoints         = new RegisteredEndPoints(); //TODO: removed this line maybe? 
