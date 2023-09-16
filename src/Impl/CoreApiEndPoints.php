@@ -8,7 +8,7 @@
 
 use \Siktec\Bsik\StdLib as BsikStd;
 use \Siktec\Bsik\Api\AdminApi;
-use \Siktec\Bsik\Api\Endpoint\ApiEndPoint;
+use \Siktec\Bsik\Api\EndPoint\ApiEndPoint;
 use \Siktec\Bsik\Api\Input\Validate;
 use \Siktec\Bsik\Builder\Components;
 
@@ -90,7 +90,7 @@ AdminApi::register_endpoint(new ApiEndPoint(
         "component_mutator" => Validate::condition("optional")::condition("type", "string")::create_rule()
     ],
     //The method to execute -> has Access to BsikApi
-    method : function(AdminApi $Api, array $args, ApiEndPoint $Endpoint) {
+    method : function(AdminApi $Api, array $args, ApiEndPoint $EndPoint) {
 
         $data       = [];
         $tables     = explode(">", $args["table_name"]);
@@ -172,7 +172,7 @@ AdminApi::register_endpoint(new ApiEndPoint(
                 try {
                     Components::import_from($module);
                 } catch (Exception $e) {
-                    $Endpoint->log_error(
+                    $EndPoint->log_error(
                         message : "error while importing module mutator components for dynamic table",
                         context : ["error" => $e->getMessage(), "table" => $table, "module" => $module, "mutator" => $mutator]
                     );
@@ -215,7 +215,7 @@ AdminApi::register_endpoint(new ApiEndPoint(
                 $query_control = BsikStd\Arrays::extend($query_control, $control);
 
             } catch (Exception $e) {
-                $Endpoint->log_error(
+                $EndPoint->log_error(
                     message : "error while executing component mutator for dynamic table",
                     context : ["error" => $e->getMessage(), "table" => $table, "component" => $component, "mutator" => $mutator]
                 );
@@ -267,7 +267,7 @@ AdminApi::register_endpoint(new ApiEndPoint(
             $Api->request->update_answer_status(200);
 
         } catch (Exception $e) {
-            $Endpoint->log_error(
+            $EndPoint->log_error(
                 message : "error while executing sql query for dynamic table",
                 context : [
                     "table" => $table, 

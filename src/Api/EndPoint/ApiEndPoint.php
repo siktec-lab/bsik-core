@@ -17,7 +17,7 @@ use \Siktec\Bsik\Api\BsikApi;
  * 
  * This class is used to define a single endpoint.
  * 
- * @package Siktec\Bsik\Api\Endpoint
+ * @package Siktec\Bsik\Api\EndPoint
  */
 class ApiEndPoint {
 
@@ -64,8 +64,8 @@ class ApiEndPoint {
         $this->filters      = $filter;
         $this->conditions   = $validation;
         $this->method       = $method;          // The operation closure
-        $this->global       = $allow_global;    // expose as a global callable endpoint
-        $this->front        = $allow_front;     // expose as a global callable endpoint
+        $this->global       = $allow_global;    // expose as a global callable EndPoint
+        $this->front        = $allow_front;     // expose as a global callable EndPoint
         $this->external     = $allow_external;  // allow to be called from external api called.
         $this->protected    = $allow_override;  // allow to be edited and replaced
         $this->working_dir  = $working_dir;
@@ -84,16 +84,16 @@ class ApiEndPoint {
         //Log
         BsikApi::log($type, $message, $context);
     }
-    public function log_error(string $message = "API Endpoint ERROR", array $context = []) : void {
+    public function log_error(string $message = "API EndPoint ERROR", array $context = []) : void {
         $this->log("error", $message, $context);
     }
-    public function log_notice(string $message = "API Endpoint NOTICE", array $context = []) : void {
+    public function log_notice(string $message = "API EndPoint NOTICE", array $context = []) : void {
         $this->log("notice", $message, $context);
     }
-    public function log_info(string $message = "API Endpoint INFO", array $context = []) : void {
+    public function log_info(string $message = "API EndPoint INFO", array $context = []) : void {
     $this->log("info", $message, $context);
     }
-    public function log_warning(string $message = "API Endpoint WARNING", array $context = []) : void {
+    public function log_warning(string $message = "API EndPoint WARNING", array $context = []) : void {
         $this->log("warning", $message, $context);
     }
 }

@@ -13,7 +13,7 @@ namespace Siktec\Bsik\Api\EndPoint;
  * 
  * This class is used to store all registered endpoints.
  * 
- * @package Siktec\Bsik\Api\Endpoint
+ * @package Siktec\Bsik\Api\EndPoint
  */
 class RegisteredEndPoints {
 
