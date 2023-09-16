@@ -43,7 +43,7 @@ class CoreLoader {
     public static function load_core_endpoints() {
 
         //Load core endpoints:
-        require_once __DIR__ . "/CoreApiEndpoints.php";
+        require_once __DIR__ . "/CoreApiEndPoints.php";
     
     }
 
