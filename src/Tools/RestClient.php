@@ -20,6 +20,7 @@ class RestClient {
     private array   $request_params     = []; //params to use
     private string  $request_params_type = "query"; // [query, form_params, json, body]
     private string  $request_method     = "POST"; //[post, get]
+    private bool    $verify_ssl         = true; // verify ssl certificate
     private ?GuzzleClient $client       = null; // GuzzleHttp\Client
 
     private array $result = [
@@ -41,14 +42,27 @@ class RestClient {
         string $base_url     = "",  
         string $token        = null, 
         string $method       = "POST", 
-        string $content_type = null
+        string $content_type = null,
+        bool   $verify_ssl   = true
     ) {
         $this->set_base_url($base_url);
         $this->set_auth($token);
-        $this->set_method( $method);
+        $this->set_method($method);
+        $this->verify_ssl = $verify_ssl;
         if (!empty($content_type)) {
             $this->content_type = $content_type;
         }
+    }
+
+    /**
+     * set_verify_ssl
+     * Set whether to verify the SSL certificate
+     * @param  bool $verify - true to verify, false to skip
+     * @return RestClient
+     */
+    public function set_verify_ssl(bool $verify) : RestClient {
+        $this->verify_ssl = $verify;
+        return $this;
     }
     
     /**
@@ -185,7 +199,8 @@ class RestClient {
     public function request(string $endpoint = "", bool $json = false) : int {
         // The client:
         $this->client = new GuzzleClient([
-            'base_uri' => $this->base_url
+            'base_uri' => $this->base_url,
+            'verify'   => $this->verify_ssl
         ]);
         // The request headers:
         $opt = ['headers' => $this->prep_headers()];
