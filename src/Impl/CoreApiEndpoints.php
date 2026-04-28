@@ -8,7 +8,7 @@
 
 use \Siktec\Bsik\StdLib as BsikStd;
 use \Siktec\Bsik\Api\AdminApi;
-use \Siktec\Bsik\Api\Endpoint\ApiEndPoint;
+use \Siktec\Bsik\Api\EndPoint\ApiEndPoint;
 use \Siktec\Bsik\Api\Input\Validate;
 use \Siktec\Bsik\Builder\Components;
 
