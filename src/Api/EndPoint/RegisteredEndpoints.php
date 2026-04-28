@@ -9,13 +9,13 @@
 namespace Siktec\Bsik\Api\EndPoint;
 
 /**
- * RegisteredEndPoints
+ * RegisteredEndpoints
  * 
  * This class is used to store all registered endpoints.
  * 
  * @package Siktec\Bsik\Api\Endpoint
  */
-class RegisteredEndPoints {
+class RegisteredEndpoints {
 
     private array $endpoints = [];
 
